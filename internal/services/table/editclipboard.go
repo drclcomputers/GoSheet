@@ -233,7 +233,7 @@ func pasteSelection(app *tview.Application, table *tview.Table, visualTargetRow,
 						AddButtons([]string{"Yes", "Cancel"}).
 						SetDoneFunc(func(buttonIndex int, buttonLabel string) {
 							if buttonLabel == "Yes" {
-								performActualPaste(table, clipboard, targetRow, targetCol)
+								performPaste(table, clipboard, targetRow, targetCol)
 							}
 							app.SetRoot(table, true).SetFocus(table)
 						})
@@ -245,12 +245,12 @@ func pasteSelection(app *tview.Application, table *tview.Table, visualTargetRow,
 		}
 	}
 
-	performActualPaste(table, clipboard, targetRow, targetCol)
+	performPaste(table, clipboard, targetRow, targetCol)
 	clearSelectionRange()
 }
 
 // Perform the actual pasting process
-func performActualPaste(table *tview.Table, clipboard [][]*cell.Cell, targetRow, targetCol int32) {
+func performPaste(table *tview.Table, clipboard [][]*cell.Cell, targetRow, targetCol int32) {
 	activeData := GetActiveSheetData()
 	activeViewport := GetActiveViewport()
 	
