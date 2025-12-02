@@ -204,7 +204,7 @@ func hasCircularDependency(table *tview.Table, c *cell.Cell, visited map[string]
 		}
 	}
 	
-	delete(visited, cellRef)
+	//delete(visited, cellRef)
 	return false
 }
 

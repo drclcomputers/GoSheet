@@ -19,7 +19,7 @@ import (
 )
 
 var (
-	VER = "2.4.5"
+	VER = "2.4.6"
 	FILEVER = "2.0"
 
 	DEFAULT_SHEET_NAME = "Sheet1"

@@ -121,7 +121,7 @@ func ShowUnifiedFileDialog(app *tview.Application, returnTo tview.Primitive, mod
 		pathLabel.SetText(fmt.Sprintf("[yellow]Location:[::-] %s", utils.PrettyPath(path, "no")))
 		
 		if path != filepath.Dir(path) {
-			fileList.AddItem("📁 ..", "Parent directory", '↑', func() {
+			fileList.AddItem("..", "Parent directory", '↑', func() {
 				updateList(filepath.Dir(path))
 			})
 		}
@@ -135,7 +135,7 @@ func ShowUnifiedFileDialog(app *tview.Application, returnTo tview.Primitive, mod
 			if entry.IsDir() {
 				name := entry.Name()
 				fullPath := filepath.Join(path, name)
-				fileList.AddItem(fmt.Sprintf("📁 %s", name), "Directory", 0, func() {
+				fileList.AddItem(fmt.Sprintf("# %s", name), "Directory", 0, func() {
 					updateList(fullPath)
 				})
 			}
@@ -169,17 +169,17 @@ func ShowUnifiedFileDialog(app *tview.Application, returnTo tview.Primitive, mod
 				
 				switch ext {
 				case ".gsheet":
-					icon = "📊"
+					icon = ""
 				case ".json":
-					icon = "📋"
+					icon = ""
 				case ".txt":
-					icon = "📄"
+					icon = ""
 				case ".csv":
-					icon = "📄"
+					icon = ""
 				case ".html":
-					icon = "🌐"
+					icon = ""
 				default:
-					icon = "📄"
+					icon = ""
 				}
 				
 				displayName := fmt.Sprintf("%s %s", icon, name)
@@ -193,32 +193,32 @@ func ShowUnifiedFileDialog(app *tview.Application, returnTo tview.Primitive, mod
 	populateQuickAccess := func() {
 		quickAccessList.Clear()
 		
-		quickAccessList.AddItem("🏠 Home", homeDir, 'h', func() {
+		quickAccessList.AddItem("Home", homeDir, 'h', func() {
 			updateList(homeDir)
 		})
 		
 		if _, err := os.Stat(docsPath); err == nil {
-			quickAccessList.AddItem("📄 Documents", docsPath, 'd', func() {
+			quickAccessList.AddItem("Documents", docsPath, 'd', func() {
 				updateList(docsPath)
 			})
 		}
 		
 		desktopPath := filepath.Join(homeDir, "Desktop")
 		if _, err := os.Stat(desktopPath); err == nil {
-			quickAccessList.AddItem("🖥️  Desktop", desktopPath, 0, func() {
+			quickAccessList.AddItem("Desktop", desktopPath, 0, func() {
 				updateList(desktopPath)
 			})
 		}
 		
 		downloadsPath := filepath.Join(homeDir, "Downloads")
 		if _, err := os.Stat(downloadsPath); err == nil {
-			quickAccessList.AddItem("⬇️  Downloads", downloadsPath, 0, func() {
+			quickAccessList.AddItem("↓ Downloads", downloadsPath, 0, func() {
 				updateList(downloadsPath)
 			})
 		}
 		
 		if cwd, err := os.Getwd(); err == nil {
-			quickAccessList.AddItem("📂 Current Dir", cwd, 'c', func() {
+			quickAccessList.AddItem("Current Dir", cwd, 'c', func() {
 				updateList(cwd)
 			})
 		}
@@ -227,7 +227,7 @@ func ShowUnifiedFileDialog(app *tview.Application, returnTo tview.Primitive, mod
 			for _, drive := range []string{"C:", "D:", "E:", "F:", "G:"} {
 				drivePath := drive + "\\"
 				if _, err := os.Stat(drivePath); err == nil {
-					driveLabel := fmt.Sprintf("💾 Drive %s", drive)
+					driveLabel := fmt.Sprintf("Drive %s", drive)
 					capturedPath := drivePath
 					quickAccessList.AddItem(driveLabel, drivePath, 0, func() {
 						updateList(capturedPath)
@@ -235,14 +235,14 @@ func ShowUnifiedFileDialog(app *tview.Application, returnTo tview.Primitive, mod
 				}
 			}
 		} else {
-			quickAccessList.AddItem("💾 Root (/)", "/", 0, func() {
+			quickAccessList.AddItem("Root (/)", "/", 0, func() {
 				updateList("/")
 			})
 			
 			mountPoints := []string{"/mnt", "/media", "/Volumes"}
 			for _, mount := range mountPoints {
 				if entries, err := os.ReadDir(mount); err == nil && len(entries) > 0 {
-					quickAccessList.AddItem(fmt.Sprintf("💾 %s", filepath.Base(mount)), mount, 0, func() {
+					quickAccessList.AddItem(fmt.Sprintf("%s", filepath.Base(mount)), mount, 0, func() {
 						updateList(mount)
 					})
 					
@@ -250,7 +250,7 @@ func ShowUnifiedFileDialog(app *tview.Application, returnTo tview.Primitive, mod
 						if entry.IsDir() {
 							volumePath := filepath.Join(mount, entry.Name())
 							capturedPath := volumePath
-							quickAccessList.AddItem(fmt.Sprintf("  📁 %s", entry.Name()), volumePath, 0, func() {
+							quickAccessList.AddItem(fmt.Sprintf("%s", entry.Name()), volumePath, 0, func() {
 								updateList(capturedPath)
 							})
 						}
@@ -433,9 +433,9 @@ func ShowUnifiedFileDialog(app *tview.Application, returnTo tview.Primitive, mod
 	
 	container.SetBorder(true).SetBorderColor(tcell.ColorLightBlue)
 	if mode == "save" {
-		container.SetTitle(" Save Spreadsheet ")
+		container.SetTitle(" Save Spreadsheet | Use Ctrl+←/→ to navigate around the menus | Esc to quit")
 	} else {
-		container.SetTitle(" Open Spreadsheet ")
+		container.SetTitle(" Open Spreadsheet | Use Ctrl+←/→ to navigate around the menus | Esc to quit")
 	}
 	
 	focusables := []tview.Primitive{quickAccessList, fileList, form}

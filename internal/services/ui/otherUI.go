@@ -24,6 +24,8 @@ func ShowHelpModal(app *tview.Application, table *tview.Table) {
   Shift + Arrows       Select range
   Alt + G              Go to cell
   Escape               Save dialog
+  
+  Note: In menus, such as the start menu, you can use Ctrl+←/→ to navigate around.
 
 [yellow]EDITING:[white]
   Enter                Edit cell

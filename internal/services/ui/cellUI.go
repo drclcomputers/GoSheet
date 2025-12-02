@@ -177,7 +177,7 @@ func EditCellDialog(app *tview.Application, table *tview.Table, row, column int3
         }
     })
 
-	dateTimeFormatDropdown := newDropdown("Format", dateTimeFormats,
+	dateTimeFormatDropdown := newDropdown("Date format", dateTimeFormats,
 		int32(getDateTypeFormat(*c.DateTimeFormat)),
 		func (opt string) {
 	        *c.DateTimeFormat = utils.DateTimeFormats[getDateTypeFormat(opt)]

@@ -31,17 +31,17 @@ NEW WORKBOOK
 
 const openFileButtonLabel = `
 ╔═══════════╗
-║    💾     ║
 ║           ║
 ║   OPEN    ║
+║           ║
 ╚═══════════╝
 `
 
 const optionsButtonLabel = `
 ╔═══════════╗
-║    ⚙️     ║
 ║           ║
 ║  OPTIONS  ║
+║           ║
 ╚═══════════╝
 `
 
@@ -260,7 +260,7 @@ func StartMenuUI(app *tview.Application) string {
 		AddItem(rightPanel, 0, 3, false)
 	
 	container.SetBorder(true).
-		SetTitle(" Welcome to GoSheet ").
+		SetTitle(" Welcome to GoSheet | Use Ctrl+←/→ to navigate around the menus | Esc to quit ").
 		SetBorderColor(tcell.ColorLightBlue)
 	
 	leftItems := []tview.Primitive{newSheetBtn, openFileBtn, optionsBtn}

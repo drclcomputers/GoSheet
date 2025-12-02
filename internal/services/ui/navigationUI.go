@@ -174,15 +174,11 @@ func findNext(table *tview.Table, searchTerm string, caseSensitive, matchWholeWo
 		startRow, startCol = globalViewport.ToAbsolute(visualRow, visualCol)
 	} else {
 		startRow, startCol = lastSearchRow, lastSearchCol
-		// Move to next position
 		startCol++
 	}
 	
-	// Search through all cells in data map (spiral from start position)
-	// For simplicity, we'll search in row-major order
-	maxRow, maxCol := int32(1000), int32(702) // Your table dimensions
+	maxRow, maxCol := int32(utils.MAX_ROWS), int32(utils.MAX_COLS)
 	
-	// Search from start position to end
 	for r := startRow; r <= maxRow; r++ {
 		colStart := int32(1)
 		if r == startRow {
@@ -198,7 +194,6 @@ func findNext(table *tview.Table, searchTerm string, caseSensitive, matchWholeWo
 		}
 	}
 	
-	// Wrap around: search from beginning to start position
 	for r := int32(1); r < startRow; r++ {
 		for c := int32(1); c <= maxCol; c++ {
 			if matchCellInData(globalData, r, c, searchTerm, caseSensitive, matchWholeWord) {
@@ -209,7 +204,6 @@ func findNext(table *tview.Table, searchTerm string, caseSensitive, matchWholeWo
 		}
 	}
 	
-	// Check remaining columns in start row
 	for c := int32(1); c < startCol; c++ {
 		if matchCellInData(globalData, startRow, c, searchTerm, caseSensitive, matchWholeWord) {
 			navigateToCell(table, startRow, c, globalViewport, globalData, RenderVisible)
@@ -231,14 +225,13 @@ func findPrevious(table *tview.Table, searchTerm string, caseSensitive, matchWho
 		startRow, startCol = lastSearchRow, lastSearchCol
 		startCol--
 		if startCol < 1 {
-			startCol = 702
+			startCol = utils.MAX_COLS
 			startRow--
 		}
 	}
 	
-	maxRow, maxCol := int32(1000), int32(702)
+	maxRow, maxCol := int32(utils.MAX_ROWS), int32(utils.MAX_COLS)
 	
-	// Search backward from start position to beginning
 	for r := startRow; r >= 1; r-- {
 		colEnd := maxCol
 		if r == startRow {
@@ -254,7 +247,6 @@ func findPrevious(table *tview.Table, searchTerm string, caseSensitive, matchWho
 		}
 	}
 	
-	// Wrap around: search from end to start position
 	for r := maxRow; r > startRow; r-- {
 		for c := maxCol; c >= 1; c-- {
 			if matchCellInData(globalData, r, c, searchTerm, caseSensitive, matchWholeWord) {
