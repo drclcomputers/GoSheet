@@ -3,7 +3,6 @@ module gosheet
 go 1.24.2
 
 require (
-	github.com/Knetic/govaluate v3.0.0+incompatible
 	github.com/expr-lang/expr v1.17.6
 	github.com/gdamore/tcell/v2 v2.8.1
 	github.com/rivo/tview v0.42.1-0.20250929082832-e113793670e2

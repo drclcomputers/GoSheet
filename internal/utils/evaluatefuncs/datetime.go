@@ -3,17 +3,17 @@
 // This work is licensed under the terms of the MIT license.
 // For a copy, see <https://opensource.org/licenses/MIT>.
 
+// datetime.go provides functions related to datetime manipulation
+
 package evaluatefuncs
 
 import (
 	"fmt"
 	"time"
-
-	"github.com/Knetic/govaluate"
 )
 
-func DateTimeFunctions() map[string]govaluate.ExpressionFunction {
-	return map[string]govaluate.ExpressionFunction{
+func DateTimeFunctions() map[string]ExprFunction {
+	return map[string]ExprFunction{
 		"NOW": func(args ...any) (any, error) {
 			return time.Now().Format("2006-01-02 15:04:05"), nil
 		},

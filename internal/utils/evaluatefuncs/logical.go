@@ -3,14 +3,12 @@
 // This work is licensed under the terms of the MIT license.
 // For a copy, see <https://opensource.org/licenses/MIT>.
 
+// logical.go provides logic functions
+
 package evaluatefuncs
 
-import (
-	"github.com/Knetic/govaluate"
-)
-
-func LogicalFunctions() map[string]govaluate.ExpressionFunction {
-	return map[string]govaluate.ExpressionFunction{
+func LogicalFunctions() map[string]ExprFunction {
+	return map[string]ExprFunction{
 		"IF": func(args ...any) (any, error) {
 			if err := validateArgs("IF", args, 3, 3); err != nil {
 				return nil, err

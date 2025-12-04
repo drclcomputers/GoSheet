@@ -3,17 +3,17 @@
 // This work is licensed under the terms of the MIT license.
 // For a copy, see <https://opensource.org/licenses/MIT>.
 
+// math.go provides math functions
+
 package evaluatefuncs
 
 import (
 	"fmt"
 	"math"
-
-	"github.com/Knetic/govaluate"
 )
 
-func MathFunctions() map[string]govaluate.ExpressionFunction {
-	return map[string]govaluate.ExpressionFunction{
+func MathFunctions() map[string]ExprFunction {
+	return map[string]ExprFunction{
 		// Trigonometric functions
 		"SIN": func(args ...any) (any, error) {
 			if err := validateArgs("SIN", args, 1, 1); err != nil {

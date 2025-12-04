@@ -3,16 +3,14 @@
 // This work is licensed under the terms of the MIT license.
 // For a copy, see <https://opensource.org/licenses/MIT>.
 
+// statistical.go provides statistical functions
+
 package evaluatefuncs
 
-import (
-	"fmt"
+import "fmt"
 
-	"github.com/Knetic/govaluate"
-)
-
-func StatisticalFunctions() map[string]govaluate.ExpressionFunction {
-	return map[string]govaluate.ExpressionFunction{
+func StatisticalFunctions() map[string]ExprFunction {
+	return map[string]ExprFunction{
 		"AVG": func(args ...any) (any, error) {
 			if err := validateArgs("AVG", args, 2, -1); err != nil {
 				return nil, err

@@ -3,19 +3,20 @@
 // This work is licensed under the terms of the MIT license.
 // For a copy, see <https://opensource.org/licenses/MIT>.
 
+// text.go provides text manipulation
+
 package evaluatefuncs
 
 import (
 	"fmt"
 	"strings"
 
-	"github.com/Knetic/govaluate"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 )
 
-func StringFunctions() map[string]govaluate.ExpressionFunction {
-	return map[string]govaluate.ExpressionFunction{
+func StringFunctions() map[string]ExprFunction {
+	return map[string]ExprFunction{
 		"LEFT": func(args ...any) (any, error) {
 			if err := validateArgs("LEFT", args, 2, 2); err != nil {
 				return nil, err
