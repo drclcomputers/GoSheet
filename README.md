@@ -28,7 +28,7 @@ GoSheet is a feature-rich, lightweight spreadsheet application that runs entirel
 - **🔧 Powerful Formulas**: 104+ built-in functions for complex calculations
 - **📊 Multiple Sheets**: Full workbook support with unlimited sheets
 - **🎨 Rich Formatting**: Colors, alignment, text effects, and more
-- **💾 Multiple Formats: Native .gsheet, JSON, Excel (.xlsx), CSV, HTML, and TXT support
+- **💾 Multiple Formats**: Native .gsheet, JSON, Excel (.xlsx), CSV, HTML, and TXT support
 - **⚡ Excel-Like Features**: Data validation, sorting, find/replace, and autofill
 
 ---
