@@ -1,30 +1,60 @@
+// Copyright (c) 2025 @drclcomputers. All rights reserved.
+//
+// This work is licensed under the terms of the MIT license.
+// For a copy, see <https://opensource.org/licenses/MIT>.
+
 package file
 
 import (
 	"gosheet/internal/services/cell"
 	"gosheet/internal/services/fileop"
-
 	"github.com/rivo/tview"
 )
 
-// FileFormat represents supported export formats
-type FileFormat struct {
+// FileFormatUI represents UI information for a file format
+type FileFormatUI struct {
+	Format      fileop.FileFormat
 	Extension   string
 	Description string
 	SaveFunc    func(*tview.Table, string, map[[2]int]*cell.Cell) error
 }
 
-// Available file formats
-var FileFormats = []FileFormat{
-	{Extension: ".gsheet", Description: "GSheet (Native)", SaveFunc: fileop.SaveTable},      // JSON zipped using gzip, so very efficient
-	{Extension: ".json", Description: "JSON", SaveFunc: fileop.SaveTableAsJSON},         	     // works perfectly fine, but takes up more disk space 
-	{Extension: ".csv", Description: "CSV", SaveFunc: fileop.SaveTableAsCSV},                  // works only for text, as CSV can only save text
-	{Extension: ".html", Description: "HTML Table", SaveFunc: fileop.SaveTableAsHTML},		 // works; only for exporting
-	//{Extension: ".xlsx", Description: "Excel Spreadsheet", SaveFunc: file.SaveTableAsExcel}, // not implemented
-	{Extension: ".txt", Description: "Tab delimited text file", SaveFunc: fileop.SaveTableAsTXT}, // working, only for text
-	//{Extension: ".dbf", Description: "dBASE file", SaveFunc: file.SaveTableAsDBF}, // not implemented
-	//{Extension: ".ods", Description: "OpenDocument Spreadsheet", SaveFunc: file.SaveTableAsODS} // not implemented
-	//{Extension: ".pdf", Description: "Portable Document Format", SaveFUnc: file.SaveTableAsPDF} // not implemented
+// GetFileFormats returns all available file formats for UI
+func GetFileFormats() []FileFormatUI {
+	formats := fileop.GetWritableFormats()
+	result := make([]FileFormatUI, len(formats))
+	
+	for i, format := range formats {
+		result[i] = FileFormatUI{
+			Format:      format,
+			Extension:   format.String(),
+			Description: format.Description(),
+			SaveFunc:    getSaveFunc(format),
+		}
+	}
+	
+	return result
 }
 
+// getSaveFunc returns the legacy save function for a format
+func getSaveFunc(format fileop.FileFormat) func(*tview.Table, string, map[[2]int]*cell.Cell) error {
+	switch format {
+	case fileop.FormatGSheet:
+		return fileop.SaveTable
+	case fileop.FormatJSON:
+		return fileop.SaveTableAsJSON
+	case fileop.FormatCSV:
+		return fileop.SaveTableAsCSV
+	case fileop.FormatHTML:
+		return fileop.SaveTableAsHTML
+	case fileop.FormatTXT:
+		return fileop.SaveTableAsTXT
+	case fileop.FormatXLSX:
+		return fileop.SaveTableAsExcel
+	default:
+		return nil
+	}
+}
 
+// Legacy FileFormats array for compatibility with existing UI code
+var FileFormats = GetFileFormats()

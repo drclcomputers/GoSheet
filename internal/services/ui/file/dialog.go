@@ -118,7 +118,7 @@ func ShowUnifiedFileDialog(app *tview.Application, returnTo tview.Primitive, mod
 				ext := strings.ToLower(filepath.Ext(name))
 				
 				if mode == "open" {
-					if ext != ".gsheet" && ext != ".json" && ext != ".txt" {
+					if ext != ".gsheet" && ext != ".json" && ext != ".txt" && ext != ".xlsx" {
 						continue
 					}
 				}
@@ -148,6 +148,8 @@ func ShowUnifiedFileDialog(app *tview.Application, returnTo tview.Primitive, mod
 				case ".csv":
 					icon = ""
 				case ".html":
+					icon = ""
+				case ".xlsx":
 					icon = ""
 				default:
 					icon = ""
@@ -340,8 +342,8 @@ func ShowUnifiedFileDialog(app *tview.Application, returnTo tview.Primitive, mod
 			}
 			
 			ext := strings.ToLower(filepath.Ext(filename))
-			if ext != ".gsheet" && ext != ".json" && ext != ".txt" {
-				ShowErrorModal(app, returnTo, fmt.Sprintf("Unsupported file format: %s\n\nSupported: .gsheet, .json, .txt", ext))
+			if ext != ".gsheet" && ext != ".json" && ext != ".txt" && ext != ".xlsx" {
+				ShowErrorModal(app, returnTo, fmt.Sprintf("Unsupported file format: %s\n\nSupported: .gsheet, .json, .txt, .xlsx", ext))
 				return
 			}
 			

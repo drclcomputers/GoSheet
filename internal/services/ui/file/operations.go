@@ -30,7 +30,7 @@ func fileExists(filename string) bool {
 	return !info.IsDir()
 }
 
-func showOverwriteConfirmation(app *tview.Application, table *tview.Table, filename string, format FileFormat, shouldExit bool, globalData map[[2]int]*cell.Cell) {
+func showOverwriteConfirmation(app *tview.Application, table *tview.Table, filename string, format FileFormatUI, shouldExit bool, globalData map[[2]int]*cell.Cell) {
 	modal := tview.NewModal().
 		SetText(fmt.Sprintf("File '%s' already exists.\n\nDo you want to overwrite it?", filepath.Base(filename))).
 		AddButtons([]string{"Overwrite", "Cancel"}).
@@ -46,7 +46,7 @@ func showOverwriteConfirmation(app *tview.Application, table *tview.Table, filen
 	app.SetRoot(modal, true).SetFocus(modal)
 }
 
-func performSave(app *tview.Application, table *tview.Table, filename string, format FileFormat, shouldExit bool, globalData map[[2]int]*cell.Cell) {
+func performSave(app *tview.Application, table *tview.Table, filename string, format FileFormatUI, shouldExit bool, globalData map[[2]int]*cell.Cell) {
 	err := format.SaveFunc(table, filename, globalData)
 	
 	if err != nil {

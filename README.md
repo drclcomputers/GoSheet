@@ -506,7 +506,7 @@ GoSheet was inspired by:
 
 ## 🗺️ Roadmap
 
-- [ ] Excel file format support (.xlsx)
+- [x] Excel file format support (.xlsx)
 - [ ] Charts and graphs
 - [ ] Conditional formatting
 - [ ] Pivot tables
