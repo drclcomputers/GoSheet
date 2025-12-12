@@ -14,8 +14,8 @@ import (
 	"gosheet/internal/services/table"
 	"gosheet/internal/services/ui/file"
 	"gosheet/internal/utils"
+	"log"
 	"os"
-	"runtime/debug"
 
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
@@ -33,9 +33,9 @@ func main() {
 	
 	defer func() {
 	    if r := recover(); r != nil {
-	        fmt.Fprintf(os.Stderr, "Application crashed: %v\n", r)
-	        fmt.Fprintf(os.Stderr, "Stack trace:\n%s\n", debug.Stack())
-	        os.Exit(1)
+	        //fmt.Fprintf(os.Stderr, "Application crashed: %v\n", r)
+	        //fmt.Fprintf(os.Stderr, "Stack trace:\n%s\n", debug.Stack())
+	        os.Exit(-1)
 	    }
 	}()
 
@@ -55,7 +55,7 @@ func main() {
 	
 	var filename string
 
-	flag.StringVar(&filename, "file", "", "Path to .gsheet/.json/.txt file to open")
+	flag.StringVar(&filename, "file", "", "Path to .gsheet/.json/.txt/.csv file to open")
 	flag.Parse()
 
 	if filename == "" && len(flag.Args()) > 0 {
@@ -63,9 +63,14 @@ func main() {
 	}
 
 	var t *tview.Table
+	var err error
 	if filename != "" {
 		fileop.AddToRecentFiles(filename)
-		t = table.OpenTable(app, filename)
+		t, err = table.OpenTable(app, filename)
+		if err != nil {
+			log.Panicln(err)
+			return
+		}
 	} else {
 		filename = file.StartMenuUI(app)
 
@@ -77,7 +82,11 @@ func main() {
 			t = table.NewTable(app)
 		} else {
 			fileop.AddToRecentFiles(filename)
-			t = table.OpenTable(app, filename)
+			t, err = table.OpenTable(app, filename)
+			if err != nil {
+				log.Println(err)
+				return 
+			}
 		}
     }
 

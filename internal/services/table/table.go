@@ -82,11 +82,11 @@ func CreateTable(title string) *tview.Table {
 }
 
 // OpenTable loads a table from a file and returns a tview.Table
-func OpenTable(app *tview.Application, filename string) *tview.Table {
+func OpenTable(app *tview.Application, filename string) (*tview.Table, error) {
 	workbookResult, err := fileop.OpenWorkbook(filename)
 
 	if err != nil {
-		return nil
+		return nil, err
 	}
 
 	globalWorkbook = &Workbook{
@@ -126,7 +126,7 @@ func OpenTable(app *tview.Application, filename string) *tview.Table {
 	RenderVisible(table, sheet.Viewport, sheet.Data)
 	table = SelectInTable(app, table, sheet.Viewport, sheet.Data)
 
-	return table
+	return table, nil
 }
 
 // Makes a new table/Workbook

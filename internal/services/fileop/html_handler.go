@@ -3,12 +3,11 @@
 // This work is licensed under the terms of the MIT license.
 // For a copy, see <https://opensource.org/licenses/MIT>.
 
-// export_handler.go handles CSV, TXT, and HTML export formats
+// html_handler.go handles HTML export formats
 
 package fileop
 
 import (
-	"encoding/csv"
 	"fmt"
 	"os"
 	"strings"
@@ -17,15 +16,15 @@ import (
 	"gosheet/internal/utils"
 )
 
-type ExportFormatHandler struct{}
+type HTMLFormatHandler struct{}
 
 // SupportsFormat checks whether this handler supports the format
-func (h *ExportFormatHandler) SupportsFormat(format FileFormat) bool {
-	return format == FormatCSV || format == FormatTXT || format == FormatHTML
+func (h *HTMLFormatHandler) SupportsFormat(format FileFormat) bool {
+	return format == FormatHTML
 }
 
-// Write exports workbook to CSV, TXT, or HTML
-func (h *ExportFormatHandler) Write(filename string, sheets []SheetInfo, activeSheet int) error {
+// Write exports workbook to HTML
+func (h *HTMLFormatHandler) Write(filename string, sheets []SheetInfo, activeSheet int) error {
 	if activeSheet < 0 || activeSheet >= len(sheets) {
 		activeSheet = 0
 	}
@@ -34,10 +33,6 @@ func (h *ExportFormatHandler) Write(filename string, sheets []SheetInfo, activeS
 
 	format, _ := DetectFormat(filename)
 	switch format {
-	case FormatCSV:
-		return h.writeCSV(filename, sheet)
-	case FormatTXT:
-		return h.writeTXT(filename, sheet)
 	case FormatHTML:
 		return h.writeHTML(filename, sheet)
 	default:
@@ -45,102 +40,8 @@ func (h *ExportFormatHandler) Write(filename string, sheets []SheetInfo, activeS
 	}
 }
 
-// writeCSV exports to CSV format
-func (h *ExportFormatHandler) writeCSV(filename string, sheet SheetInfo) error {
-	file, err := os.Create(filename)
-	if err != nil {
-		return err
-	}
-	defer file.Close()
-
-	writer := csv.NewWriter(file)
-	defer writer.Flush()
-
-	var maxRow, maxCol int32
-	for key := range sheet.GlobalData {
-		r, c := int32(key[0]), int32(key[1])
-		if r > maxRow {
-			maxRow = r
-		}
-		if c > maxCol {
-			maxCol = c
-		}
-	}
-
-	for row := int32(1); row <= maxRow; row++ {
-		record := make([]string, maxCol)
-
-		for col := int32(1); col <= maxCol; col++ {
-			key := [2]int{int(row), int(col)}
-			if cellData, exists := sheet.GlobalData[key]; exists && cellData.RawValue != nil {
-				if *cellData.RawValue != "" {
-					record[col-1] = *cellData.RawValue
-				} else if cellData.Display != nil {
-					record[col-1] = *cellData.Display
-				} else {
-					record[col-1] = ""
-				}
-			} else {
-				record[col-1] = ""
-			}
-		}
-
-		if err := writer.Write(record); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-// writeTXT exports to tab-delimited text format
-func (h *ExportFormatHandler) writeTXT(filename string, sheet SheetInfo) error {
-	file, err := os.Create(filename)
-	if err != nil {
-		return err
-	}
-	defer file.Close()
-
-	var maxRow, maxCol int32
-	for key := range sheet.GlobalData {
-		r, c := int32(key[0]), int32(key[1])
-		if r > maxRow {
-			maxRow = r
-		}
-		if c > maxCol {
-			maxCol = c
-		}
-	}
-
-	for row := int32(1); row <= maxRow; row++ {
-		var values []string
-
-		for col := int32(1); col <= maxCol; col++ {
-			key := [2]int{int(row), int(col)}
-			if cellData, exists := sheet.GlobalData[key]; exists && cellData.RawValue != nil {
-				if *cellData.RawValue != "" {
-					values = append(values, *cellData.RawValue)
-				} else if cellData.Display != nil {
-					values = append(values, *cellData.Display)
-				} else {
-					values = append(values, "")
-				}
-			} else {
-				values = append(values, "")
-			}
-		}
-
-		line := strings.Join(values, "\t") + "\n"
-		if _, err := file.WriteString(line); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
 // writeHTML exports to HTML table format
-func (h *ExportFormatHandler) writeHTML(filename string, sheet SheetInfo) error {
+func (h *HTMLFormatHandler) writeHTML(filename string, sheet SheetInfo) error {
 	var maxRow, maxCol int32
 	for key := range sheet.GlobalData {
 		r, c := int32(key[0]), int32(key[1])
@@ -245,7 +146,7 @@ func (h *ExportFormatHandler) writeHTML(filename string, sheet SheetInfo) error 
 }
 
 // buildCellStyle builds CSS style string for a cell
-func (h *ExportFormatHandler) buildCellStyle(cellData *cell.Cell) string {
+func (h *HTMLFormatHandler) buildCellStyle(cellData *cell.Cell) string {
 	var styles []string
 
 	if cellData.Color != utils.ColorOptions["White"] {

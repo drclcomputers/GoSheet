@@ -31,17 +31,20 @@ func NewFileManager() *FileManager {
 	fm.RegisterWriter(FormatGSheet, nativeHandler)
 	fm.RegisterWriter(FormatJSON, nativeHandler)
 	
-	exportHandler := &ExportFormatHandler{}
-	fm.RegisterWriter(FormatCSV, exportHandler)
-	fm.RegisterWriter(FormatTXT, exportHandler)
-	fm.RegisterWriter(FormatHTML, exportHandler)
+	htmlHandler := &HTMLFormatHandler{}
+	fm.RegisterWriter(FormatHTML, htmlHandler)
 	
 	textHandler := &TextFormatHandler{}
 	fm.RegisterReader(FormatTXT, textHandler)
+	fm.RegisterWriter(FormatTXT, textHandler)
 	
 	excelHandler := &ExcelFormatHandler{}
 	fm.RegisterReader(FormatXLSX, excelHandler)
 	fm.RegisterWriter(FormatXLSX, excelHandler)
+
+	csvHandler := &CSVFormatHandler{}
+	fm.RegisterReader(FormatCSV, csvHandler)
+	fm.RegisterWriter(FormatCSV, csvHandler)
 
 	pdfHandler := &PDFFormatHandler{}
 	fm.RegisterWriter(FormatPDF, pdfHandler)

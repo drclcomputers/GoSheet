@@ -24,6 +24,54 @@ func (h *TextFormatHandler) SupportsFormat(format FileFormat) bool {
 	return format == FormatTXT
 }
 
+// writeTXT exports to tab-delimited text format
+func (h *TextFormatHandler) Write(filename string, sheets []SheetInfo, activeSheet int) error {
+	sheet := sheets[activeSheet]
+
+	file, err := os.Create(filename)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	var maxRow, maxCol int32
+	for key := range sheet.GlobalData {
+		r, c := int32(key[0]), int32(key[1])
+		if r > maxRow {
+			maxRow = r
+		}
+		if c > maxCol {
+			maxCol = c
+		}
+	}
+
+	for row := int32(1); row <= maxRow; row++ {
+		var values []string
+
+		for col := int32(1); col <= maxCol; col++ {
+			key := [2]int{int(row), int(col)}
+			if cellData, exists := sheet.GlobalData[key]; exists && cellData.RawValue != nil {
+				if *cellData.RawValue != "" {
+					values = append(values, *cellData.RawValue)
+				} else if cellData.Display != nil {
+					values = append(values, *cellData.Display)
+				} else {
+					values = append(values, "")
+				}
+			} else {
+				values = append(values, "")
+			}
+		}
+
+		line := strings.Join(values, "\t") + "\n"
+		if _, err := file.WriteString(line); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 // Read reads a tab-delimited text file
 func (h *TextFormatHandler) Read(filename string) (*WorkbookResult, error) {
 	file, err := os.Open(filename)

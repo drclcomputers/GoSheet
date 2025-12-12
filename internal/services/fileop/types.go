@@ -71,14 +71,14 @@ func (f FileFormat) Description() string {
 // SupportsRead checks whether format supports reading
 func (f FileFormat) SupportsRead() bool {
 	switch f {
-	case FormatGSheet, FormatJSON, FormatTXT, FormatXLSX:
+	case FormatGSheet, FormatJSON, FormatTXT, FormatXLSX, FormatCSV:
 		return true
 	default:
 		return false
 	}
 }
 
-// SupportsWrite checks whether format supports writing, but all do
+// SupportsWrite checks whether format supports writing
 func (f FileFormat) SupportsWrite() bool {
 	return true
 }
