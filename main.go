@@ -92,6 +92,7 @@ func main() {
 
 	if len(utils.TOBEPRINTED) > 0 { fmt.Println(utils.TOBEPRINTED) }
 
+
 	/*
     // Print memory stats
     var m runtime.MemStats
