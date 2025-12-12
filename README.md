@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![Version](https://img.shields.io/badge/version-2.4.5-blue.svg)
+![Version](https://img.shields.io/badge/version-2.8.6-blue.svg)
 ![Go Version](https://img.shields.io/badge/go-1.24.2-00ADD8.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 ![Platform](https://img.shields.io/badge/platform-linux%20%7C%20macos%20%7C%20windows-lightgrey.svg)
@@ -299,7 +299,7 @@ Cell D1: $=AVG(A1:A3, C1:C3)  → Result: 17.5
 - ✅ Cell comments and notes
 - ✅ Number formats with decimal places
 - ✅ Column widths
--  ⚠️Complex Excel-specific formulas may need adjustment
+- ⚠️Complex Excel-specific formulas may need adjustment
 - ❌ Charts, images, pivot tables, macros not supported
 
 **Export Features:**

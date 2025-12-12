@@ -209,7 +209,7 @@ func RenderVisible(table *tview.Table, vp *utils.Viewport, data map[[2]int]*cell
 		label := fmt.Sprintf("%d", r)
 		rowCell := cell.NewCell(int32(r), 0, label)
 		rowCell.MinWidth = 2
-		rowCell.MaxWidth = int16(len(label)) + 2
+		rowCell.MaxWidth = int32(len(label)) + 2
 		table.SetCell(int(r-vp.TopRow+1), 0, rowCell.ToTViewCell())
 	}
 

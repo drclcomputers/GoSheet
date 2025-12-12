@@ -142,7 +142,7 @@ func (c *Cell) SetMinCellWidth(text string) string {
 		w = 10
 	}
 
-	visibleLen := int16(len(StripTviewTags(text)))
+	visibleLen := int32(len(StripTviewTags(text)))
 	if visibleLen < w {
 		padding := int(w - visibleLen)
 		switch c.Align {

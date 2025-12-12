@@ -90,7 +90,7 @@ func main() {
 		panic(err)
 	}
 
-	if utils.TOBEPRINTED != nil{ fmt.Println(utils.TOBEPRINTED) }
+	if len(utils.TOBEPRINTED) > 0 { fmt.Println(utils.TOBEPRINTED) }
 
 	/*
     // Print memory stats

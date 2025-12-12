@@ -18,7 +18,7 @@ import (
 )
 
 var (
-	VER = "2.8.4"
+	VER = "2.8.6"
 	FILEVER = "2.0"
 
 	DEFAULT_SHEET_NAME = "Sheet1"
@@ -27,31 +27,32 @@ var (
 	MAX_ROWS int32 = 1073741824 //2^30
 	MAX_COLS int32 = 1048576 //2^20 - BGQCV
 	
-	DEFAULT_CELL_MIN_WIDTH int16 = 10
-	DEFAULT_CELL_MAX_WIDTH int16 = 40
+	DEFAULT_CELL_MIN_WIDTH int32 = 10
+	DEFAULT_CELL_MAX_WIDTH int32 = 40
 	
 	DEFAULT_CELL_DECIMAL_POINTS int32 = 2
 	DEFAULT_CELL_THOUSANDS_SEPARATOR = ','
 	DEFAULT_CELL_DECIMAL_SEPARATOR = '.'
 	DEFAULT_CELL_FINANCIAL_SIGN = '$'
 	
-	DEFAULT_VIEWPORT_COLS int32 = 10
-	DEFAULT_VIEWPORT_ROWS int32 = 40
+	DEFAULT_VIEWPORT_COLS int32
+	DEFAULT_VIEWPORT_ROWS int32
 
 	DEFAULT_RECENT_FILES_NUMBER int = 10
 )
+
 type ColorRGB [3]uint8
 
 // According to terminal dimensions, modifies the viewport
 func UpdateNrCellsOnScrn(){
 	width, height := GetTermDimension()
-	DEFAULT_VIEWPORT_COLS = (width-2)/int32(DEFAULT_CELL_MIN_WIDTH)-1
+	DEFAULT_VIEWPORT_COLS = width/DEFAULT_CELL_MIN_WIDTH-2
 	DEFAULT_VIEWPORT_ROWS = height-3
 }
 
 // Returns terminal dimensions
 func GetTermDimension() (int32, int32){
-	width, height, err := term.GetSize(int(os.Stdout.Fd()))
+	width, height, err := term.GetSize(int(os.Stdin.Fd()))
 	if err != nil {
 		width = 80
 		height = 24

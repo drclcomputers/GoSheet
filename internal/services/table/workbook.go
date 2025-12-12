@@ -45,8 +45,8 @@ func NewSheet(name string) *Sheet {
 		Viewport: &utils.Viewport{
 			TopRow:   1,
 			LeftCol:  1,
-			ViewRows: 40,
-			ViewCols: 10,
+			ViewRows: utils.DEFAULT_VIEWPORT_ROWS,
+			ViewCols: utils.DEFAULT_VIEWPORT_COLS,
 		},
 		History: &History{
 			undoStack: make([]*Action, 0, 100),

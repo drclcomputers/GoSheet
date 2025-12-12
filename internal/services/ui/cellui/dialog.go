@@ -124,13 +124,13 @@ func buildEditCellForm(app *tview.Application, table *tview.Table, c, oldCell *c
 	
 	leftForm.AddInputField("Min Width", fmt.Sprintf("%d", c.MinWidth), 5, nil, func(text string) {
 		if width, err := strconv.Atoi(text); err == nil && width > 0 {
-			c.MinWidth = int16(width)
+			c.MinWidth = int32(width)
 		}
 	})
 	
 	leftForm.AddInputField("Max Width", fmt.Sprintf("%d", c.MaxWidth), 5, nil, func(text string) {
 		if width, err := strconv.Atoi(text); err == nil && width > 0 {
-			c.MaxWidth = int16(width)
+			c.MaxWidth = int32(width)
 		}
 	})
 	

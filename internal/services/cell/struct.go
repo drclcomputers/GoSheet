@@ -33,8 +33,8 @@ type Cell struct {
 
     Row           int32     
 	Column        int32
-    MaxWidth      int16
-	MinWidth      int16
+    MaxWidth      int32
+	MinWidth      int32
   
     Align         int8
 	Flags 		  uint8	
