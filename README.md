@@ -531,6 +531,8 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
 - [tcell](https://github.com/gdamore/tcell) - Terminal handling
 - [expr](https://github.com/expr-lang/expr) - Expression evaluation
 - [excelize](https://github.com/xuri/excelize) - Excel file format library
+- [gopdf]("github.com/jung-kurt/gofpdf") - PDF file format library
+- [go-ods](https://github.com/AlexJarrah/go-ods) - ODS file format library
 - [golang.org/x/term](https://golang.org/x/term) - Terminal utilities
 - [golang.org/x/text](https://golang.org/x/text) - Text processing
 

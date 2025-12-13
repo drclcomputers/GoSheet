@@ -22,6 +22,7 @@ const (
 	FormatHTML
 	FormatXLSX
 	FormatPDF
+	FormatODS
 )
 
 // String returns the file extension for the format
@@ -41,6 +42,8 @@ func (f FileFormat) String() string {
 		return ".xlsx"
 	case FormatPDF:
 		return ".pdf"
+	case FormatODS:
+		return ".ods"
 	default:
 		return ""
 	}
@@ -63,6 +66,8 @@ func (f FileFormat) Description() string {
 		return "Excel Spreadsheet"
 	case FormatPDF:
 		return "PDF Document"
+	case FormatODS:
+		return "OpenDocument Spreadsheet"
 	default:
 		return "Unknown Format"
 	}
@@ -71,7 +76,7 @@ func (f FileFormat) Description() string {
 // SupportsRead checks whether format supports reading
 func (f FileFormat) SupportsRead() bool {
 	switch f {
-	case FormatGSheet, FormatJSON, FormatTXT, FormatXLSX, FormatCSV:
+	case FormatGSheet, FormatJSON, FormatTXT, FormatXLSX, FormatCSV, FormatODS:
 		return true
 	default:
 		return false
@@ -86,7 +91,7 @@ func (f FileFormat) SupportsWrite() bool {
 // PreservesFormatting checks whether format preserves cell formatting
 func (f FileFormat) PreservesFormatting() bool {
 	switch f {
-	case FormatGSheet, FormatJSON, FormatHTML, FormatXLSX, FormatPDF:
+	case FormatGSheet, FormatJSON, FormatHTML, FormatXLSX, FormatPDF, FormatODS:
 		return true
 	default:
 		return false
@@ -96,7 +101,7 @@ func (f FileFormat) PreservesFormatting() bool {
 // PreservesFormulas checks whether format preserves formulas
 func (f FileFormat) PreservesFormulas() bool {
 	switch f {
-	case FormatGSheet, FormatJSON, FormatXLSX:
+	case FormatGSheet, FormatJSON, FormatXLSX, FormatODS:
 		return true
 	default:
 		return false
@@ -106,7 +111,7 @@ func (f FileFormat) PreservesFormulas() bool {
 // SupportsMultipleSheets checks whether format supports multiple sheets
 func (f FileFormat) SupportsMultipleSheets() bool {
 	switch f {
-	case FormatGSheet, FormatJSON, FormatXLSX:
+	case FormatGSheet, FormatJSON, FormatXLSX, FormatODS:
 		return true
 	default:
 		return false
@@ -123,6 +128,7 @@ func DetectFormat(filename string) (FileFormat, bool) {
 		FormatHTML,
 		FormatXLSX,
 		FormatPDF,
+		FormatODS,
 	}
 	
 	for _, format := range formats {
@@ -202,6 +208,7 @@ func GetAllFormats() []FileFormat {
 		FormatHTML,
 		FormatXLSX,
 		FormatPDF,
+		FormatODS,
 	}
 }
 
