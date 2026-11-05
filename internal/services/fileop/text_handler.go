@@ -50,14 +50,8 @@ func (h *TextFormatHandler) Write(filename string, sheets []SheetInfo, activeShe
 
 		for col := int32(1); col <= maxCol; col++ {
 			key := [2]int{int(row), int(col)}
-			if cellData, exists := sheet.GlobalData[key]; exists && cellData.RawValue != nil {
-				if *cellData.RawValue != "" {
-					values = append(values, *cellData.RawValue)
-				} else if cellData.Display != nil {
-					values = append(values, *cellData.Display)
-				} else {
-					values = append(values, "")
-				}
+			if cellData, exists := sheet.GlobalData[key]; exists {
+				values = append(values, exportValue(cellData))
 			} else {
 				values = append(values, "")
 			}

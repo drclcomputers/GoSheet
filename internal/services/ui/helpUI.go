@@ -21,14 +21,16 @@ func ShowHelpModal(app *tview.Application, table *tview.Table) {
   Shift + Arrows       Select range
   Alt + G              Go to cell
   Escape               Save dialog
-  
+
   Note: In menus, such as the start menu, you can use Ctrl+←/→ to navigate around.
 
 [yellow]EDITING:[white]
   Type                 Replace cell (formula bar)
   F2                   Edit cell in the formula bar
   Enter                Open the full format dialog
-  = or $=              Start a formula (=SUM(A1:A10) or Sheet2!A1)
+  = or $=              Start a formula (=SUM(A1:A10) or Prices!B2)
+  Arrows in a formula  Insert the highlighted cell
+  Alt+PgUp / PgDn      Point at a cell on another sheet ('Q4 Budget'!A1)
   Delete               Clear selection
   Alt + S              Save Menu
   Alt + N              Edit cell comment
@@ -39,7 +41,7 @@ func ShowHelpModal(app *tview.Application, table *tview.Table) {
   Alt+T           Quick Sheet Menu
   Alt+PageUp      Previous Sheet
   Alt+PageDown    Next Sheet
-  
+
 [yellow]In Sheet Manager:[white]
   Alt+N           New Sheet
   Alt+R           Rename Sheet

@@ -99,32 +99,39 @@ func (h *ExcelFormatHandler) Read(filename string) (*WorkbookResult, error) {
 	return result, nil
 }
 
-// Write writes workbook to Excel .xlsx format
+// Write writes workbook to Excel .xlsx format.
+// The default Sheet1 that excelize creates is renamed, not deleted. Deleting
+// it while it is the only sheet is ignored, which used to leave an extra
+// blank sheet and made a real sheet named Sheet1 fail to export.
 func (h *ExcelFormatHandler) Write(filename string, sheets []SheetInfo, activeSheet int) error {
 	f := excelize.NewFile()
 	defer f.Close()
 
-	if len(sheets) > 0 {
-		f.DeleteSheet("Sheet1")
+	if len(sheets) == 0 {
+		if err := f.SaveAs(filename); err != nil {
+			return fmt.Errorf("failed to save Excel file: %v", err)
+		}
+		return nil
 	}
 
+	names := excelSheetNames(sheets)
+	if err := f.SetSheetName("Sheet1", names[0]); err != nil {
+		return fmt.Errorf("failed to create sheet %s: %v", names[0], err)
+	}
+	for i := 1; i < len(names); i++ {
+		if _, err := f.NewSheet(names[i]); err != nil {
+			return fmt.Errorf("failed to create sheet %s: %v", names[i], err)
+		}
+	}
+
+	if activeSheet < 0 || activeSheet >= len(sheets) {
+		activeSheet = 0
+	}
+	f.SetActiveSheet(activeSheet)
+
 	for i, sheet := range sheets {
-		sheetName := sheet.Name
-		if sheetName == "" {
-			sheetName = fmt.Sprintf("Sheet%d", i+1)
-		}
-
-		_, err := f.NewSheet(sheetName)
-		if err != nil {
-			return fmt.Errorf("failed to create sheet %s: %v", sheetName, err)
-		}
-
-		if i == activeSheet {
-			f.SetActiveSheet(i)
-		}
-
-		if err := h.writeSheet(f, sheetName, sheet); err != nil {
-			return fmt.Errorf("failed to write sheet %s: %v", sheetName, err)
+		if err := h.writeSheet(f, names[i], sheet); err != nil {
+			return fmt.Errorf("failed to write sheet %s: %v", names[i], err)
 		}
 	}
 
@@ -439,4 +446,60 @@ func parseExcelColor(excelColor string) (utils.ColorRGB, error) {
 	}
 
 	return utils.ColorRGB{255, 255, 255}, fmt.Errorf("invalid color format: %s", excelColor)
+}
+
+// excelSheetNames returns workbook sheet names that Excel will accept.
+// Names are only changed when they are empty, illegal, or duplicated.
+func excelSheetNames(sheets []SheetInfo) []string {
+	names := make([]string, len(sheets))
+	for i, sheet := range sheets {
+		names[i] = uniqueExcelSheetName(sheet.Name, i, names[:i])
+	}
+	return names
+}
+
+func uniqueExcelSheetName(name string, index int, used []string) string {
+	name = strings.TrimSpace(name)
+	name = strings.Map(func(r rune) rune {
+		switch r {
+		case ':', '\\', '/', '?', '*', '[', ']':
+			return -1
+		default:
+			return r
+		}
+	}, name)
+	name = strings.Trim(name, "'")
+	name = strings.TrimSpace(name)
+	if name == "" {
+		name = fmt.Sprintf("Sheet%d", index+1)
+	}
+	runes := []rune(name)
+	if len(runes) > 31 {
+		name = strings.TrimSpace(string(runes[:31]))
+	}
+	base := name
+	n := 2
+	for excelNameTaken(name, used) {
+		suffix := fmt.Sprintf("_%d", n)
+		room := 31 - len([]rune(suffix))
+		head := []rune(base)
+		if room < 1 {
+			room = 1
+		}
+		if len(head) > room {
+			head = head[:room]
+		}
+		name = strings.TrimSpace(string(head)) + suffix
+		n++
+	}
+	return name
+}
+
+func excelNameTaken(name string, used []string) bool {
+	for _, existing := range used {
+		if strings.EqualFold(existing, name) {
+			return true
+		}
+	}
+	return false
 }

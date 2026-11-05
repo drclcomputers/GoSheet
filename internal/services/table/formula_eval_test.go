@@ -118,6 +118,14 @@ func TestCrossSheetAndVLookup(t *testing.T) {
 		t.Fatalf("cross sheet got %s", *ref.Display)
 	}
 
+	both := put(sh, "A2", "=SUM(Prices!B1:Prices!B2)")
+	if err := EvaluateCell(tview.NewTable(), both); err != nil {
+		t.Fatal(err)
+	}
+	if numOf(t, both) != 8 {
+		t.Fatalf("qualified range got %s", *both.Display)
+	}
+
 	look := put(sh, "B1", `=VLOOKUP("pear", Prices!A1:B2, 2, FALSE)`)
 	if err := EvaluateCell(tview.NewTable(), look); err != nil {
 		t.Fatal(err)
@@ -169,5 +177,30 @@ func TestCircularAndSheetQualifiedName(t *testing.T) {
 	}
 	if f.Display == nil || *f.Display != "#CIRC!" {
 		t.Fatalf("display %v err %v", f.Display, err)
+	}
+}
+
+func TestQuotedSheetAndRecalc(t *testing.T) {
+	wb := setupBook("Sheet1", "Q4 Budget")
+	src := put(wb.Sheets[1], "A1", "9")
+	wb.ActiveSheet = 0
+	f := put(wb.Sheets[0], "B1", "='Q4 Budget'!A1+1")
+	tv := tview.NewTable()
+	if err := EvaluateCell(tv, f); err != nil {
+		t.Fatal(err)
+	}
+	if numOf(t, f) != 10 {
+		t.Fatalf("quoted ref %s", *f.Display)
+	}
+
+	*src.RawValue = "4"
+	*src.Display = "4"
+	src.ClearFlag(cell.FlagFormula)
+	wb.ActiveSheet = 1
+	if err := RecalculateCell(tv, src); err != nil {
+		t.Fatal(err)
+	}
+	if numOf(t, f) != 5 {
+		t.Fatalf("after edit on the other sheet %s", *f.Display)
 	}
 }

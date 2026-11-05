@@ -76,22 +76,23 @@ func (f FileFormat) Description() string {
 // SupportsRead checks whether format supports reading
 func (f FileFormat) SupportsRead() bool {
 	switch f {
-	case FormatGSheet, FormatJSON, FormatTXT, FormatXLSX, FormatCSV, FormatODS:
+	case FormatGSheet, FormatJSON, FormatTXT, FormatXLSX, FormatCSV:
 		return true
 	default:
 		return false
 	}
 }
 
-// SupportsWrite checks whether format supports writing
+// SupportsWrite checks whether format supports writing.
+// ODS is advertised by the enum but has no handler, so it is not offered.
 func (f FileFormat) SupportsWrite() bool {
-	return true
+	return f != FormatODS
 }
 
 // PreservesFormatting checks whether format preserves cell formatting
 func (f FileFormat) PreservesFormatting() bool {
 	switch f {
-	case FormatGSheet, FormatJSON, FormatHTML, FormatXLSX, FormatPDF, FormatODS:
+	case FormatGSheet, FormatJSON, FormatHTML, FormatXLSX, FormatPDF:
 		return true
 	default:
 		return false
@@ -101,7 +102,7 @@ func (f FileFormat) PreservesFormatting() bool {
 // PreservesFormulas checks whether format preserves formulas
 func (f FileFormat) PreservesFormulas() bool {
 	switch f {
-	case FormatGSheet, FormatJSON, FormatXLSX, FormatODS:
+	case FormatGSheet, FormatJSON, FormatXLSX:
 		return true
 	default:
 		return false
@@ -111,7 +112,7 @@ func (f FileFormat) PreservesFormulas() bool {
 // SupportsMultipleSheets checks whether format supports multiple sheets
 func (f FileFormat) SupportsMultipleSheets() bool {
 	switch f {
-	case FormatGSheet, FormatJSON, FormatXLSX, FormatODS:
+	case FormatGSheet, FormatJSON, FormatXLSX:
 		return true
 	default:
 		return false

@@ -19,14 +19,19 @@ type frame struct {
 	addr        *tview.TextView
 	pages       *tview.Pages
 	formula     *tview.TextView
-	editor      *tview.InputField
+	editor      *tview.TextArea
 	status      *tview.TextView
 	editing     bool
 	addrText    string
 	formulaText string
 }
 
-var current *frame
+var (
+	current    *frame
+	pointFn    func(event *tcell.EventKey) bool
+	editStart  func(text string)
+	editFinish func()
+)
 
 // Mount builds the chrome around the grid. Call once, then Show.
 func Mount(app *tview.Application, grid tview.Primitive) tview.Primitive {
@@ -38,10 +43,9 @@ func Mount(app *tview.Application, grid tview.Primitive) tview.Primitive {
 	formula.SetBackgroundColor(tcell.ColorBlack)
 	formula.SetTextColor(tcell.ColorWhite)
 
-	editor := tview.NewInputField()
-	editor.SetFieldBackgroundColor(tcell.ColorBlack)
-	editor.SetFieldTextColor(tcell.ColorYellow)
-	editor.SetLabel("")
+	editor := tview.NewTextArea().SetWrap(false)
+	editor.SetBackgroundColor(tcell.ColorBlack)
+	editor.SetTextStyle(tcell.StyleDefault.Background(tcell.ColorBlack).Foreground(tcell.ColorYellow))
 
 	pages := tview.NewPages()
 	pages.AddPage("view", formula, true, true)
@@ -53,7 +57,7 @@ func Mount(app *tview.Application, grid tview.Primitive) tview.Primitive {
 	status.SetText(" type to replace  ·  F2 edit  ·  Enter format  ·  Del clear  ·  Alt+/ help ")
 
 	bar := tview.NewFlex().SetDirection(tview.FlexColumn)
-	bar.AddItem(addr, 12, 0, false)
+	bar.AddItem(addr, 18, 0, false)
 	bar.AddItem(pages, 0, 1, false)
 
 	root := tview.NewFlex().SetDirection(tview.FlexRow)
@@ -101,6 +105,66 @@ func SetBar(addr, formula string) {
 	current.formula.SetText(" " + tview.Escape(formula))
 }
 
+// SetAddr updates the name box. Safe while a formula is being edited.
+func SetAddr(addr string) {
+	if current == nil {
+		return
+	}
+	current.addr.SetText(addr)
+}
+
+// Editing reports whether the formula bar currently has the keyboard.
+func Editing() bool {
+	return current != nil && current.editing
+}
+
+// SetEditHooks are called when formula editing starts and when it ends.
+func SetEditHooks(start func(text string), finish func()) {
+	editStart = start
+	editFinish = finish
+}
+
+// SetPointFunc handles keys while the formula bar is focused.
+// Returning true consumes the key so it can point at a cell instead of moving the cursor.
+func SetPointFunc(fn func(event *tcell.EventKey) bool) {
+	pointFn = fn
+}
+
+// EditText returns the formula bar contents and the cursor as a byte index.
+// The index matches TextArea for ASCII formulas; that is everything arrows insert.
+func EditText() (string, int) {
+	if current == nil || current.editor == nil {
+		return "", 0
+	}
+	text := current.editor.GetText()
+	_, _, _, col := current.editor.GetCursor()
+	if col < 0 {
+		col = 0
+	}
+	if col > len(text) {
+		col = len(text)
+	}
+	return text, col
+}
+
+// ReplaceEdit replaces text[start:end] in the formula bar. Indexes are bytes.
+func ReplaceEdit(start, end int, insert string) {
+	if current == nil || current.editor == nil {
+		return
+	}
+	text := current.editor.GetText()
+	if start < 0 {
+		start = 0
+	}
+	if end > len(text) {
+		end = len(text)
+	}
+	if start > end {
+		start = end
+	}
+	current.editor.Replace(start, end, insert)
+}
+
 // SetStatus replaces the shortcut hint line.
 func SetStatus(text string) {
 	if current == nil {
@@ -115,23 +179,43 @@ func BeginEdit(text string, commit func(string)) {
 		return
 	}
 	current.editing = true
-	current.editor.SetText(text)
+	current.editor.SetText(text, true)
 	current.pages.SwitchToPage("edit")
-	current.editor.SetDoneFunc(func(key tcell.Key) {
+	finish := func(accept bool) {
 		if current == nil || !current.editing {
 			return
 		}
 		current.editing = false
 		entered := current.editor.GetText()
+		if editFinish != nil {
+			editFinish()
+		}
 		// Drop focus before hiding the editor page. Pages.SwitchToPage
 		// refocuses itself when a child is focused, and that callback is nil
 		current.app.SetFocus(current.grid)
 		current.pages.SwitchToPage("view")
-		if key == tcell.KeyEnter && commit != nil {
+		if accept && commit != nil {
 			commit(entered)
 			return
 		}
 		SetBar(current.addrText, current.formulaText)
+	}
+	current.editor.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+		switch event.Key() {
+		case tcell.KeyEnter:
+			finish(true)
+			return nil
+		case tcell.KeyEscape:
+			finish(false)
+			return nil
+		}
+		if pointFn != nil && pointFn(event) {
+			return nil
+		}
+		return event
 	})
+	if editStart != nil {
+		editStart(text)
+	}
 	current.app.SetFocus(current.editor)
 }

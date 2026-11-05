@@ -7,11 +7,14 @@
 
 package fileop
 
-import "strings"
+import (
+	"strings"
+	"unicode"
+)
 
 // convertFormulaToExcel converts GoSheet formula syntax to Excel syntax
 func (h *ExcelFormatHandler) convertFormulaToExcel(formula string) string {
-	formula = strings.ToUpper(formula)
+	formula = upperOutsideQuotes(formula)
 
 	formula = strings.TrimSpace(formula)
 	if !strings.HasPrefix(formula, "=") {
@@ -56,7 +59,7 @@ func (h *ExcelFormatHandler) convertFormulaToExcel(formula string) string {
 // convertExcelFormulaToGoSheet converts Excel formula syntax to GoSheet syntax
 func (h *ExcelFormatHandler) convertExcelFormulaToGoSheet(formula string) string {
 	formula = strings.TrimPrefix(formula, "=")
-	formula = strings.ToUpper(formula)
+	formula = upperOutsideQuotes(formula)
 	formula = strings.TrimPrefix(formula, "_xludf.")
 	formula = strings.TrimPrefix(formula, "_XLUDF.")
 	formula = strings.TrimPrefix(formula, "_xlfn.")
@@ -484,4 +487,51 @@ func splitFunctionArgs(args string) []string {
 	}
 
 	return parts
+}
+
+// upperOutsideQuotes uppercases formula text but leaves quoted sheet names
+// and string literals as written. 'Q4 Budget'!A1 must not become 'Q4 BUDGET'!A1.
+func upperOutsideQuotes(formula string) string {
+	var b strings.Builder
+	b.Grow(len(formula))
+	inSingle, inDouble := false, false
+	runes := []rune(formula)
+	for i := 0; i < len(runes); i++ {
+		c := runes[i]
+		if inSingle {
+			b.WriteRune(c)
+			if c == '\'' {
+				if i+1 < len(runes) && runes[i+1] == '\'' {
+					b.WriteRune('\'')
+					i++
+					continue
+				}
+				inSingle = false
+			}
+			continue
+		}
+		if inDouble {
+			b.WriteRune(c)
+			if c == '"' {
+				if i+1 < len(runes) && runes[i+1] == '"' {
+					b.WriteRune('"')
+					i++
+					continue
+				}
+				inDouble = false
+			}
+			continue
+		}
+		switch c {
+		case '\'':
+			inSingle = true
+			b.WriteRune(c)
+		case '"':
+			inDouble = true
+			b.WriteRune(c)
+		default:
+			b.WriteRune(unicode.ToUpper(c))
+		}
+	}
+	return b.String()
 }

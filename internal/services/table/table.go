@@ -289,7 +289,9 @@ func updateTableTitle(table *tview.Table) {
 	}
 
 	table.SetTitle(title)
-	sheetview.SetStatus(fmt.Sprintf(" %s  ·  type to replace · F2 edit · Enter format · Del clear · Alt+/ help ", sheet.Name))
+	if !sheetview.Editing() {
+		sheetview.SetStatus(fmt.Sprintf(" %s  ·  type to replace · F2 edit · Enter format · Del clear · Alt+/ help ", sheet.Name))
+	}
 }
 
 // HasUnsavedChanges returns whether there are unsaved changes

@@ -46,16 +46,8 @@ func (h *CSVFormatHandler) Write(filename string, sheets []SheetInfo, activeShee
 
 		for col := int32(1); col <= maxCol; col++ {
 			key := [2]int{int(row), int(col)}
-			if cellData, exists := sheet.GlobalData[key]; exists && cellData.RawValue != nil {
-				if *cellData.RawValue != "" {
-					record[col-1] = *cellData.RawValue
-				} else if cellData.Display != nil {
-					record[col-1] = *cellData.Display
-				} else {
-					record[col-1] = ""
-				}
-			} else {
-				record[col-1] = ""
+			if cellData, exists := sheet.GlobalData[key]; exists {
+				record[col-1] = exportValue(cellData)
 			}
 		}
 
@@ -65,6 +57,28 @@ func (h *CSVFormatHandler) Write(filename string, sheets []SheetInfo, activeShee
 	}
 
 	return nil
+}
+
+// exportValue is the text CSV and TXT should contain. A formula is stored as
+// "$=...", which is meaningless outside GoSheet, so those cells export the
+// calculated display text instead.
+func exportValue(c *cell.Cell) string {
+	if c == nil {
+		return ""
+	}
+	if c.IsFormula() {
+		if c.Display != nil {
+			return *c.Display
+		}
+		return ""
+	}
+	if c.RawValue != nil && *c.RawValue != "" {
+		return *c.RawValue
+	}
+	if c.Display != nil {
+		return *c.Display
+	}
+	return ""
 }
 
 // Read imports a CSV file into a single sheet

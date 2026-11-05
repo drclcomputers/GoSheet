@@ -106,16 +106,16 @@ go build -o gosheet
 
 ### Note: For MacOS users, activating 'Use Option as Meta Key' is mandatory for Alt commands to work. Here is a link "https://superuser.com/questions/1038947/using-the-option-key-properly-on-mac-terminal" for more info.
 
-| Key Combination    | Action                  |
-| ------------------ | ----------------------- |
-| **Arrow Keys**     | Navigate cells                         |
-| **Type**           | Replace the selected cell              |
-| **F2**             | Edit the cell in the formula bar       |
-| **Enter**          | Open the full format dialog            |
-| **Delete**         | Clear the selection                    |
-| **Shift + Arrows** | Select range                           |
-| **Escape**         | Save menu / cancel the formula bar     |
-| **Alt + G**        | Go to cell                             |
+| Key Combination    | Action                             |
+| ------------------ | ---------------------------------- |
+| **Arrow Keys**     | Navigate cells                     |
+| **Type**           | Replace the selected cell          |
+| **F2**             | Edit the cell in the formula bar   |
+| **Enter**          | Open the full format dialog        |
+| **Delete**         | Clear the selection                |
+| **Shift + Arrows** | Select range                       |
+| **Escape**         | Save menu / cancel the formula bar |
+| **Alt + G**        | Go to cell                         |
 
 ### Editing & Clipboard
 
@@ -264,9 +264,11 @@ GoSheet includes **104 built-in functions** organized into 22 categories:
 = 10 + 20 * 3
 =A1 + B2
 
-# Other sheets
+# Other sheets. Type the reference, or build it from the formula bar:
+# arrows insert the highlighted cell, Alt+PageUp / Alt+PageDown changes sheet.
 =Prices!B2
 ='Q4 Budget'!A1
+=SUM(Prices!A1:Prices!B2)
 
 # Lookups
 =VLOOKUP("pear", Prices!A1:B2, 2, FALSE)

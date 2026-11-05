@@ -22,6 +22,7 @@ var clipboard = [][]*cell.Cell{}
 
 // Table input capture function. Manages everything from cell selection, to key combinations and calls other services.
 func InputCaptureService(app *tview.Application, table *tview.Table, vp *utils.Viewport, data map[[2]int]*cell.Cell) *tview.Table {
+	installPointing(app, table)
 	app.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		if app.GetFocus() != table {
 			return event
