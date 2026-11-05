@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![Version](https://img.shields.io/badge/version-2.9.0-blue.svg)
+![Version](https://img.shields.io/badge/version-2.9.8-blue.svg)
 ![Go Version](https://img.shields.io/badge/go-1.24.2-00ADD8.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 ![Platform](https://img.shields.io/badge/platform-linux%20%7C%20macos%20%7C%20windows-lightgrey.svg)
@@ -25,7 +25,7 @@ GoSheet is a feature-rich, lightweight spreadsheet application that runs entirel
 
 - **🚀 Fast & Lightweight**: Minimal resource usage with optimized viewport rendering
 - **💻 Terminal-Native**: No GUI overhead, works anywhere with a terminal
-- **🔧 Powerful Formulas**: 104+ built-in functions for complex calculations
+- **🔧 Powerful Formulas**: 112 built-in functions for complex calculations
 - **📊 Multiple Sheets**: Full workbook support with unlimited sheets
 - **🎨 Rich Formatting**: Colors, alignment, text effects, and more
 - **💾 Multiple Formats**: Native .gsheet, JSON, Excel (.xlsx), PDF, CSV, HTML, and TXT support
@@ -38,7 +38,7 @@ GoSheet is a feature-rich, lightweight spreadsheet application that runs entirel
 ### Core Spreadsheet Features
 
 - **📊 Workbook Management**: Create, rename, duplicate, and reorder sheets
-- **🔢 Formula Engine**: 110+ built-in functions, cross-sheet references, circular dependency detection
+- **🔢 Formula Engine**: 112 built-in functions, cross-sheet references, circular dependency detection
 - **🎨 Cell Formatting**: Bold, italic, underline, strikethrough, colors, alignment
 - **📐 Data Types**: String, Number, Financial, DateTime with automatic detection
 - **✅ Data Validation**: Excel-like validation rules with custom error messages
@@ -106,16 +106,16 @@ go build -o gosheet
 
 ### Note: For MacOS users, activating 'Use Option as Meta Key' is mandatory for Alt commands to work. Here is a link "https://superuser.com/questions/1038947/using-the-option-key-properly-on-mac-terminal" for more info.
 
-| Key Combination    | Action                  |
-| ------------------ | ----------------------- |
-| **Arrow Keys**     | Navigate cells                         |
-| **Type**           | Replace the selected cell              |
-| **F2**             | Edit the cell in the formula bar       |
-| **Enter**          | Open the full format dialog            |
-| **Delete**         | Clear the selection                    |
-| **Shift + Arrows** | Select range                           |
-| **Escape**         | Save menu / cancel the formula bar     |
-| **Alt + G**        | Go to cell                             |
+| Key Combination    | Action                             |
+| ------------------ | ---------------------------------- |
+| **Arrow Keys**     | Navigate cells                     |
+| **Type**           | Replace the selected cell          |
+| **F2**             | Edit the cell in the formula bar   |
+| **Enter**          | Open the full format dialog        |
+| **Delete**         | Clear the selection                |
+| **Shift + Arrows** | Select range                       |
+| **Escape**         | Save menu / cancel the formula bar |
+| **Alt + G**        | Go to cell                         |
 
 ### Editing & Clipboard
 
@@ -138,13 +138,14 @@ go build -o gosheet
 
 ### Sheet Management
 
-| Key Combination    | Action                |
-| ------------------ | --------------------- |
-| **Alt + M**        | Open Sheet Manager    |
-| **Alt + T**        | Quick Sheet Menu      |
-| **Alt + PageUp**   | Previous sheet        |
-| **Alt + PageDown** | Next sheet            |
-| **Alt + 1-9**      | Quick switch to sheet |
+| Key Combination                | Action                                                         |
+| ------------------------------ | -------------------------------------------------------------- |
+| **Alt + M**                    | Open Sheet Manager                                             |
+| **Alt + T**                    | Quick Sheet Menu                                               |
+| **Alt + PageUp**               | Previous sheet. While a formula is open, point at a cell there |
+| **Alt + PageDown**             | Next sheet. While a formula is open, point at a cell there     |
+| **Alt + 1-9**                  | Quick switch to sheet                                          |
+| **Alt + Shift + Left / Right** | Move between panels in a dialog                                |
 
 ### Advanced Operations
 
@@ -157,13 +158,13 @@ go build -o gosheet
 | **F3 / F4**     | Find previous/next |
 | **Alt + =**     | Insert row/column  |
 | **Alt + -**     | Delete row/column  |
-| **Alt + /**     | Show help          |
+| **? / Alt + /** | Show help          |
 
 ---
 
 ## 🧮 Functions
 
-GoSheet includes **104 built-in functions** organized into 22 categories:
+GoSheet includes **112 built-in functions** organized into 22 categories:
 
 ### Mathematical Functions (31)
 
@@ -277,6 +278,10 @@ GoSheet includes **104 built-in functions** organized into 22 categories:
 =AVERAGE(A1:A10)
 ```
 
+A name with a space or a symbol needs quotes: `='Q4 Budget'!A1`. A plain `=B2` is always the sheet you are on.
+
+Renaming a sheet rewrites formulas that name it. `Prices!B2` becomes `Costs!B2`. Deleting a sheet does not undo, and those references become `#REF!`. Text inside quotes is left alone.
+
 ```excel
 # Cell references
 $= A1 + B2
@@ -316,6 +321,19 @@ Cell C2: 15
 Cell C3: 25
 Cell D1: $=AVG(A1:A3, C1:C3)  → Result: 17.5
 ```
+
+---
+
+## ⚙️ Options
+
+On the start screen, **Options** stores a few defaults in `~/.gosheet/options.json`. They are loaded again the next time GoSheet starts.
+
+| Setting                                                     | What it changes                                                                                            |
+| ----------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| Decimal places, thousands separator, decimal mark, currency | Number format of **new** cells. Cells you already typed keep their own format.                             |
+| Column width                                                | Width of **new** cells, from 4 to 40 characters.                                                           |
+| Save format                                                 | The format offered first when the file has no extension yet. A file that is already `.xlsx` stays `.xlsx`. |
+| Recent files                                                | How many paths to keep (1–20). **Clear recent** asks before it wipes the list.                             |
 
 ---
 
@@ -492,7 +510,7 @@ gosheet/
 - **File Service**: Format-agnostic file operations with pluggable handlers (.gsheet, .xlsx, .json, etc.)
 - **Table Service**: Viewport management, sheet operations, undo/redo, and memory optimization
 - **UI Service**: Dialogs, menus, and user interactions
-- **Formula Engine**: Expression evaluation engine with 104 built-in functions and circular dependency detection
+- **Formula Engine**: Expression evaluation engine with 112 built-in functions and circular dependency detection
 - **Utils**: Helper functions for colors, date/time, formatting, and column naming
 
 ---
@@ -606,7 +624,7 @@ GoSheet was inspired by:
 ## 📊 Project Stats
 
 - **Lines of Code**: ~15,000+
-- **Functions**: 104 built-in
+- **Functions**: 112 built-in
 - **File Formats**: 6 supported
 - **Go Version**: 1.24.2
 - **Started**: October 2025

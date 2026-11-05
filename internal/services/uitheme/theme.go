@@ -38,7 +38,7 @@ func Paint(b boxed, title string) {
 	if t := strings.TrimSpace(title); t != "" {
 		b.SetTitle(" " + t + " ")
 	}
-	b.SetTitleAlign(tview.AlignLeft)
+	b.SetTitleAlign(tview.AlignCenter)
 	b.SetTitleColor(Amber)
 	b.SetBorderColor(Line)
 	b.SetBackgroundColor(Panel)
@@ -75,7 +75,7 @@ func tone(m *tview.Modal, title string, border, titleColor tcell.Color) *tview.M
 	if t := strings.TrimSpace(title); t != "" {
 		m.SetTitle(" " + t + " ")
 	}
-	m.SetTitleAlign(tview.AlignLeft)
+	m.SetTitleAlign(tview.AlignCenter)
 	m.SetTitleColor(titleColor)
 	m.SetBorderColor(border)
 	m.SetBackgroundColor(Panel)
