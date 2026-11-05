@@ -12,12 +12,12 @@ import (
 	"gosheet/internal/services/cell"
 	"gosheet/internal/services/sheetview"
 	"gosheet/internal/services/ui"
+	"gosheet/internal/services/uitheme"
 	"gosheet/internal/utils"
 	"strconv"
 	"strings"
 	"time"
 
-	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 )
 
@@ -116,11 +116,7 @@ func ShowFillDialog(app *tview.Application, table *tview.Table) {
 		sheetview.Show(app)
 	})
 
-	form.SetBorder(true).
-		SetTitle(" Fill Data from Selection ").
-		SetBorderColor(tcell.ColorBlue).
-		SetTitleAlign(tview.AlignCenter)
-
+	uitheme.StyleForm(form, "Fill from selection")
 	app.SetRoot(form, true).SetFocus(form)
 }
 

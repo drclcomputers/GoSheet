@@ -10,6 +10,7 @@ package navigation
 import (
 	"gosheet/internal/services/cell"
 	"gosheet/internal/services/sheetview"
+	"gosheet/internal/services/uitheme"
 	"gosheet/internal/utils"
 	"strconv"
 	"strings"
@@ -76,7 +77,7 @@ func GoToCellModal(app *tview.Application, table *tview.Table, globalData map[[2
 		sheetview.Show(app)
 	})
 
-	form.SetBorder(true).SetTitle(" Go To Cell ").SetTitleAlign(tview.AlignCenter)
+	uitheme.StyleForm(form, "Go to cell")
 	form.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		if event.Key() == tcell.KeyEscape {
 			sheetview.Show(app)

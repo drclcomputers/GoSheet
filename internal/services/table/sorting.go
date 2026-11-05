@@ -10,6 +10,7 @@ package table
 import (
 	"gosheet/internal/services/cell"
 	"gosheet/internal/services/sheetview"
+	"gosheet/internal/services/uitheme"
 	"gosheet/internal/utils"
 	"sort"
 	"strconv"
@@ -213,6 +214,6 @@ func ShowSortDialog(app *tview.Application, table *tview.Table) {
 			sheetview.Show(app)
 		})
 
-	modal.SetBorder(true).SetTitle(" Sort ").SetTitleAlign(tview.AlignCenter)
+	uitheme.StyleModal(modal, "Sort")
 	app.SetRoot(modal, true).SetFocus(modal)
 }

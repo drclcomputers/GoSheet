@@ -14,6 +14,7 @@ import (
 	"gosheet/internal/services/fileop"
 	"gosheet/internal/services/sheetview"
 	"gosheet/internal/services/ui"
+	"gosheet/internal/services/uitheme"
 	"gosheet/internal/utils"
 
 	"github.com/gdamore/tcell/v2"
@@ -271,6 +272,6 @@ func ShowErrorModal(app *tview.Application, returnTo tview.Primitive, message st
 			sheetview.Back(app, returnTo, returnTo)
 		})
 
-	modal.SetBackgroundColor(tcell.ColorDarkRed).SetBorderColor(tcell.ColorRed)
+	uitheme.StyleModalWarn(modal, "Error")
 	app.SetRoot(modal, true).SetFocus(modal)
 }

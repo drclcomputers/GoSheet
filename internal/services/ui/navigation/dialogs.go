@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"gosheet/internal/services/cell"
 	"gosheet/internal/services/sheetview"
+	"gosheet/internal/services/uitheme"
 	"gosheet/internal/utils"
 
 	"github.com/gdamore/tcell/v2"
@@ -75,7 +76,7 @@ func FindDialog(app *tview.Application, table *tview.Table, globalData map[[2]in
 		sheetview.Show(app)
 	})
 
-	form.SetBorder(true).SetTitle(" Find ").SetTitleAlign(tview.AlignCenter)
+	uitheme.StyleForm(form, "Find")
 	form.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		if event.Key() == tcell.KeyEscape {
 			lastSearchRow, lastSearchCol = 0, 0
@@ -181,7 +182,7 @@ func ReplaceDialog(app *tview.Application, table *tview.Table, globalData map[[2
 					app.SetRoot(form, true).SetFocus(form)
 				}
 			})
-		modal.SetBorder(true).SetTitle(" Confirm Replace All ").SetTitleAlign(tview.AlignCenter)
+		uitheme.StyleModal(modal, "Replace all")
 		app.SetRoot(modal, true).SetFocus(modal)
 	})
 
@@ -189,7 +190,7 @@ func ReplaceDialog(app *tview.Application, table *tview.Table, globalData map[[2
 		sheetview.Show(app)
 	})
 
-	form.SetBorder(true).SetTitle(" Replace ").SetTitleAlign(tview.AlignCenter)
+	uitheme.StyleForm(form, "Replace")
 	form.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		if event.Key() == tcell.KeyEscape {
 			sheetview.Show(app)

@@ -9,6 +9,7 @@ package ui
 
 import (
 	"gosheet/internal/services/sheetview"
+	"gosheet/internal/services/uitheme"
 
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
@@ -79,6 +80,6 @@ func ShowWarningModal(app *tview.Application, returnTo tview.Primitive, message 
 		SetDoneFunc(func(buttonIndex int, buttonLabel string) {
 			sheetview.Back(app, returnTo, returnTo)
 		})
-	modal.SetBorder(true).SetTitle(" Info ").SetTitleAlign(tview.AlignCenter)
+	uitheme.StyleModal(modal, "Info")
 	app.SetRoot(modal, true).SetFocus(modal)
 }

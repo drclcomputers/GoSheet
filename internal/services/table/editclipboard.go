@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"gosheet/internal/services/cell"
 	"gosheet/internal/services/sheetview"
+	"gosheet/internal/services/uitheme"
 	"gosheet/internal/utils"
 
 	"github.com/rivo/tview"
@@ -257,7 +258,7 @@ func pasteSelection(app *tview.Application, table *tview.Table, visualTargetRow,
 							}
 							sheetview.Show(app)
 						})
-					modal.SetBorder(true).SetTitle("Confirm Paste").SetTitleAlign(tview.AlignCenter)
+					uitheme.StyleModal(modal, "Paste")
 					app.SetRoot(modal, true).SetFocus(modal)
 					return
 				}
@@ -375,7 +376,7 @@ func cutSelection(app *tview.Application, table *tview.Table) {
 							}
 							sheetview.Show(app)
 						})
-					modal.SetBorder(true).SetTitle("Confirm Cut").SetTitleAlign(tview.AlignCenter)
+					uitheme.StyleModalWarn(modal, "Cut")
 					app.SetRoot(modal, true).SetFocus(modal)
 					return
 				}
@@ -474,7 +475,7 @@ func deleteSelection(app *tview.Application, table *tview.Table) {
 							}
 							sheetview.Show(app)
 						})
-					modal.SetBorder(true).SetTitle("Confirm Delete").SetTitleAlign(tview.AlignCenter)
+					uitheme.StyleModalWarn(modal, "Delete")
 					app.SetRoot(modal, true).SetFocus(modal)
 					return
 				}

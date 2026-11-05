@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"gosheet/internal/services/sheetview"
 	"gosheet/internal/services/ui"
+	"gosheet/internal/services/uitheme"
 
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
@@ -25,11 +26,7 @@ func ShowSheetContextMenu(app *tview.Application, table *tview.Table) {
 	sheet := globalWorkbook.GetActiveSheet()
 
 	modal := tview.NewModal().
-		SetText(fmt.Sprintf(
-			"[yellow::b]Sheet: %s[::-]\n\n"+
-				"Quick Actions:",
-			sheet.Name,
-		)).
+		SetText(fmt.Sprintf("Sheet: %s", sheet.Name)).
 		AddButtons([]string{
 			"Rename",
 			"Duplicate",
@@ -59,10 +56,7 @@ func ShowSheetContextMenu(app *tview.Application, table *tview.Table) {
 			}
 		})
 
-	modal.SetBorder(true).
-		SetTitle(" Sheet Options ").
-		SetBorderColor(tcell.ColorYellow)
-
+	uitheme.StyleModal(modal, "Sheet")
 	app.SetRoot(modal, true).SetFocus(modal)
 }
 
@@ -97,9 +91,7 @@ func showQuickRenameDialog(app *tview.Application, table *tview.Table) {
 			sheetview.Show(app)
 		})
 
-	form.SetBorder(true).
-		SetTitle(" Rename Sheet ").
-		SetBorderColor(tcell.ColorYellow)
+	uitheme.StyleForm(form, "Rename sheet")
 
 	form.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		if event.Key() == tcell.KeyEscape {
@@ -176,9 +168,7 @@ func confirmDeleteSheet(app *tview.Application, table *tview.Table) {
 			sheetview.Show(app)
 		})
 
-	modal.SetBackgroundColor(tcell.ColorDarkRed).
-		SetBorderColor(tcell.ColorRed)
-
+	uitheme.StyleModalWarn(modal, "Delete sheet")
 	app.SetRoot(modal, true).SetFocus(modal)
 }
 

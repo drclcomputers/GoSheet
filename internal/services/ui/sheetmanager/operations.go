@@ -10,6 +10,7 @@ package sheetmanager
 import (
 	"fmt"
 	"gosheet/internal/services/sheetview"
+	"gosheet/internal/services/uitheme"
 	"strings"
 
 	"github.com/gdamore/tcell/v2"
@@ -147,14 +148,9 @@ func confirmDeleteSheetFromManager(app *tview.Application,
 
 	modal := tview.NewModal().
 		SetText(fmt.Sprintf(
-			"[red::b]⚠️  DELETE SHEET[::-]\n\n"+
-				"Are you sure you want to delete:\n"+
-				"[yellow]'%s'[-]?\n\n"+
-				"[white]This will permanently remove:[-]\n"+
-				"  • [white]%d[-] cells with data\n"+
-				"  • All formulas and formatting\n"+
-				"  • All undo/redo history\n\n"+
-				"[red::b]This action cannot be undone![::-]",
+			"Delete '%s'?\n\n"+
+				"This removes %d cells, their formulas, and this sheet's undo history.\n\n"+
+				"It cannot be undone.",
 			sheet.Name,
 			sheet.CellCount,
 		)).
@@ -177,9 +173,7 @@ func confirmDeleteSheetFromManager(app *tview.Application,
 			sheetview.Back(app, returnTo, list)
 		})
 
-	modal.SetBackgroundColor(tcell.ColorDarkRed).
-		SetBorderColor(tcell.ColorRed)
-
+	uitheme.StyleModalWarn(modal, "Delete sheet")
 	app.SetRoot(modal, true).SetFocus(modal)
 }
 

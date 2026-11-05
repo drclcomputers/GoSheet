@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"gosheet/internal/services/cell"
 	"gosheet/internal/services/sheetview"
+	"gosheet/internal/services/uitheme"
 	"gosheet/internal/utils"
 	"strconv"
 	"strings"
@@ -95,7 +96,7 @@ func imitatePasteCellFormat(app *tview.Application, table *tview.Table, visualTa
 							}
 							sheetview.Show(app)
 						})
-					modal.SetBorder(true).SetTitle("Confirm Format Paste").SetTitleAlign(tview.AlignCenter)
+					uitheme.StyleModal(modal, "Format painter")
 					app.SetRoot(modal, true).SetFocus(modal)
 					return
 				}

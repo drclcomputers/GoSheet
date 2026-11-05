@@ -11,12 +11,12 @@ import (
 	"fmt"
 	"gosheet/internal/services/cell"
 	"gosheet/internal/services/sheetview"
+	"gosheet/internal/services/uitheme"
 	"gosheet/internal/utils/evaluatefuncs"
 	"strconv"
 	"strings"
 
 	"github.com/expr-lang/expr"
-	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 )
 
@@ -86,11 +86,7 @@ func EnforceValidationOnEdit(app *tview.Application, returnTo tview.Primitive, c
 				sheetview.Back(app, returnTo, returnTo)
 			})
 
-		modal.SetBackgroundColor(tcell.ColorDarkRed).
-			SetBorderColor(tcell.ColorRed)
-		modal.SetButtonBackgroundColor(tcell.ColorDarkRed).
-			SetButtonTextColor(tcell.ColorWhite)
-
+		uitheme.StyleModalWarn(modal, "Validation")
 		app.SetRoot(modal, true).SetFocus(modal)
 		return false
 	}

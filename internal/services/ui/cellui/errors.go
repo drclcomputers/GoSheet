@@ -11,9 +11,9 @@ import (
 	"fmt"
 	"gosheet/internal/services/cell"
 	"gosheet/internal/services/sheetview"
+	"gosheet/internal/services/uitheme"
 	"gosheet/internal/utils"
 
-	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 )
 
@@ -31,7 +31,7 @@ func ShowUneditableModal(app *tview.Application, table *tview.Table, row, col in
 			}
 		})
 
-	modal.SetBorder(true).SetTitle(" Confirm Edit ").SetTitleAlign(tview.AlignCenter)
+	uitheme.StyleModal(modal, "Confirm edit")
 	app.SetRoot(modal, true).SetFocus(modal)
 }
 
@@ -46,10 +46,7 @@ func ShowTypeErrorModal(app *tview.Application, form *tview.Flex, c *cell.Cell, 
 			app.SetRoot(form, true).SetFocus(leftForm)
 		})
 
-	modal.SetBorder(true)
-	modal.SetTitle(" Type Mismatch ⚠️")
-	modal.SetTitleAlign(tview.AlignCenter)
-
+	uitheme.StyleModalWarn(modal, "Type mismatch")
 	app.SetRoot(modal, true).SetFocus(modal)
 }
 
@@ -60,25 +57,25 @@ func ShowFormulaErrorModal(app *tview.Application, form *tview.Flex, errorCode s
 
 	switch errorCode {
 	case "#ARGS!":
-		title = " Argument Error ⚠️"
+		title = "Argument error"
 		message = fmt.Sprintf("Formula argument error:\n\n%s\n\nCheck the number and types of arguments in your formula.", errorMessage)
 	case "#DIV/0!":
-		title = " Division by Zero ⚠️"
+		title = "Division by zero"
 		message = "Cannot divide by zero.\n\nCheck your formula for division operations."
 	case "#VALUE!":
-		title = " Value Error ⚠️"
+		title = "Value error"
 		message = fmt.Sprintf("Invalid value in formula:\n\n%s\n\nCheck data types and values.", errorMessage)
 	case "#CIRC!":
-		title = " Circular Reference ⚠️"
+		title = "Circular reference"
 		message = "Circular dependency detected.\n\nA cell cannot reference itself directly or indirectly."
 	case "#REF!":
-		title = " Reference Error ⚠️"
+		title = "Reference error"
 		message = "Invalid cell reference.\n\nCheck that all referenced cells exist."
 	case "#ERROR!":
-		title = " Formula Error ⚠️"
+		title = "Formula error"
 		message = fmt.Sprintf("An error occurred in the formula:\n\n%s", errorMessage)
 	default:
-		title = " Error ⚠️"
+		title = "Error"
 		message = fmt.Sprintf("An error occurred:\n\n%s", errorMessage)
 	}
 
@@ -89,10 +86,6 @@ func ShowFormulaErrorModal(app *tview.Application, form *tview.Flex, errorCode s
 			app.SetRoot(form, true).SetFocus(leftForm)
 		})
 
-	modal.SetBorder(true)
-	modal.SetTitle(title)
-	modal.SetTitleAlign(tview.AlignCenter)
-	modal.SetBackgroundColor(tcell.ColorBlack)
-
+	uitheme.StyleModalWarn(modal, title)
 	app.SetRoot(modal, true).SetFocus(modal)
 }

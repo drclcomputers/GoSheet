@@ -12,6 +12,7 @@ import (
 	"gosheet/internal/services/cell"
 	"gosheet/internal/services/sheetview"
 	"gosheet/internal/services/ui"
+	"gosheet/internal/services/uitheme"
 	"gosheet/internal/utils"
 	"maps"
 
@@ -86,7 +87,7 @@ func deleteCol(app *tview.Application, table *tview.Table, col int32) {
 				sheetview.Show(app)
 			}
 		})
-	modal.SetBorder(true).SetTitle(" Confirmation ").SetTitleAlign(tview.AlignCenter)
+	uitheme.StyleModalWarn(modal, "Delete column")
 	app.SetRoot(modal, true).SetFocus(modal)
 }
 
@@ -129,7 +130,7 @@ func deleteRow(app *tview.Application, table *tview.Table, row int32) {
 				sheetview.Show(app)
 			}
 		})
-	modal.SetBorder(true).SetTitle(" Confirmation ").SetTitleAlign(tview.AlignCenter)
+	uitheme.StyleModalWarn(modal, "Delete row")
 	app.SetRoot(modal, true).SetFocus(modal)
 }
 
@@ -191,7 +192,7 @@ func insertCol(app *tview.Application, table *tview.Table, col int32) {
 				sheetview.Show(app)
 			}
 		})
-	modal.SetBorder(true).SetTitle(" Insert Column ").SetTitleAlign(tview.AlignCenter)
+	uitheme.StyleModal(modal, "Insert column")
 	app.SetRoot(modal, true).SetFocus(modal)
 }
 
@@ -232,6 +233,6 @@ func insertRow(app *tview.Application, table *tview.Table, row int32) {
 				sheetview.Show(app)
 			}
 		})
-	modal.SetBorder(true).SetTitle(" Insert Row ").SetTitleAlign(tview.AlignCenter)
+	uitheme.StyleModal(modal, "Insert row")
 	app.SetRoot(modal, true).SetFocus(modal)
 }

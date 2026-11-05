@@ -13,6 +13,7 @@ import (
 	"gosheet/internal/services/cell"
 	"gosheet/internal/services/sheetview"
 	"gosheet/internal/services/ui/datavalidation"
+	"gosheet/internal/services/uitheme"
 	"gosheet/internal/utils"
 
 	"github.com/rivo/tview"
@@ -106,6 +107,7 @@ func commitQuickEdit(app *tview.Application, table *tview.Table, row, col int32,
 				sheetview.Show(app)
 				syncFormulaBar(table)
 			})
+		uitheme.StyleModalWarn(modal, "Validation")
 		app.SetRoot(modal, true).SetFocus(modal)
 		return
 	}

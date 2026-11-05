@@ -8,7 +8,8 @@
 package datavalidation
 
 import (
-	"github.com/gdamore/tcell/v2"
+	"gosheet/internal/services/uitheme"
+
 	"github.com/rivo/tview"
 )
 
@@ -20,10 +21,6 @@ func showValidationErrorModal(app *tview.Application, container *tview.Flex, ret
 			app.SetRoot(container, true).SetFocus(returnTo)
 		})
 
-	modal.SetBackgroundColor(tcell.ColorDarkRed).
-		SetBorderColor(tcell.ColorRed)
-	modal.SetButtonBackgroundColor(tcell.ColorDarkRed).
-		SetButtonTextColor(tcell.ColorWhite)
-
+	uitheme.StyleModalWarn(modal, "Validation")
 	app.SetRoot(modal, true).SetFocus(modal)
 }

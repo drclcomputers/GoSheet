@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"gosheet/internal/services/cell"
 	"gosheet/internal/services/sheetview"
+	"gosheet/internal/services/uitheme"
 	"gosheet/internal/utils"
 	"os"
 	"path/filepath"
@@ -35,24 +36,16 @@ func ShowUnifiedFileDialog(app *tview.Application, returnTo tview.Primitive, mod
 	var selectedFormat int = 0
 
 	quickAccessList := tview.NewList()
-	quickAccessList.SetBorder(true).
-		SetTitle(" Quick Access ").
-		SetBorderColor(tcell.ColorLightBlue)
-	quickAccessList.SetSelectedBackgroundColor(tcell.ColorDarkCyan)
-	quickAccessList.SetSelectedTextColor(tcell.ColorWhite)
+	uitheme.StyleList(quickAccessList, "Quick access")
 
-	// File list
 	fileList := tview.NewList()
-	fileList.SetBorder(true).
-		SetTitle(" Files ").
-		SetBorderColor(tcell.ColorLightBlue)
-	fileList.SetSelectedBackgroundColor(tcell.ColorDarkCyan)
-	fileList.SetSelectedTextColor(tcell.ColorWhite)
+	uitheme.StyleList(fileList, "Files")
 
 	pathLabel := tview.NewTextView().
 		SetDynamicColors(true).
-		SetText(fmt.Sprintf("[yellow]Location:[::-] %s", utils.PrettyPath(filepath.Dir(currentPath), "no")))
-	pathLabel.SetBorder(true).SetBorderColor(tcell.ColorLightBlue)
+		SetTextColor(uitheme.Text).
+		SetText(fmt.Sprintf("[#f0d090]Location[-]  %s", utils.PrettyPath(filepath.Dir(currentPath), "no")))
+	uitheme.Paint(pathLabel, "")
 
 	form := tview.NewForm()
 
@@ -378,18 +371,17 @@ func ShowUnifiedFileDialog(app *tview.Application, returnTo tview.Primitive, mod
 						sheetview.Show(app)
 					}
 				})
-			modal.SetBorder(true).SetTitle(" Unsaved Changes ").SetBorderColor(tcell.ColorYellow)
+			uitheme.StyleModalWarn(modal, "Unsaved changes")
 			app.SetRoot(modal, true).SetFocus(modal)
 		} else {
 			app.Stop()
 		}
 	})
 
-	form.SetBorder(true).SetBorderColor(tcell.ColorYellow)
 	if mode == "save" {
-		form.SetTitle(" Options ")
+		uitheme.StyleForm(form, "Options")
 	} else {
-		form.SetTitle(" Open File ")
+		uitheme.StyleForm(form, "Open file")
 	}
 
 	// Layout

@@ -12,6 +12,7 @@ import (
 	"gosheet/internal/services/ui"
 	"gosheet/internal/services/ui/file"
 	"gosheet/internal/services/ui/navigation"
+	"gosheet/internal/services/uitheme"
 	"gosheet/internal/utils"
 
 	"github.com/gdamore/tcell/v2"
@@ -35,6 +36,7 @@ func InputCaptureService(app *tview.Application, table *tview.Table, vp *utils.V
 				SetDoneFunc(func(buttonIndex int, buttonLabel string) {
 					app.Stop()
 				})
+			uitheme.StyleModalWarn(modal, "Quit")
 			app.SetRoot(modal, true).SetFocus(modal)
 			return nil
 		}

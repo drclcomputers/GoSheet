@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"gosheet/internal/services/cell"
 	"gosheet/internal/services/sheetview"
+	"gosheet/internal/services/uitheme"
 	"gosheet/internal/utils"
 
 	"github.com/gdamore/tcell/v2"
@@ -58,9 +59,7 @@ func ShowCommentDialog(app *tview.Application, table *tview.Table, globalData ma
 		sheetview.Show(app)
 	}).SetButtonsAlign(tview.AlignCenter)
 
-	form.SetBorder(true).
-		SetTitle(fmt.Sprintf(" Cell Comment - %s%d ", utils.ColumnName(col), row)).
-		SetTitleAlign(tview.AlignCenter)
+	uitheme.StyleForm(form, fmt.Sprintf("Comment · %s%d", utils.ColumnName(col), row))
 
 	form.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		switch {
@@ -122,8 +121,6 @@ func deleteComment(app *tview.Application, table *tview.Table, cellData *cell.Ce
 			}
 			sheetview.Show(app)
 		})
-	confirmModal.SetBorder(true).
-		SetTitle(" Confirm Delete ").
-		SetTitleAlign(tview.AlignCenter)
+	uitheme.StyleModalWarn(confirmModal, "Delete comment")
 	app.SetRoot(confirmModal, true).SetFocus(confirmModal)
 }

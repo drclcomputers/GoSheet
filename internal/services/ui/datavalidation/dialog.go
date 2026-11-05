@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"gosheet/internal/services/cell"
 	"gosheet/internal/services/sheetview"
+	"gosheet/internal/services/uitheme"
 	"gosheet/internal/utils"
 	"strings"
 
@@ -57,37 +58,34 @@ func ShowValidationRuleDialog(app *tview.Application, table *tview.Table, return
 		SetLabel("Validation Type: ").
 		SetOptions(presetNames, nil).
 		SetCurrentOption(detectedPresetIdx)
-	presetDropdown.SetBorder(true).
-		SetTitle(" 1. Select Type ").
-		SetBorderColor(tcell.ColorLightBlue)
+	uitheme.Paint(presetDropdown, "1. Type")
+	presetDropdown.SetLabelColor(uitheme.Label).
+		SetFieldBackgroundColor(uitheme.Field).
+		SetFieldTextColor(uitheme.Text)
 
 	dynamicForm := tview.NewForm()
-	dynamicForm.SetBorder(true).
-		SetTitle(" 2. Configure ").
-		SetBorderColor(tcell.ColorLightBlue)
+	uitheme.StyleForm(dynamicForm, "2. Configure")
 
 	customRuleArea := tview.NewTextArea().
-		SetPlaceholder("Enter custom validation rule using 'THIS'...\nExample: THIS > 0 && THIS < 100")
+		SetPlaceholder("Enter a rule using THIS. Example: THIS > 0 && THIS < 100")
 	customRuleArea.SetText(*cellData.Valrule, true)
-	customRuleArea.SetBorder(true).
-		SetTitle(" Custom Rule (Advanced) ").
-		SetBorderColor(tcell.ColorYellow)
+	uitheme.Paint(customRuleArea, "Custom rule")
 
 	customMessageInput := tview.NewInputField().
-		SetLabel("Custom Error Message (optional): ").
+		SetLabel("Error message: ").
 		SetText(*cellData.Valrulemsg).
 		SetFieldWidth(60).
-		SetPlaceholder("Leave empty for default message")
-	customMessageInput.SetBorder(true).
-		SetTitle(" 3. Error Message ").
-		SetBorderColor(tcell.ColorPurple)
+		SetPlaceholder("Optional. Shown when the value is rejected.")
+	customMessageInput.SetLabelColor(uitheme.Label).
+		SetFieldBackgroundColor(uitheme.Field).
+		SetFieldTextColor(uitheme.Text)
+	uitheme.Paint(customMessageInput, "3. Message")
 
 	previewText := tview.NewTextView().
 		SetDynamicColors(true).
-		SetWordWrap(true)
-	previewText.SetBorder(true).
-		SetTitle(" Preview ").
-		SetBorderColor(tcell.ColorGreen)
+		SetWordWrap(true).
+		SetTextColor(uitheme.Text)
+	uitheme.Paint(previewText, "Preview")
 
 	buttonForm := tview.NewForm()
 	buttonForm.AddButton("Apply", func() {
@@ -139,6 +137,7 @@ func ShowValidationRuleDialog(app *tview.Application, table *tview.Table, return
 	buttonForm.AddButton("Cancel", func() {
 		sheetview.Back(app, returnTo, focus)
 	})
+	uitheme.StyleForm(buttonForm, "")
 
 	var currentFormItemsInDynamic []tview.FormItem
 
@@ -246,9 +245,7 @@ func ShowValidationRuleDialog(app *tview.Application, table *tview.Table, return
 
 	updateDynamicForm(detectedPresetIdx)
 
-	container.SetBorder(true).
-		SetTitle(fmt.Sprintf(" Data validation · %s%d ", utils.ColumnName(col), row)).
-		SetBorderColor(tcell.ColorYellow)
+	uitheme.Paint(container, fmt.Sprintf("Data validation · %s%d", utils.ColumnName(col), row))
 
 	getFocusablePrimitives := func() []tview.Primitive {
 		focusable := []tview.Primitive{}

@@ -16,9 +16,9 @@ import (
 	"gosheet/internal/services/fileop"
 	"gosheet/internal/services/sheetview"
 	"gosheet/internal/services/ui/cellui"
+	"gosheet/internal/services/uitheme"
 	"gosheet/internal/utils"
 
-	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 )
 
@@ -43,7 +43,7 @@ func showOverwriteConfirmation(app *tview.Application, table *tview.Table, filen
 			}
 		})
 
-	modal.SetBackgroundColor(tcell.ColorDarkRed).SetBorderColor(tcell.ColorRed)
+	uitheme.StyleModalWarn(modal, "Overwrite")
 	app.SetRoot(modal, true).SetFocus(modal)
 }
 
@@ -71,7 +71,7 @@ func performSave(app *tview.Application, table *tview.Table, filename string, fo
 			}
 		})
 
-	modal.SetBackgroundColor(tcell.ColorDarkGreen).SetBorderColor(tcell.ColorGreen)
+	uitheme.StyleModalOK(modal, "Saved")
 	app.SetRoot(modal, true).SetFocus(modal)
 }
 
@@ -89,6 +89,6 @@ func ShowUneditableModal(app *tview.Application, table *tview.Table, row, col in
 			}
 		})
 
-	modal.SetBorder(true).SetTitle(" Confirm Edit ").SetTitleAlign(tview.AlignCenter)
+	uitheme.StyleModal(modal, "Confirm edit")
 	app.SetRoot(modal, true).SetFocus(modal)
 }
