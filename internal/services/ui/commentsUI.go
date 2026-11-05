@@ -10,6 +10,7 @@ package ui
 import (
 	"fmt"
 	"gosheet/internal/services/cell"
+	"gosheet/internal/services/sheetview"
 	"gosheet/internal/utils"
 
 	"github.com/gdamore/tcell/v2"
@@ -38,23 +39,23 @@ func ShowCommentDialog(app *tview.Application, table *tview.Table, globalData ma
 	}
 
 	form := tview.NewForm()
-	
+
 	form.AddTextArea("Comment:", *cellData.Notes, 0, 0, 500, func(text string) {
 	})
 
 	textAreaItem := form.GetFormItem(0).(*tview.TextArea)
 	textAreaItem.SetOffset(0, 0)
 
-	form.AddButton("Save", func() { 
+	form.AddButton("Save", func() {
 		saveComment(app, table, form, cellData, row, col, globalData, globalViewport)
 	}).SetButtonsAlign(tview.AlignCenter)
 
-	form.AddButton("Delete", func() { 
-		deleteComment(app, table, cellData, row, col, globalData, globalViewport) 
+	form.AddButton("Delete", func() {
+		deleteComment(app, table, cellData, row, col, globalData, globalViewport)
 	}).SetButtonsAlign(tview.AlignCenter)
-	
+
 	form.AddButton("Cancel", func() {
-		app.SetRoot(table, true).SetFocus(table)
+		sheetview.Show(app)
 	}).SetButtonsAlign(tview.AlignCenter)
 
 	form.SetBorder(true).
@@ -68,8 +69,8 @@ func ShowCommentDialog(app *tview.Application, table *tview.Table, globalData ma
 		case (event.Rune() == 'd' || event.Rune() == 'D') && event.Modifiers()&tcell.ModAlt != 0:
 			deleteComment(app, table, cellData, row, col, globalData, globalViewport)
 		case event.Key() == tcell.KeyEscape:
-			app.SetRoot(table, true).SetFocus(table)
-			return nil 
+			sheetview.Show(app)
+			return nil
 		}
 		return event
 	})
@@ -80,7 +81,7 @@ func ShowCommentDialog(app *tview.Application, table *tview.Table, globalData ma
 func saveComment(app *tview.Application, table *tview.Table, form *tview.Form, cellData *cell.Cell, row, col int32, globalData map[[2]int]*cell.Cell, globalViewport *utils.Viewport) {
 	textAreaItem := form.GetFormItem(0).(*tview.TextArea)
 	commentText := textAreaItem.GetText()
-	
+
 	if cellData.Notes == nil {
 		cellData.Notes = new(string)
 	}
@@ -88,18 +89,18 @@ func saveComment(app *tview.Application, table *tview.Table, form *tview.Form, c
 
 	key := [2]int{int(row), int(col)}
 	globalData[key] = cellData
-	
+
 	if globalViewport.IsVisible(row, col) {
 		visualR, visualC := globalViewport.ToRelative(row, col)
 		table.SetCell(int(visualR), int(visualC), cellData.ToTViewCell())
 	}
-	
-	app.SetRoot(table, true).SetFocus(table)
+
+	sheetview.Show(app)
 }
 
 func deleteComment(app *tview.Application, table *tview.Table, cellData *cell.Cell, row, col int32, globalData map[[2]int]*cell.Cell, globalViewport *utils.Viewport) {
 	if cellData.Notes == nil {
-		app.SetRoot(table, true).SetFocus(table)
+		sheetview.Show(app)
 		return
 	}
 
@@ -110,16 +111,16 @@ func deleteComment(app *tview.Application, table *tview.Table, cellData *cell.Ce
 			if buttonLabel == "Yes" {
 				emptyStr := ""
 				cellData.Notes = &emptyStr
-				
+
 				key := [2]int{int(row), int(col)}
 				globalData[key] = cellData
-				
+
 				if globalViewport.IsVisible(row, col) {
 					visualR, visualC := globalViewport.ToRelative(row, col)
 					table.SetCell(int(visualR), int(visualC), cellData.ToTViewCell())
 				}
 			}
-			app.SetRoot(table, true).SetFocus(table)
+			sheetview.Show(app)
 		})
 	confirmModal.SetBorder(true).
 		SetTitle(" Confirm Delete ").

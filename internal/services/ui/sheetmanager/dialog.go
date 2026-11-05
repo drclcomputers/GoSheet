@@ -8,6 +8,8 @@
 package sheetmanager
 
 import (
+	"gosheet/internal/services/sheetview"
+
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 )
@@ -42,7 +44,7 @@ func ShowSheetManager(app *tview.Application, table *tview.Table, callbacks Shee
 		AddItem(infoPanel, 12, 0, false)
 
 	mainContent := tview.NewFlex()
-	
+
 	mainLayout := tview.NewFlex().SetDirection(tview.FlexRow).
 		AddItem(mainContent, 0, 1, true)
 
@@ -60,7 +62,7 @@ func ShowSheetManager(app *tview.Application, table *tview.Table, callbacks Shee
 	mainLayout.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		switch event.Key() {
 		case tcell.KeyEscape:
-			app.SetRoot(table, true).SetFocus(table)
+			sheetview.Show(app)
 			return nil
 		case tcell.KeyEnter:
 			switchToSelectedSheet(app, table, callbacks, list)

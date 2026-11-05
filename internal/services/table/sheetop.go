@@ -222,7 +222,7 @@ func RenderActiveSheetView(table *tview.Table) {
 // GetSheetManagerCallbacks returns callbacks for the sheet manager sheetmanager
 func GetSheetManagerCallbacks(table *tview.Table) sheetmanager.SheetManagerCallbacks {
 	return sheetmanager.SheetManagerCallbacks{
-		GetSheets:      GetSheets,
+		GetSheets: GetSheets,
 		GetActiveIndex: func() int {
 			if globalWorkbook == nil {
 				return -1

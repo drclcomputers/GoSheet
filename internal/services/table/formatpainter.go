@@ -10,6 +10,7 @@ package table
 import (
 	"fmt"
 	"gosheet/internal/services/cell"
+	"gosheet/internal/services/sheetview"
 	"gosheet/internal/utils"
 	"strconv"
 	"strings"
@@ -23,7 +24,7 @@ var formatSourceCell *cell.Cell
 func robCopyCellFormat(table *tview.Table) {
 	activeData := GetActiveSheetData()
 	activeViewport := GetActiveViewport()
-	
+
 	if activeData == nil || activeViewport == nil {
 		return
 	}
@@ -38,18 +39,18 @@ func robCopyCellFormat(table *tview.Table) {
 	key := [2]int{int(absRow), int(absCol)}
 	if cellData, exists := activeData[key]; exists {
 		formatSourceCell = &cell.Cell{
-			Color:               cellData.Color,
-			BgColor:             cellData.BgColor,
-			Flags:               cellData.Flags,
-			Align:               cellData.Align,
-			DecimalPoints:       cellData.DecimalPoints,
-			ThousandsSeparator:  cellData.ThousandsSeparator,
-			DecimalSeparator:    cellData.DecimalSeparator,
-			FinancialSign:       cellData.FinancialSign,
-			Valrule: 			 cellData.Valrule,
-			Valrulemsg: 		 cellData.Valrulemsg,
-			MaxWidth: 			 cellData.MaxWidth,
-			MinWidth: 			 cellData.MinWidth,
+			Color:              cellData.Color,
+			BgColor:            cellData.BgColor,
+			Flags:              cellData.Flags,
+			Align:              cellData.Align,
+			DecimalPoints:      cellData.DecimalPoints,
+			ThousandsSeparator: cellData.ThousandsSeparator,
+			DecimalSeparator:   cellData.DecimalSeparator,
+			FinancialSign:      cellData.FinancialSign,
+			Valrule:            cellData.Valrule,
+			Valrulemsg:         cellData.Valrulemsg,
+			MaxWidth:           cellData.MaxWidth,
+			MinWidth:           cellData.MinWidth,
 		}
 	}
 }
@@ -58,7 +59,7 @@ func robCopyCellFormat(table *tview.Table) {
 func imitatePasteCellFormat(app *tview.Application, table *tview.Table, visualTargetRow, visualTargetCol int32) {
 	activeData := GetActiveSheetData()
 	activeViewport := GetActiveViewport()
-	
+
 	if activeData == nil || activeViewport == nil {
 		return
 	}
@@ -70,7 +71,7 @@ func imitatePasteCellFormat(app *tview.Application, table *tview.Table, visualTa
 	targetRow, targetCol := activeViewport.ToAbsolute(visualTargetRow, visualTargetCol)
 
 	r1, c1, r2, c2 := getSelectionRange(table)
-	
+
 	if r1 == r2 && c1 == c2 && targetRow != 0 && targetCol != 0 {
 		r1, c1, r2, c2 = targetRow, targetCol, targetRow, targetCol
 	}
@@ -85,14 +86,14 @@ func imitatePasteCellFormat(app *tview.Application, table *tview.Table, visualTa
 			if cellData, exists := activeData[key]; exists {
 				if !cellData.HasFlag(cell.FlagEditable) {
 					modal := tview.NewModal().
-						SetText(fmt.Sprintf("Target cell %s%d and potential others are uneditable.\nDo you wish to overwrite formatting on uneditable cells?", 
+						SetText(fmt.Sprintf("Target cell %s%d and potential others are uneditable.\nDo you wish to overwrite formatting on uneditable cells?",
 							utils.ColumnName(int32(c)), r)).
 						AddButtons([]string{"Yes", "Cancel"}).
 						SetDoneFunc(func(buttonIndex int, buttonLabel string) {
 							if buttonLabel == "Yes" {
 								performActualFormatPaste(table, formatSourceCell, r1, c1, r2, c2)
 							}
-							app.SetRoot(table, true).SetFocus(table)
+							sheetview.Show(app)
 						})
 					modal.SetBorder(true).SetTitle("Confirm Format Paste").SetTitleAlign(tview.AlignCenter)
 					app.SetRoot(modal, true).SetFocus(modal)
@@ -110,19 +111,19 @@ func imitatePasteCellFormat(app *tview.Application, table *tview.Table, visualTa
 func performActualFormatPaste(table *tview.Table, sourceFormat *cell.Cell, r1, c1, r2, c2 int32) {
 	activeData := GetActiveSheetData()
 	activeViewport := GetActiveViewport()
-	
+
 	if activeData == nil || activeViewport == nil {
 		return
 	}
-	
+
 	for r := r1; r <= r2; r++ {
 		for c := c1; c <= c2; c++ {
 			if r == 0 || c == 0 {
 				continue
 			}
-			
+
 			targetCell := cell.GetOrCreateCell(table, r, c, activeData)
-			
+
 			targetCell.Color = sourceFormat.Color
 			targetCell.BgColor = sourceFormat.BgColor
 			targetCell.Flags = sourceFormat.Flags
@@ -140,11 +141,11 @@ func performActualFormatPaste(table *tview.Table, sourceFormat *cell.Cell, r1, c
 				if targetCell.RawValue != nil {
 					normalized := strings.ReplaceAll(*targetCell.RawValue, string(targetCell.ThousandsSeparator), "")
 					normalized = strings.TrimPrefix(normalized, string(targetCell.FinancialSign))
-					
+
 					if val, err := strconv.ParseFloat(normalized, 64); err == nil {
-						formatted := utils.FormatWithCommas(val, targetCell.ThousandsSeparator, 
+						formatted := utils.FormatWithCommas(val, targetCell.ThousandsSeparator,
 							targetCell.DecimalSeparator, targetCell.DecimalPoints, targetCell.FinancialSign)
-						
+
 						if *targetCell.Type == "financial" {
 							formatted = fmt.Sprintf("%c%s", targetCell.FinancialSign, formatted)
 						}
@@ -152,7 +153,7 @@ func performActualFormatPaste(table *tview.Table, sourceFormat *cell.Cell, r1, c
 					}
 				}
 			}
-			
+
 			if activeViewport.IsVisible(r, c) {
 				visualR, visualC := activeViewport.ToRelative(r, c)
 				table.SetCell(int(visualR), int(visualC), targetCell.ToTViewCell())

@@ -9,6 +9,7 @@ package navigation
 
 import (
 	"gosheet/internal/services/cell"
+	"gosheet/internal/services/sheetview"
 	"gosheet/internal/utils"
 	"strconv"
 	"strings"
@@ -17,13 +18,12 @@ import (
 	"github.com/rivo/tview"
 )
 
-
 func navigateToCell(table *tview.Table, absRow, absCol int32, globalViewport *utils.Viewport, globalData map[[2]int]*cell.Cell, RenderVisible func(table *tview.Table, globalViewport *utils.Viewport, globalData map[[2]int]*cell.Cell)) {
 	globalViewport.TopRow = absRow
 	globalViewport.LeftCol = absCol
-	
+
 	RenderVisible(table, globalViewport, globalData)
-	
+
 	table.Select(1, 1)
 }
 
@@ -31,7 +31,7 @@ func navigateToCell(table *tview.Table, absRow, absCol int32, globalViewport *ut
 func GoToCellModal(app *tview.Application, table *tview.Table, globalData map[[2]int]*cell.Cell, globalViewport *utils.Viewport, RenderVisible func(table *tview.Table, globalViewport *utils.Viewport, globalData map[[2]int]*cell.Cell)) {
 	form := tview.NewForm()
 	form.AddInputField("Cell Address (e.g. AA56):", "", 20, nil, nil)
-	
+
 	form.AddButton("Go", func() {
 		input := strings.TrimSpace(strings.ToUpper(form.GetFormItem(0).(*tview.InputField).GetText()))
 		unformattedPartString, unformattedPartNumber := SplitAlphaNumeric(input)
@@ -64,22 +64,22 @@ func GoToCellModal(app *tview.Application, table *tview.Table, globalData map[[2
 
 		globalViewport.TopRow = partRow
 		globalViewport.LeftCol = int32(partColumn)
-		
+
 		RenderVisible(table, globalViewport, globalData)
-		
+
 		table.Select(1, 1)
-		
-		app.SetRoot(table, true).SetFocus(table)
+
+		sheetview.Show(app)
 	})
-	
+
 	form.AddButton("Cancel", func() {
-		app.SetRoot(table, true).SetFocus(table)
+		sheetview.Show(app)
 	})
 
 	form.SetBorder(true).SetTitle(" Go To Cell ").SetTitleAlign(tview.AlignCenter)
 	form.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		if event.Key() == tcell.KeyEscape {
-			app.SetRoot(table, true).SetFocus(table)
+			sheetview.Show(app)
 			return nil
 		}
 		return event

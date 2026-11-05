@@ -10,6 +10,7 @@ package table
 import (
 	"fmt"
 	"gosheet/internal/services/cell"
+	"gosheet/internal/services/sheetview"
 	"gosheet/internal/services/ui"
 	"gosheet/internal/utils"
 	"maps"
@@ -22,7 +23,7 @@ var totalRows, totalCols int32
 // DELETE FUNCTIONS
 func deleteRowCol(app *tview.Application, table *tview.Table) {
 	activeViewport := GetActiveViewport()
-	
+
 	if activeViewport == nil {
 		return
 	}
@@ -42,7 +43,7 @@ func deleteRowCol(app *tview.Application, table *tview.Table) {
 func deleteCol(app *tview.Application, table *tview.Table, col int32) {
 	activeData := GetActiveSheetData()
 	activeViewport := GetActiveViewport()
-	
+
 	if activeData == nil || activeViewport == nil {
 		return
 	}
@@ -54,39 +55,39 @@ func deleteCol(app *tview.Application, table *tview.Table, col int32) {
 			if buttonLabel == "Yes" {
 				activeData := GetActiveSheetData()
 				activeViewport := GetActiveViewport()
-				
+
 				if activeData == nil || activeViewport == nil {
-					app.SetRoot(table, true).SetFocus(table)
+					sheetview.Show(app)
 					return
 				}
-				
+
 				keysToDelete := make([][2]int, 0)
-        		keysToUpdate := make(map[[2]int]*cell.Cell)
+				keysToUpdate := make(map[[2]int]*cell.Cell)
 
-        		for key, cellData := range activeData {
-        		    r, c := key[0], key[1]
-        		    if int32(c) == col {
-        		        keysToDelete = append(keysToDelete, key)
-        		    } else if int32(c) > col {
-        		        cellData.Column--
-        		        keysToUpdate[[2]int{r, c - 1}] = cellData
-        		        keysToDelete = append(keysToDelete, key)
-        		    }
-        		}
+				for key, cellData := range activeData {
+					r, c := key[0], key[1]
+					if int32(c) == col {
+						keysToDelete = append(keysToDelete, key)
+					} else if int32(c) > col {
+						cellData.Column--
+						keysToUpdate[[2]int{r, c - 1}] = cellData
+						keysToDelete = append(keysToDelete, key)
+					}
+				}
 
-        		for _, key := range keysToDelete {
-        		    delete(activeData, key)
-        		}
+				for _, key := range keysToDelete {
+					delete(activeData, key)
+				}
 				maps.Copy(activeData, keysToUpdate)
-				
+
 				RenderVisible(table, activeViewport, activeData)
-				app.SetRoot(table, true).SetFocus(table)
+				sheetview.Show(app)
 			} else {
-				app.SetRoot(table, true).SetFocus(table)
+				sheetview.Show(app)
 			}
 		})
 	modal.SetBorder(true).SetTitle(" Confirmation ").SetTitleAlign(tview.AlignCenter)
-	app.SetRoot(modal, true).SetFocus(modal)	
+	app.SetRoot(modal, true).SetFocus(modal)
 }
 
 func deleteRow(app *tview.Application, table *tview.Table, row int32) {
@@ -97,46 +98,46 @@ func deleteRow(app *tview.Application, table *tview.Table, row int32) {
 			if buttonLabel == "Yes" {
 				activeData := GetActiveSheetData()
 				activeViewport := GetActiveViewport()
-				
+
 				if activeData == nil || activeViewport == nil {
-					app.SetRoot(table, true).SetFocus(table)
+					sheetview.Show(app)
 					return
 				}
-				
+
 				keysToDelete := make([][2]int, 0)
-    			keysToUpdate := make(map[[2]int]*cell.Cell)
-        
-        		for key, cellData := range activeData {
-        		    r, c := key[0], key[1]
-        		    if int32(r) == row {
-        		        keysToDelete = append(keysToDelete, key)
-        		    } else if int32(r) > row {
-        		        cellData.Row--
-        		        keysToUpdate[[2]int{r - 1, c}] = cellData
-            		    keysToDelete = append(keysToDelete, key)
-            		}
-        		}
-        
-        		for _, key := range keysToDelete {
-        		    delete(activeData, key)
-        		}
-        		maps.Copy(activeData, keysToUpdate)	
+				keysToUpdate := make(map[[2]int]*cell.Cell)
+
+				for key, cellData := range activeData {
+					r, c := key[0], key[1]
+					if int32(r) == row {
+						keysToDelete = append(keysToDelete, key)
+					} else if int32(r) > row {
+						cellData.Row--
+						keysToUpdate[[2]int{r - 1, c}] = cellData
+						keysToDelete = append(keysToDelete, key)
+					}
+				}
+
+				for _, key := range keysToDelete {
+					delete(activeData, key)
+				}
+				maps.Copy(activeData, keysToUpdate)
 
 				RenderVisible(table, activeViewport, activeData)
-				app.SetRoot(table, true).SetFocus(table)
+				sheetview.Show(app)
 			} else {
-				app.SetRoot(table, true).SetFocus(table)
+				sheetview.Show(app)
 			}
 		})
 	modal.SetBorder(true).SetTitle(" Confirmation ").SetTitleAlign(tview.AlignCenter)
-	app.SetRoot(modal, true).SetFocus(modal)	
+	app.SetRoot(modal, true).SetFocus(modal)
 }
 
 // INSERT FUNCTIONS
 func insertRowCol(app *tview.Application, table *tview.Table) {
 	activeData := GetActiveSheetData()
 	activeViewport := GetActiveViewport()
-	
+
 	if activeData == nil || activeViewport == nil {
 		return
 	}
@@ -161,37 +162,37 @@ func insertCol(app *tview.Application, table *tview.Table, col int32) {
 			if buttonLabel == "Yes" {
 				activeData := GetActiveSheetData()
 				activeViewport := GetActiveViewport()
-				
+
 				if activeData == nil || activeViewport == nil {
-					app.SetRoot(table, true).SetFocus(table)
+					sheetview.Show(app)
 					return
 				}
-				
+
 				keysToDelete := make([][2]int, 0)
-        		keysToUpdate := make(map[[2]int]*cell.Cell)
+				keysToUpdate := make(map[[2]int]*cell.Cell)
 
-        		for key, cellData := range activeData {
-        		    r, c := key[0], key[1]
-        		    if int32(c) >= col {
-        		        cellData.Column++
-        		        keysToUpdate[[2]int{r, c + 1}] = cellData
-        		        keysToDelete = append(keysToDelete, key)
-        		    }
-        		}
+				for key, cellData := range activeData {
+					r, c := key[0], key[1]
+					if int32(c) >= col {
+						cellData.Column++
+						keysToUpdate[[2]int{r, c + 1}] = cellData
+						keysToDelete = append(keysToDelete, key)
+					}
+				}
 
-        		for _, key := range keysToDelete {
-        		    delete(activeData, key)
-        		}
-        		maps.Copy(activeData, keysToUpdate)	
+				for _, key := range keysToDelete {
+					delete(activeData, key)
+				}
+				maps.Copy(activeData, keysToUpdate)
 
 				RenderVisible(table, activeViewport, activeData)
-				app.SetRoot(table, true).SetFocus(table)
+				sheetview.Show(app)
 			} else {
-				app.SetRoot(table, true).SetFocus(table)
+				sheetview.Show(app)
 			}
 		})
 	modal.SetBorder(true).SetTitle(" Insert Column ").SetTitleAlign(tview.AlignCenter)
-	app.SetRoot(modal, true).SetFocus(modal)	
+	app.SetRoot(modal, true).SetFocus(modal)
 }
 
 func insertRow(app *tview.Application, table *tview.Table, row int32) {
@@ -202,35 +203,35 @@ func insertRow(app *tview.Application, table *tview.Table, row int32) {
 			if buttonLabel == "Yes" {
 				activeData := GetActiveSheetData()
 				activeViewport := GetActiveViewport()
-				
+
 				if activeData == nil || activeViewport == nil {
-					app.SetRoot(table, true).SetFocus(table)
+					sheetview.Show(app)
 					return
 				}
-				
+
 				keysToDelete := make([][2]int, 0)
-		        keysToUpdate := make(map[[2]int]*cell.Cell)
+				keysToUpdate := make(map[[2]int]*cell.Cell)
 
-        		for key, cellData := range activeData {
-        		    r, c := key[0], key[1]
-        		    if int32(r) >= row {
-    		            cellData.Row++
-		                keysToUpdate[[2]int{r + 1, c}] = cellData
-		                keysToDelete = append(keysToDelete, key)
-		            }
-        		}
+				for key, cellData := range activeData {
+					r, c := key[0], key[1]
+					if int32(r) >= row {
+						cellData.Row++
+						keysToUpdate[[2]int{r + 1, c}] = cellData
+						keysToDelete = append(keysToDelete, key)
+					}
+				}
 
-        		for _, key := range keysToDelete {
-        		    delete(activeData, key)
-        		}
-        		maps.Copy(activeData, keysToUpdate)	
-				
+				for _, key := range keysToDelete {
+					delete(activeData, key)
+				}
+				maps.Copy(activeData, keysToUpdate)
+
 				RenderVisible(table, activeViewport, activeData)
-				app.SetRoot(table, true).SetFocus(table)
+				sheetview.Show(app)
 			} else {
-				app.SetRoot(table, true).SetFocus(table)
+				sheetview.Show(app)
 			}
 		})
 	modal.SetBorder(true).SetTitle(" Insert Row ").SetTitleAlign(tview.AlignCenter)
-	app.SetRoot(modal, true).SetFocus(modal)	
+	app.SetRoot(modal, true).SetFocus(modal)
 }

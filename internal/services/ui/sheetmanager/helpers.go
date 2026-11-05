@@ -21,7 +21,7 @@ func updateSheetList(list *tview.List, callbacks SheetManagerCallbacks) {
 	for i, sheet := range sheets {
 		icon := ""
 		badge := ""
-		
+
 		if sheet.IsActive {
 			icon = ""
 			badge = " [yellow::b]> ACTIVE[::-]"
@@ -58,7 +58,7 @@ func getWorkbookInfoText(info WorkbookInfo) string {
 	statusIcon := ""
 	statusColor := "green"
 	statusText := "Saved"
-	
+
 	if info.HasChanges {
 		statusIcon = "o"
 		statusColor = "yellow"
@@ -87,7 +87,7 @@ func getSheetInfoText(sheet SheetInfo, index, total int) string {
 	statusIcon := "o"
 	statusColor := "gray"
 	statusText := "Inactive"
-	
+
 	if sheet.IsActive {
 		statusIcon = ">"
 		statusColor = "yellow"

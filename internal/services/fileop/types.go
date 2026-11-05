@@ -130,14 +130,14 @@ func DetectFormat(filename string) (FileFormat, bool) {
 		FormatPDF,
 		FormatODS,
 	}
-	
+
 	for _, format := range formats {
 		if len(filename) >= len(format.String()) &&
 			filename[len(filename)-len(format.String()):] == format.String() {
 			return format, true
 		}
 	}
-	
+
 	return FormatGSheet, false
 }
 

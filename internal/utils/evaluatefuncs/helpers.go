@@ -64,10 +64,41 @@ func validateArgs(funcName string, args []any, minArgs, maxArgs int) error {
 	return nil
 }
 
+// isTruthy coerces spreadsheet values without panicking on the wrong type.
+func isTruthy(v any) (bool, error) {
+	switch t := v.(type) {
+	case bool:
+		return t, nil
+	case float64:
+		return t != 0, nil
+	case int:
+		return t != 0, nil
+	case string:
+		s := strings.TrimSpace(strings.ToLower(t))
+		switch s {
+		case "true", "yes":
+			return true, nil
+		case "false", "no", "0", "":
+			return false, nil
+		default:
+			f, err := toFloat(s)
+			if err != nil {
+				return false, fmt.Errorf("expected a boolean")
+			}
+			return f != 0, nil
+		}
+	default:
+		if v == nil {
+			return false, nil
+		}
+		return false, fmt.Errorf("expected a boolean")
+	}
+}
+
 // Parse datetime string and return Go time.Time
 func ParseDateTime(s string) (time.Time, error) {
 	s = strings.TrimSpace(s)
-	
+
 	formats := []string{
 		"2006-01-02 15:04:05",
 		"01/02/2006 15:04:05",
@@ -76,7 +107,7 @@ func ParseDateTime(s string) (time.Time, error) {
 		"01/02/2006 15:04",
 		"Jan 2, 2006 3:04 PM",
 		"2 Jan 2006 15:04",
-	
+
 		"2006-01-02",
 		"01/02/2006",
 		"02-01-2006",
@@ -91,12 +122,12 @@ func ParseDateTime(s string) (time.Time, error) {
 		"3:04 PM",
 		"3:04:05 PM",
 	}
-	
+
 	for _, format := range formats {
 		if t, err := time.Parse(format, s); err == nil {
 			return t, nil
 		}
 	}
-	
+
 	return time.Time{}, fmt.Errorf("invalid datetime format")
 }

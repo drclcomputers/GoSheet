@@ -9,19 +9,19 @@ package sheetmanager
 
 // SheetManagerCallbacks defines callbacks for sheet operations
 type SheetManagerCallbacks struct {
-	GetSheets          func() []SheetInfo
-	GetActiveIndex     func() int
-	GetWorkbookInfo    func() WorkbookInfo
-	AddSheet           func(name string) error
-	RenameSheet        func(index int, name string) error
-	DeleteSheet        func(index int) error
-	DuplicateSheet     func(index int) error
-	MoveSheet          func(fromIndex, toIndex int) error
-	SwitchToSheet      func(index int) error
-	UpdateTabBar       func()
-	UpdateTableTitle   func()
-	MarkAsModified     func()
-	RenderActiveSheet  func()
+	GetSheets         func() []SheetInfo
+	GetActiveIndex    func() int
+	GetWorkbookInfo   func() WorkbookInfo
+	AddSheet          func(name string) error
+	RenameSheet       func(index int, name string) error
+	DeleteSheet       func(index int) error
+	DuplicateSheet    func(index int) error
+	MoveSheet         func(fromIndex, toIndex int) error
+	SwitchToSheet     func(index int) error
+	UpdateTabBar      func()
+	UpdateTableTitle  func()
+	MarkAsModified    func()
+	RenderActiveSheet func()
 }
 
 // SheetInfo contains information about a single sheet
@@ -39,5 +39,3 @@ type WorkbookInfo struct {
 	FileName    string
 	HasChanges  bool
 }
-
-

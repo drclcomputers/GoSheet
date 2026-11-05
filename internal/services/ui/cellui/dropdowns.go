@@ -27,7 +27,7 @@ func newDropdown(label string, options []string, current int32, onSelect func(st
 func getDropdowns(c *cell.Cell) (*tview.DropDown, *tview.DropDown, *tview.DropDown, *tview.DropDown, *tview.InputField) {
 	financialSigns := toStringSlice(utils.FinancialSigns)
 	separators := toStringSlice(utils.Separators)
-	dateTimeFormats := utils.DateTimeFormats	
+	dateTimeFormats := utils.DateTimeFormats
 
 	financialSignDropdown := newDropdown("Sign: ", financialSigns,
 		findRuneIndex(financialSigns, c.FinancialSign),

@@ -18,16 +18,18 @@ import (
 func NewCell(r, c int32, text string) *Cell {
 	t := "string"
 	autotype := "auto"
+	rawCopy := text
+	dispCopy := text
 	return &Cell{
-		RawValue: &text,
-		Display:  &text,
+		RawValue: &rawCopy,
+		Display:  &dispCopy,
 		Type:     &t,
 
-		Row:       r,
-		Column:    c,
-		MaxWidth:  utils.DEFAULT_CELL_MAX_WIDTH,
-		MinWidth:  utils.DEFAULT_CELL_MIN_WIDTH,
-		
+		Row:      r,
+		Column:   c,
+		MaxWidth: utils.DEFAULT_CELL_MAX_WIDTH,
+		MinWidth: utils.DEFAULT_CELL_MIN_WIDTH,
+
 		Align: tview.AlignLeft,
 		Flags: FlagEditable,
 
@@ -40,8 +42,8 @@ func NewCell(r, c int32, text string) *Cell {
 		Color:   utils.ColorRGB{255, 255, 255},
 		BgColor: utils.ColorRGB{0, 0, 0},
 
-		Notes: nil,
-		Valrule: nil,
+		Notes:      nil,
+		Valrule:    nil,
 		Valrulemsg: nil,
 
 		DependsOn:  nil,
@@ -51,16 +53,16 @@ func NewCell(r, c int32, text string) *Cell {
 
 // Checks if cells exists, otherwise creates it
 func GetOrCreateCell(table *tview.Table, absRow, absCol int32, data map[[2]int]*Cell) *Cell {
-    key := [2]int{int(absRow), int(absCol)}
-    
-    if cellData, exists := data[key]; exists {
-        return cellData
-    }
-    
-    newCell := NewCell(absRow, absCol, "")
-    data[key] = newCell
-    
-    return newCell
+	key := [2]int{int(absRow), int(absCol)}
+
+	if cellData, exists := data[key]; exists {
+		return cellData
+	}
+
+	newCell := NewCell(absRow, absCol, "")
+	data[key] = newCell
+
+	return newCell
 }
 
 // SetFlag turns a flag ON
@@ -104,33 +106,55 @@ func (c *Cell) GetTableCell() *tview.TableCell {
 
 // SetFormulaTag sets the cell's RawValue and updates its Type if it starts with "$="
 func (c *Cell) SetFormulaTag(v string) *Cell {
-    if strings.HasPrefix(v, "$=") {
+	if strings.HasPrefix(v, "$=") {
 		c.RawValue = &v
 	}
 	return c
 }
 
-// Checks if a cell contains a formula
+// Checks if a cell contains a formula. Both the native "$=" prefix and a
+// plain "=" (what people type) are accepted.
 func (c *Cell) IsFormula() bool {
-    return strings.HasPrefix(strings.TrimSpace(*c.RawValue), "$=") 
+	if c == nil || c.RawValue == nil {
+		return false
+	}
+	s := strings.TrimSpace(*c.RawValue)
+	return strings.HasPrefix(s, "$=") || strings.HasPrefix(s, "=")
 }
 
-// Returns the formula expression
+// Returns the formula expression without its prefix.
 func (c *Cell) GetFormulaExpression() string {
-    if c.IsFormula() {
-		aux := *c.RawValue
-		return strings.TrimSpace(aux[2:])
-    }
-    return ""
+	if !c.IsFormula() {
+		return ""
+	}
+	s := strings.TrimSpace(*c.RawValue)
+	if strings.HasPrefix(s, "$=") {
+		return strings.TrimSpace(s[2:])
+	}
+	return strings.TrimSpace(s[1:])
+}
+
+// NormalizeFormula stores formulas with the native "$=" prefix so files stay
+// compatible with older GoSheet builds. A leading "=" is rewritten.
+func NormalizeFormula(text string) string {
+	t := strings.TrimSpace(text)
+	if strings.HasPrefix(t, "=") && !strings.HasPrefix(t, "$=") {
+		return "$=" + strings.TrimSpace(t[1:])
+	}
+	return t
 }
 
 // SetAlign sets the alignment of the cell based on the provided string
 func (c *Cell) SetAlign(align string) *Cell {
 	switch align {
-		case "left": c.Align = tview.AlignLeft
-		case "center": c.Align = tview.AlignCenter
-		case "right": c.Align = tview.AlignRight
-		default: c.Align = tview.AlignLeft
+	case "left":
+		c.Align = tview.AlignLeft
+	case "center":
+		c.Align = tview.AlignCenter
+	case "right":
+		c.Align = tview.AlignRight
+	default:
+		c.Align = tview.AlignLeft
 	}
 	return c
 }
@@ -163,52 +187,56 @@ func (c *Cell) SetMinCellWidth(text string) string {
 
 // Clones a cell and returns the clone
 func (c *Cell) Clone() *Cell {
-    if c == nil {
-        return nil
-    }
-    
-    clone := *c
-    
-    if c.RawValue != nil {
-        rawCopy := *c.RawValue
-        clone.RawValue = &rawCopy
-    }
-    if c.Display != nil {
-        displayCopy := *c.Display
-        clone.Display = &displayCopy
-    }
-    if c.Type != nil {
-        typeCopy := *c.Type
-        clone.Type = &typeCopy
-    }
-    if c.Notes != nil {
-        notesCopy := *c.Notes
-        clone.Notes = &notesCopy
-    }
-    if c.Valrule != nil {
-        valruleCopy := *c.Valrule
-        clone.Valrule = &valruleCopy
-    }
+	if c == nil {
+		return nil
+	}
+
+	clone := *c
+
+	if c.RawValue != nil {
+		rawCopy := *c.RawValue
+		clone.RawValue = &rawCopy
+	}
+	if c.Display != nil {
+		displayCopy := *c.Display
+		clone.Display = &displayCopy
+	}
+	if c.Type != nil {
+		typeCopy := *c.Type
+		clone.Type = &typeCopy
+	}
+	if c.Notes != nil {
+		notesCopy := *c.Notes
+		clone.Notes = &notesCopy
+	}
+	if c.Valrule != nil {
+		valruleCopy := *c.Valrule
+		clone.Valrule = &valruleCopy
+	}
 	if c.DateTimeFormat != nil {
 		dateTimeFormatCopy := *c.DateTimeFormat
 		clone.DateTimeFormat = &dateTimeFormatCopy
 	}
-    
-    clone.DependsOn = make([]*string, len(c.DependsOn))
-    for i, dep := range c.DependsOn {
-        if dep != nil {
-            depCopy := *dep
-            clone.DependsOn[i] = &depCopy
-        }
-    }
-    
-    clone.Dependents = make([]*string, len(c.Dependents))
-    for i, dep := range c.Dependents {
-        if dep != nil {
-            depCopy := *dep
-            clone.Dependents[i] = &depCopy
-        }
-    }
-    
-    return &clone
+
+	clone.DependsOn = make([]*string, len(c.DependsOn))
+	for i, dep := range c.DependsOn {
+		if dep != nil {
+			depCopy := *dep
+			clone.DependsOn[i] = &depCopy
+		}
+	}
+
+	clone.Dependents = make([]*string, len(c.Dependents))
+	for i, dep := range c.Dependents {
+		if dep != nil {
+			depCopy := *dep
+			clone.Dependents[i] = &depCopy
+		}
+	}
+
+	if len(c.RangeDeps) > 0 {
+		clone.RangeDeps = append([]string(nil), c.RangeDeps...)
+	}
+
+	return &clone
 }

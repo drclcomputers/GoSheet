@@ -9,6 +9,7 @@ package table
 
 import (
 	"gosheet/internal/services/cell"
+	"gosheet/internal/services/sheetview"
 	"gosheet/internal/utils"
 	"sort"
 	"strconv"
@@ -22,7 +23,7 @@ import (
 func SortColumn(app *tview.Application, table *tview.Table, ascending bool) {
 	activeData := GetActiveSheetData()
 	activeViewport := GetActiveViewport()
-	
+
 	if activeData == nil || activeViewport == nil {
 		return
 	}
@@ -31,7 +32,7 @@ func SortColumn(app *tview.Application, table *tview.Table, ascending bool) {
 	row, col := activeViewport.ToAbsolute(visualRow, visualCol)
 
 	var sortCol, startRow, endRow int32
-	
+
 	if selStartRow == 0 && selStartCol == 0 && selEndRow == 0 && selEndCol == 0 {
 		if row == 0 && col > 0 {
 			selStartRow, selStartCol = 0, col
@@ -43,26 +44,26 @@ func SortColumn(app *tview.Application, table *tview.Table, ascending bool) {
 			selEndRow, selEndCol = 0, col
 		}
 	}
-	
+
 	r1, c1, r2, _ := getSelectionRange(table)
-	
+
 	sortCol = c1
 	startRow = r1
 	endRow = r2
-	
+
 	type sortableCell struct {
-		cell     *cell.Cell
-		sortKey  any
-		isEmpty  bool
+		cell    *cell.Cell
+		sortKey any
+		isEmpty bool
 	}
-	
+
 	var cells []sortableCell
 	var emptyCells []sortableCell
-	
+
 	// Get cells from data map using absolute coordinates
 	for r := startRow; r <= endRow; r++ {
 		key := [2]int{int(r), int(sortCol)}
-		
+
 		if cellData, exists := activeData[key]; exists {
 			value := strings.TrimSpace(*cellData.RawValue)
 			if value == "" {
@@ -77,7 +78,7 @@ func SortColumn(app *tview.Application, table *tview.Table, ascending bool) {
 			emptyCells = append(emptyCells, sortableCell{cell: nil, isEmpty: true})
 		}
 	}
-	
+
 	sort.Slice(cells, func(i, j int) bool {
 		less := compareSortKeys(cells[i].sortKey, cells[j].sortKey)
 		if ascending {
@@ -85,19 +86,19 @@ func SortColumn(app *tview.Application, table *tview.Table, ascending bool) {
 		}
 		return !less
 	})
-	
+
 	cells = append(cells, emptyCells...)
-	
+
 	for i, cellData := range cells {
 		targetRow := startRow + int32(i)
 		key := [2]int{int(targetRow), int(sortCol)}
-		
+
 		if cellData.cell != nil {
 			newCell := *cellData.cell
 			newCell.Row = targetRow
 			newCell.Column = sortCol
 			activeData[key] = &newCell
-			
+
 			if activeViewport.IsVisible(targetRow, sortCol) {
 				visualR, visualC := activeViewport.ToRelative(targetRow, sortCol)
 				table.SetCell(int(visualR), int(visualC), newCell.ToTViewCell())
@@ -105,24 +106,24 @@ func SortColumn(app *tview.Application, table *tview.Table, ascending bool) {
 		} else {
 			emptyCell := cell.NewCell(targetRow, sortCol, "")
 			activeData[key] = emptyCell
-			
+
 			if activeViewport.IsVisible(targetRow, sortCol) {
 				visualR, visualC := activeViewport.ToRelative(targetRow, sortCol)
 				table.SetCell(int(visualR), int(visualC), emptyCell.ToTViewCell())
 			}
 		}
 	}
-	
+
 	clearSelectionRange()
 }
 
 func getSortKey(c *cell.Cell) any {
 	value := strings.TrimSpace(*c.RawValue)
-	
+
 	if value == "" {
-		return "" 
+		return ""
 	}
-	
+
 	switch strings.ToLower(*c.Type) {
 	case "number", "financial":
 		normalized := strings.ReplaceAll(value, string(c.ThousandsSeparator), "")
@@ -131,7 +132,7 @@ func getSortKey(c *cell.Cell) any {
 			return num
 		}
 		return value
-		
+
 	case "date":
 		formats := []string{
 			"2006-01-02",
@@ -143,11 +144,11 @@ func getSortKey(c *cell.Cell) any {
 		}
 		for _, format := range formats {
 			if t, err := time.Parse(format, value); err == nil {
-				return t.Unix() 
+				return t.Unix()
 			}
 		}
 		return value
-		
+
 	case "time":
 		formats := []string{
 			"15:04:05",
@@ -160,8 +161,8 @@ func getSortKey(c *cell.Cell) any {
 				return t.Unix()
 			}
 		}
-		return value 
-		
+		return value
+
 	default:
 		return strings.ToLower(value)
 	}
@@ -174,27 +175,27 @@ func compareSortKeys(a, b any) bool {
 	if b == nil || b == "" {
 		return true
 	}
-	
+
 	if aNum, aOk := a.(float64); aOk {
 		if bNum, bOk := b.(float64); bOk {
 			return aNum < bNum
 		}
 		return true
 	}
-	
+
 	if aTime, aOk := a.(int64); aOk {
 		if bTime, bOk := b.(int64); bOk {
 			return aTime < bTime
 		}
 		return true
 	}
-	
+
 	aStr, aOk := a.(string)
 	bStr, bOk := b.(string)
 	if aOk && bOk {
 		return aStr < bStr
 	}
-	
+
 	return false
 }
 
@@ -209,9 +210,9 @@ func ShowSortDialog(app *tview.Application, table *tview.Table) {
 			case "Descending":
 				SortColumn(app, table, false)
 			}
-			app.SetRoot(table, true).SetFocus(table)
+			sheetview.Show(app)
 		})
-	
+
 	modal.SetBorder(true).SetTitle(" Sort ").SetTitleAlign(tview.AlignCenter)
 	app.SetRoot(modal, true).SetFocus(modal)
 }

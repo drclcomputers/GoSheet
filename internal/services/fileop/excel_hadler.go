@@ -164,12 +164,12 @@ func (h *ExcelFormatHandler) readSheet(f *excelize.File, sheetName string) ([]*c
 			colNum := int32(colIdx + 1)
 
 			cellCoord, _ := excelize.CoordinatesToCellName(colIdx+1, rowIdx+1)
-			
+
 			formula, _ := f.GetCellFormula(sheetName, cellCoord)
 			cellValue, _ := f.GetCellValue(sheetName, cellCoord)
-			
+
 			hasFormatting := h.hasNonDefaultFormatting(f, sheetName, cellCoord)
-			
+
 			if cellValue == "" && formula == "" && !hasFormatting {
 				continue
 			}
@@ -184,7 +184,7 @@ func (h *ExcelFormatHandler) readSheet(f *excelize.File, sheetName string) ([]*c
 				formula = strings.TrimPrefix(formula, "_xludf.")
 				formula = strings.TrimPrefix(formula, "_XLUDF.")
 				formula = strings.TrimSpace(formula)
-				
+
 				rawValue = "$=" + h.convertExcelFormulaToGoSheet(formula)
 				typeValue = "formula"
 			} else {
@@ -258,16 +258,16 @@ func (h *ExcelFormatHandler) writeSheet(f *excelize.File, sheetName string, shee
 		if cellData.IsFormula() && cellData.RawValue != nil {
 			formulaStr := strings.TrimPrefix(*cellData.RawValue, "$=")
 			formulaStr = strings.TrimSpace(formulaStr)
-			
+
 			if formulaStr != "" {
 				excelFormula := h.convertFormulaToExcel(formulaStr)
-				
+
 				if err := f.SetCellFormula(sheetName, cellCoord, excelFormula); err != nil {
 					if cellData.Display != nil && *cellData.Display != "" {
 						f.SetCellValue(sheetName, cellCoord, *cellData.Display)
 					}
 				}
-				
+
 				goto handleMetadata
 			}
 		}
@@ -280,7 +280,7 @@ func (h *ExcelFormatHandler) writeSheet(f *excelize.File, sheetName string, shee
 				cleanValue = strings.ReplaceAll(cleanValue, string(cellData.ThousandsSeparator), "")
 				cleanValue = strings.TrimPrefix(cleanValue, string(cellData.FinancialSign))
 				cleanValue = strings.TrimSpace(cleanValue)
-				
+
 				if num, err := strconv.ParseFloat(cleanValue, 64); err == nil {
 					f.SetCellValue(sheetName, cellCoord, num)
 				} else {
@@ -419,24 +419,24 @@ func (h *ExcelFormatHandler) writeCellFormatting(f *excelize.File, sheetName, ce
 func parseExcelColor(excelColor string) (utils.ColorRGB, error) {
 	excelColor = strings.TrimSpace(excelColor)
 	excelColor = strings.ToUpper(excelColor)
-	
+
 	if len(excelColor) == 8 {
 		excelColor = excelColor[2:]
 	}
-	
+
 	if len(excelColor) == 6 {
 		r, err1 := strconv.ParseUint(excelColor[0:2], 16, 8)
 		g, err2 := strconv.ParseUint(excelColor[2:4], 16, 8)
 		b, err3 := strconv.ParseUint(excelColor[4:6], 16, 8)
-		
+
 		if err1 == nil && err2 == nil && err3 == nil {
 			return utils.ColorRGB{uint8(r), uint8(g), uint8(b)}, nil
 		}
 	}
-	
+
 	if color, ok := utils.ColorOptions[excelColor]; ok {
 		return color, nil
 	}
-	
+
 	return utils.ColorRGB{255, 255, 255}, fmt.Errorf("invalid color format: %s", excelColor)
 }

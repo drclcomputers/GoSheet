@@ -10,6 +10,7 @@ package cellui
 import (
 	"fmt"
 	"gosheet/internal/services/cell"
+	"gosheet/internal/services/sheetview"
 	"gosheet/internal/services/ui/datavalidation"
 	"gosheet/internal/utils"
 	"strconv"
@@ -24,9 +25,9 @@ func EditCellDialog(app *tview.Application, table *tview.Table, row, column int3
 	key := [2]int{int(row), int(column)}
 	c, exists := globalData[key]
 	if !exists {
-    	c = cell.NewCell(row, column, "")
-    	globalData[key] = c
-	}	
+		c = cell.NewCell(row, column, "")
+		globalData[key] = c
+	}
 
 	oldCell := c.Clone()
 
@@ -53,14 +54,14 @@ func EditCellDialog(app *tview.Application, table *tview.Table, row, column int3
 	}
 
 	*c.RawValue = cell.StripTviewTags(strings.TrimSpace(*c.RawValue))
-	*c.Display = cell.StripTviewTags(strings.TrimSpace(*c.Display))	
+	*c.Display = cell.StripTviewTags(strings.TrimSpace(*c.Display))
 
 	typeIndex := getTypeIndex(*c.Type)
 	alignIndex := getAlignIndex(c.Align)
 	colorIndex, bgColorIndex := getColorIndices(c)
 	//dateTypeFormatIndex := getDateTypeFormat(c)
 
-	financialSignDropdown, thousandsSeparatorDropdown, decimalSeparatorDropdown, dateTimeFormatDropdown, decimalPointsInput := getDropdowns(c)	
+	financialSignDropdown, thousandsSeparatorDropdown, decimalSeparatorDropdown, dateTimeFormatDropdown, decimalPointsInput := getDropdowns(c)
 
 	disableFormattingFields(financialSignDropdown, thousandsSeparatorDropdown, decimalSeparatorDropdown, decimalPointsInput)
 
@@ -71,46 +72,37 @@ func EditCellDialog(app *tview.Application, table *tview.Table, row, column int3
 	app.SetRoot(editCellDialog, true).SetFocus(leftForm)
 }
 
-
-
-
-
-
-
-
-
-
 // Form Builder
 func buildEditCellForm(app *tview.Application, table *tview.Table, c, oldCell *cell.Cell, row, column int32,
 	financialSignDropdown, thousandsSeparatorDropdown, decimalSeparatorDropdown *tview.DropDown,
-	decimalPointsInput *tview.InputField, dateTimeFormatDropdown *tview.DropDown, typeIndex, alignIndex, 
-	colorIndex, bgColorIndex int, RecordCellEdit func(table *tview.Table, row, col int32, oldCell, 
-	newCell *cell.Cell), EvaluateCell func(table *tview.Table, c *cell.Cell) error, 
-	RecalculateCell func(table *tview.Table, c *cell.Cell) error, globalData map[[2]int]*cell.Cell, 
+	decimalPointsInput *tview.InputField, dateTimeFormatDropdown *tview.DropDown, typeIndex, alignIndex,
+	colorIndex, bgColorIndex int, RecordCellEdit func(table *tview.Table, row, col int32, oldCell,
+		newCell *cell.Cell), EvaluateCell func(table *tview.Table, c *cell.Cell) error,
+	RecalculateCell func(table *tview.Table, c *cell.Cell) error, globalData map[[2]int]*cell.Cell,
 	globalViewport *utils.Viewport) (*tview.Flex, *tview.Form) {
 
 	container := tview.NewFlex()
 
 	// Left Column - Content & Type
 	leftForm := tview.NewForm()
-	
+
 	rawValueStr := safeStringValue(c.RawValue)
-	
+
 	leftForm.AddInputField("Value", rawValueStr, 0, nil, func(text string) {
 		//updateCellValue(app, container, c, text, leftForm)
 	})
-	
+
 	leftForm.AddDropDown("Type", utils.TypeOptions, typeIndex, func(option string, _ int) {
 		newType := strings.ToLower(option)
-		
+
 		if c.Type == nil {
 			c.Type = new(string)
 		}
 		*c.Type = newType
-		
-		setFormattingEnabled(*c.Type, financialSignDropdown, thousandsSeparatorDropdown, decimalSeparatorDropdown,dateTimeFormatDropdown, decimalPointsInput)
+
+		setFormattingEnabled(*c.Type, financialSignDropdown, thousandsSeparatorDropdown, decimalSeparatorDropdown, dateTimeFormatDropdown, decimalPointsInput)
 	})
-	
+
 	leftForm.AddDropDown("Align", utils.AlignOptions, alignIndex, func(option string, _ int) {
 		switch strings.ToLower(option) {
 		case "left":
@@ -121,19 +113,19 @@ func buildEditCellForm(app *tview.Application, table *tview.Table, c, oldCell *c
 			c.Align = tview.AlignRight
 		}
 	})
-	
+
 	leftForm.AddInputField("Min Width", fmt.Sprintf("%d", c.MinWidth), 5, nil, func(text string) {
 		if width, err := strconv.Atoi(text); err == nil && width > 0 {
 			c.MinWidth = int32(width)
 		}
 	})
-	
+
 	leftForm.AddInputField("Max Width", fmt.Sprintf("%d", c.MaxWidth), 5, nil, func(text string) {
 		if width, err := strconv.Atoi(text); err == nil && width > 0 {
 			c.MaxWidth = int32(width)
 		}
 	})
-	
+
 	leftForm.SetBorder(true).SetTitle(" Content ").SetTitleAlign(tview.AlignLeft)
 
 	formatForm := tview.NewForm()
@@ -153,7 +145,9 @@ func buildEditCellForm(app *tview.Application, table *tview.Table, c, oldCell *c
 	rightForm.AddCheckbox("Strikethrough", c.HasFlag(cell.FlagStrikethrough), func(checked bool) { c.SetFlagState(cell.FlagStrikethrough, checked) })
 	rightForm.AddCheckbox("Editable", c.HasFlag(cell.FlagEditable), func(checked bool) { c.SetFlagState(cell.FlagEditable, checked) })
 	//rightForm.AddCheckbox("Formula", c.Formula, func(checked bool) { c.Formula = checked })
-	rightForm.AddButton("Data Validation", func() { datavalidation.ShowValidationRuleDialog(app, table, container, rightForm.GetFormItem(0), globalData, globalViewport) })
+	rightForm.AddButton("Data Validation", func() {
+		datavalidation.ShowValidationRuleDialog(app, table, container, rightForm.GetFormItem(0), globalData, globalViewport)
+	})
 	rightForm.SetBorder(true).SetTitle(" Styling ").SetTitleAlign(tview.AlignLeft)
 
 	// Color Form
@@ -180,7 +174,7 @@ func buildEditCellForm(app *tview.Application, table *tview.Table, c, oldCell *c
 	colorForm.AddButton("Custom BG Color", func() {
 		showCustomColorPicker(app, container, c, true, colorForm)
 	})
-	colorForm.SetBorder(true).SetTitle(" Colors ").SetTitleAlign(tview.AlignLeft)	
+	colorForm.SetBorder(true).SetTitle(" Colors ").SetTitleAlign(tview.AlignLeft)
 
 	leftColumn := tview.NewFlex().SetDirection(tview.FlexRow).
 		AddItem(leftForm, 0, 1, false).
@@ -218,7 +212,7 @@ func buildEditCellForm(app *tview.Application, table *tview.Table, c, oldCell *c
 	container.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		switch {
 		case event.Key() == tcell.KeyEscape || event.Rune() == 'q' || event.Rune() == 'Q':
-			app.SetRoot(table, true).SetFocus(table)
+			sheetview.Show(app)
 			return nil
 		case event.Modifiers()&tcell.ModAlt != 0 && (event.Rune() == 's' || event.Rune() == 'S'):
 			SaveCellFormButtonAndKeyMap(app, table, container, c, oldCell, row, column, leftForm, RecordCellEdit, EvaluateCell, RecalculateCell, globalData, globalViewport)
@@ -237,6 +231,3 @@ func buildEditCellForm(app *tview.Application, table *tview.Table, c, oldCell *c
 
 	return container, leftForm
 }
-
-
-

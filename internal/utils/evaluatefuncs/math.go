@@ -306,7 +306,7 @@ func MathFunctions() map[string]ExprFunction {
 			if err != nil {
 				return nil, fmt.Errorf("ACSCH: %v", err)
 			}
-			return math.Log((1/f) + math.Sqrt(1+(1/(f*f)))), nil
+			return math.Log((1 / f) + math.Sqrt(1+(1/(f*f)))), nil
 		},
 		"ACOTH": func(args ...any) (any, error) {
 			if err := validateArgs("ACOTH", args, 1, 1); err != nil {
@@ -439,37 +439,23 @@ func MathFunctions() map[string]ExprFunction {
 			return math.Round(f), nil
 		},
 		"MIN": func(args ...any) (any, error) {
-			if err := validateArgs("MIN", args, 2, -1); err != nil {
-				return nil, err
+			nums := NumericValues(args)
+			if len(nums) == 0 {
+				return nil, fmt.Errorf("MIN requires at least 1 numeric argument")
 			}
-			f, err := toFloat(args[0])
-			if err != nil {
-				return nil, fmt.Errorf("MIN: %v", err)
-			}
-			minNR := f
-			for _, arg := range args {
-				f, err = toFloat(arg)
-				if err != nil {
-					return nil, fmt.Errorf("MIN: %v", err)
-				}
+			minNR := nums[0]
+			for _, f := range nums[1:] {
 				minNR = math.Min(f, minNR)
 			}
 			return minNR, nil
 		},
 		"MAX": func(args ...any) (any, error) {
-			if err := validateArgs("MAX", args, 2, -1); err != nil {
-				return nil, err
+			nums := NumericValues(args)
+			if len(nums) == 0 {
+				return nil, fmt.Errorf("MAX requires at least 1 numeric argument")
 			}
-			f, err := toFloat(args[0])
-			if err != nil {
-				return nil, fmt.Errorf("MAX: %v", err)
-			}
-			maxNR := f
-			for _, arg := range args {
-				f, err = toFloat(arg)
-				if err != nil {
-					return nil, fmt.Errorf("MAX: %v", err)
-				}
+			maxNR := nums[0]
+			for _, f := range nums[1:] {
 				maxNR = math.Max(f, maxNR)
 			}
 			return maxNR, nil

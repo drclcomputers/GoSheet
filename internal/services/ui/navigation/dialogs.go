@@ -10,6 +10,7 @@ package navigation
 import (
 	"fmt"
 	"gosheet/internal/services/cell"
+	"gosheet/internal/services/sheetview"
 	"gosheet/internal/utils"
 
 	"github.com/gdamore/tcell/v2"
@@ -39,7 +40,7 @@ func FindDialog(app *tview.Application, table *tview.Table, globalData map[[2]in
 			ShowWarningModal(app, table, "No matches found")
 			lastSearchRow, lastSearchCol = 0, 0
 		} else {
-			app.SetRoot(table, true).SetFocus(table)
+			sheetview.Show(app)
 		}
 	})
 
@@ -56,7 +57,7 @@ func FindDialog(app *tview.Application, table *tview.Table, globalData map[[2]in
 			ShowWarningModal(app, table, "No matches found")
 			lastSearchRow, lastSearchCol = 0, 0
 		} else {
-			app.SetRoot(table, true).SetFocus(table)
+			sheetview.Show(app)
 		}
 	})
 
@@ -66,19 +67,19 @@ func FindDialog(app *tview.Application, table *tview.Table, globalData map[[2]in
 		lastMatchWholeWord = false
 		lastSearchRow, lastSearchCol = 0, 0
 
-		app.SetRoot(table, true).SetFocus(table)
+		sheetview.Show(app)
 	})
 
 	form.AddButton("Close", func() {
 		lastSearchRow, lastSearchCol = 0, 0
-		app.SetRoot(table, true).SetFocus(table)
+		sheetview.Show(app)
 	})
 
 	form.SetBorder(true).SetTitle(" Find ").SetTitleAlign(tview.AlignCenter)
 	form.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		if event.Key() == tcell.KeyEscape {
 			lastSearchRow, lastSearchCol = 0, 0
-			app.SetRoot(table, true).SetFocus(table)
+			sheetview.Show(app)
 			return nil
 		}
 		return event
@@ -87,13 +88,12 @@ func FindDialog(app *tview.Application, table *tview.Table, globalData map[[2]in
 	app.SetRoot(form, true).SetFocus(form)
 }
 
-
 // Replace functions
 func ReplaceDialog(app *tview.Application, table *tview.Table, globalData map[[2]int]*cell.Cell, globalViewport *utils.Viewport, RenderVisible func(table *tview.Table, globalViewport *utils.Viewport, globalData map[[2]int]*cell.Cell)) {
 	form := tview.NewForm()
 	form.AddInputField("Find:", "", 40, nil, nil)
 	form.AddInputField("Replace with:", "", 40, nil, nil)
-	
+
 	var caseSensitive bool
 	var matchWholeWord bool
 	form.AddCheckbox("Case sensitive", false, func(checked bool) {
@@ -102,42 +102,42 @@ func ReplaceDialog(app *tview.Application, table *tview.Table, globalData map[[2
 	form.AddCheckbox("Match whole word", false, func(checked bool) {
 		matchWholeWord = checked
 	})
-	
+
 	form.AddButton("Replace", func() {
 		findTerm := form.GetFormItem(0).(*tview.InputField).GetText()
 		replaceTerm := form.GetFormItem(1).(*tview.InputField).GetText()
-		
+
 		if findTerm == "" {
 			return
 		}
 
 		visualRow, visualCol := utils.ConvertToInt32(table.GetSelection())
 		absRow, absCol := globalViewport.ToAbsolute(visualRow, visualCol)
-		
+
 		if replaceInCell(app, table, absRow, absCol, findTerm, replaceTerm, caseSensitive, matchWholeWord, globalData, globalViewport) {
 			ShowWarningModal(app, table, fmt.Sprintf("Replaced occurrence/s in cell %s%d!", utils.ColumnName(absCol), absRow))
 		} else {
 			ShowWarningModal(app, table, "No matches found in selected cell!")
 		}
 	})
-	
+
 	form.AddButton("Replace & Find Next", func() {
 		findTerm := form.GetFormItem(0).(*tview.InputField).GetText()
 		replaceTerm := form.GetFormItem(1).(*tview.InputField).GetText()
-		
+
 		if findTerm == "" {
 			return
 		}
 
 		visualRow, visualCol := utils.ConvertToInt32(table.GetSelection())
 		absRow, absCol := globalViewport.ToAbsolute(visualRow, visualCol)
-		
+
 		if replaceInCell(app, table, absRow, absCol, findTerm, replaceTerm, caseSensitive, matchWholeWord, globalData, globalViewport) {
 			lastSearchTerm = findTerm
 			lastCaseSensitive = caseSensitive
 			lastMatchWholeWord = matchWholeWord
 			lastSearchRow, lastSearchCol = absRow, absCol
-			
+
 			if !findNext(table, findTerm, caseSensitive, matchWholeWord, globalData, globalViewport, RenderVisible) {
 				ShowWarningModal(app, table, "No more matches found")
 				lastSearchRow, lastSearchCol = 0, 0
@@ -147,24 +147,24 @@ func ReplaceDialog(app *tview.Application, table *tview.Table, globalData map[[2
 			lastCaseSensitive = caseSensitive
 			lastMatchWholeWord = matchWholeWord
 			lastSearchRow, lastSearchCol = absRow, absCol
-			
+
 			if !findNext(table, findTerm, caseSensitive, matchWholeWord, globalData, globalViewport, RenderVisible) {
 				ShowWarningModal(app, table, "No matches found")
 				lastSearchRow, lastSearchCol = 0, 0
 			}
-		}	
+		}
 	})
-	
+
 	form.AddButton("Replace All", func() {
 		findTerm := form.GetFormItem(0).(*tview.InputField).GetText()
 		replaceTerm := form.GetFormItem(1).(*tview.InputField).GetText()
-		
+
 		if findTerm == "" {
 			return
 		}
 
 		matchCount := countMatches(globalData, findTerm, caseSensitive, matchWholeWord)
-		
+
 		if matchCount == 0 {
 			ShowWarningModal(app, table, "No matches found")
 			return
@@ -186,13 +186,13 @@ func ReplaceDialog(app *tview.Application, table *tview.Table, globalData map[[2
 	})
 
 	form.AddButton("Close", func() {
-		app.SetRoot(table, true).SetFocus(table)
+		sheetview.Show(app)
 	})
 
 	form.SetBorder(true).SetTitle(" Replace ").SetTitleAlign(tview.AlignCenter)
 	form.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		if event.Key() == tcell.KeyEscape {
-			app.SetRoot(table, true).SetFocus(table)
+			sheetview.Show(app)
 			return nil
 		}
 		return event
@@ -200,4 +200,3 @@ func ReplaceDialog(app *tview.Application, table *tview.Table, globalData map[[2
 
 	app.SetRoot(form, true).SetFocus(form)
 }
-

@@ -9,7 +9,9 @@ package table
 
 import (
 	"fmt"
+	"gosheet/internal/services/sheetview"
 	"gosheet/internal/services/ui"
+
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 )
@@ -19,9 +21,9 @@ func ShowSheetContextMenu(app *tview.Application, table *tview.Table) {
 	if globalWorkbook == nil {
 		return
 	}
-	
+
 	sheet := globalWorkbook.GetActiveSheet()
-	
+
 	modal := tview.NewModal().
 		SetText(fmt.Sprintf(
 			"[yellow::b]Sheet: %s[::-]\n\n"+
@@ -53,27 +55,27 @@ func ShowSheetContextMenu(app *tview.Application, table *tview.Table) {
 			case "Manager":
 				ShowSheetManagerDialog(app, table)
 			default:
-				app.SetRoot(table, true).SetFocus(table)
+				sheetview.Show(app)
 			}
 		})
-	
+
 	modal.SetBorder(true).
 		SetTitle(" Sheet Options ").
 		SetBorderColor(tcell.ColorYellow)
-	
+
 	app.SetRoot(modal, true).SetFocus(modal)
 }
 
 // showQuickRenameDialog shows a quick rename dialog
 func showQuickRenameDialog(app *tview.Application, table *tview.Table) {
 	sheet := globalWorkbook.GetActiveSheet()
-	
+
 	form := tview.NewForm()
 	nameInput := tview.NewInputField().
 		SetLabel("Sheet Name: ").
 		SetText(sheet.Name).
 		SetFieldWidth(30)
-	
+
 	form.AddFormItem(nameInput).
 		AddButton("Rename", func() {
 			newName := nameInput.GetText()
@@ -81,52 +83,52 @@ func showQuickRenameDialog(app *tview.Application, table *tview.Table) {
 				ui.ShowWarningModal(app, form, "Sheet name cannot be empty!")
 				return
 			}
-			
+
 			if err := RenameSheetByIndex(globalWorkbook.ActiveSheet, newName); err != nil {
 				ui.ShowWarningModal(app, form, err.Error())
 				return
 			}
-			
+
 			updateTableTitle(table)
 			MarkAsModified(table)
-			app.SetRoot(table, true).SetFocus(table)
+			sheetview.Show(app)
 		}).
 		AddButton("Cancel", func() {
-			app.SetRoot(table, true).SetFocus(table)
+			sheetview.Show(app)
 		})
-	
+
 	form.SetBorder(true).
 		SetTitle(" Rename Sheet ").
 		SetBorderColor(tcell.ColorYellow)
-	
+
 	form.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		if event.Key() == tcell.KeyEscape {
-			app.SetRoot(table, true).SetFocus(table)
+			sheetview.Show(app)
 			return nil
 		}
 		return event
 	})
-	
+
 	app.SetRoot(form, true).SetFocus(form)
 }
 
 // quickAddSheet quickly adds a new sheet
 func quickAddSheet(app *tview.Application, table *tview.Table) {
 	newName := fmt.Sprintf("Sheet%d", len(globalWorkbook.Sheets)+1)
-	
+
 	if err := AddSheetWithName(newName); err != nil {
 		ui.ShowWarningModal(app, table, err.Error())
 		return
 	}
-	
+
 	globalWorkbook.SwitchToSheet(len(globalWorkbook.Sheets) - 1)
-	
+
 	sheet := globalWorkbook.GetActiveSheet()
 	RenderVisible(table, sheet.Viewport, sheet.Data)
 	updateTableTitle(table)
 	MarkAsModified(table)
-	
-	app.SetRoot(table, true).SetFocus(table)
+
+	sheetview.Show(app)
 }
 
 // quickDuplicateSheet duplicates the current sheet
@@ -135,21 +137,21 @@ func quickDuplicateSheet(app *tview.Application, table *tview.Table) {
 		ui.ShowWarningModal(app, table, err.Error())
 		return
 	}
-	
+
 	globalWorkbook.SwitchToSheet(len(globalWorkbook.Sheets) - 1)
-	
+
 	sheet := globalWorkbook.GetActiveSheet()
 	RenderVisible(table, sheet.Viewport, sheet.Data)
 	updateTableTitle(table)
 	MarkAsModified(table)
-	
-	app.SetRoot(table, true).SetFocus(table)
+
+	sheetview.Show(app)
 }
 
 // confirmDeleteSheet confirms and deletes the current sheet
 func confirmDeleteSheet(app *tview.Application, table *tview.Table) {
 	sheet := globalWorkbook.GetActiveSheet()
-	
+
 	modal := tview.NewModal().
 		SetText(fmt.Sprintf(
 			"Delete sheet '%s'?\n\n"+
@@ -162,21 +164,21 @@ func confirmDeleteSheet(app *tview.Application, table *tview.Table) {
 			if buttonLabel == "Delete" {
 				if err := DeleteSheetByIndex(globalWorkbook.ActiveSheet); err != nil {
 					ui.ShowWarningModal(app, table, err.Error())
-					app.SetRoot(table, true).SetFocus(table)
+					sheetview.Show(app)
 					return
 				}
-				
+
 				sheet := globalWorkbook.GetActiveSheet()
 				RenderVisible(table, sheet.Viewport, sheet.Data)
 				updateTableTitle(table)
 				MarkAsModified(table)
 			}
-			app.SetRoot(table, true).SetFocus(table)
+			sheetview.Show(app)
 		})
-	
+
 	modal.SetBackgroundColor(tcell.ColorDarkRed).
 		SetBorderColor(tcell.ColorRed)
-	
+
 	app.SetRoot(modal, true).SetFocus(modal)
 }
 
@@ -185,7 +187,7 @@ func SwitchSheet(app *tview.Application, table *tview.Table, index int) {
 	if err := globalWorkbook.SwitchToSheet(index); err != nil {
 		return
 	}
-	
+
 	sheet := globalWorkbook.GetActiveSheet()
 	RenderVisible(table, sheet.Viewport, sheet.Data)
 	updateTableTitle(table)

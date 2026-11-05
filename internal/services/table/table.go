@@ -13,6 +13,7 @@ import (
 
 	"gosheet/internal/services/cell"
 	"gosheet/internal/services/fileop"
+	"gosheet/internal/services/sheetview"
 	"gosheet/internal/utils"
 
 	"github.com/gdamore/tcell/v2"
@@ -120,7 +121,7 @@ func OpenTable(app *tview.Application, filename string) (*tview.Table, error) {
 	sheet := globalWorkbook.GetActiveSheet()
 
 	table := CreateTable(filename)
-	
+
 	EvaluateAllFormulasOnLoad(table)
 
 	RenderVisible(table, sheet.Viewport, sheet.Data)
@@ -181,6 +182,9 @@ func isEmptyCell(c *cell.Cell) bool {
 	if c.Valrule != nil && *c.Valrule != "" {
 		return false
 	}
+	if len(c.Dependents) > 0 || len(c.DependsOn) > 0 || len(c.RangeDeps) > 0 {
+		return false
+	}
 	if c.Color[0] != 255 || c.Color[1] != 255 || c.Color[2] != 255 {
 		return false
 	}
@@ -231,7 +235,7 @@ func RenderVisible(table *tview.Table, vp *utils.Viewport, data map[[2]int]*cell
 		}
 	}
 
-	CleanupDistantCells(data, vp, 100)
+	resetHeaderTrack()
 }
 
 // MarkAsModified marks the file as modified
@@ -285,6 +289,7 @@ func updateTableTitle(table *tview.Table) {
 	}
 
 	table.SetTitle(title)
+	sheetview.SetStatus(fmt.Sprintf(" %s  ·  type to replace · F2 edit · Enter format · Del clear · Alt+/ help ", sheet.Name))
 }
 
 // HasUnsavedChanges returns whether there are unsaved changes

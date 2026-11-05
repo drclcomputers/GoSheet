@@ -72,10 +72,10 @@ func BuildEvaluableFormula(table *tview.Table, formula string, parameters map[st
 func ParseFormulaTokens(formula string) []Token {
 	var tokens []Token
 	i := 0
-	
+
 	for i < len(formula) {
 		ch := formula[i]
-		
+
 		if ch == '"' {
 			j := i + 1
 			escaped := false
@@ -91,22 +91,22 @@ func ParseFormulaTokens(formula string) []Token {
 				escaped = false
 				j++
 			}
-			
+
 			if j < len(formula) {
-				content := formula[i+1:j]
+				content := formula[i+1 : j]
 				content = strings.ReplaceAll(content, `\"`, `"`)
 				content = strings.ReplaceAll(content, `\\`, `\`)
-				
+
 				tokens = append(tokens, Token{
 					Type:     TokenStringLiteral,
 					Value:    content,
-					Original: formula[i:j+1],
+					Original: formula[i : j+1],
 				})
 				i = j + 1
 				continue
 			}
 		}
-		
+
 		if (ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z') {
 			j := i
 			for j < len(formula) && ((formula[j] >= 'A' && formula[j] <= 'Z') || (formula[j] >= 'a' && formula[j] <= 'z')) {
@@ -116,27 +116,27 @@ func ParseFormulaTokens(formula string) []Token {
 			for j < len(formula) && formula[j] >= '0' && formula[j] <= '9' {
 				j++
 			}
-			
+
 			if digitStart > i && j > digitStart {
 				cellRef := formula[i:j]
 				tokens = append(tokens, Token{
 					Type:     TokenCellRef,
-					Value:    strings.ToUpper(cellRef), 
+					Value:    strings.ToUpper(cellRef),
 					Original: cellRef,
 				})
 				i = j
 				continue
 			}
 		}
-		
+
 		tokens = append(tokens, Token{
 			Type:     TokenOther,
-			Value:    strings.ToUpper(string(ch)), 
+			Value:    strings.ToUpper(string(ch)),
 			Original: string(ch),
 		})
 		i++
 	}
-	
+
 	return tokens
 }
 
@@ -162,34 +162,38 @@ func ParseCellReferences(formula string) []*string {
 	return refs
 }
 
-// Initiates the circular dependency search process 
+// Initiates the circular dependency search process
 func checkCircularDependencyForNewFormula(table *tview.Table, c *cell.Cell, newFormula string) error {
 	newRefs := ParseCellReferences(strings.ToUpper(newFormula))
-	
+
 	oldDependsOn := c.DependsOn
 	c.DependsOn = newRefs
-	
+
 	visited := make(map[string]bool)
 	if hasCircularDependency(table, c, visited) {
 		c.DependsOn = oldDependsOn
 		return fmt.Errorf("circular dependency detected")
 	}
-	
+
 	c.DependsOn = oldDependsOn
 	return nil
 }
 
 // Clears dependencies recursively
 func clearOldDependencies(table *tview.Table, c *cell.Cell) {
-	cellRef := utils.FormatCellRef(c.Row, c.Column)
-	
+	owner := qualifiedCell(c)
+	bare := utils.FormatCellRef(c.Row, c.Column)
+
 	for _, oldRef := range c.DependsOn {
+		if oldRef == nil {
+			continue
+		}
 		oldDepCell, err := GetCellByRef(table, *oldRef)
 		if err != nil {
 			continue
 		}
-		
-		oldDepCell.Dependents = removeFromSlice(oldDepCell.Dependents, cellRef)
+		oldDepCell.Dependents = removeFromSlice(oldDepCell.Dependents, owner)
+		oldDepCell.Dependents = removeFromSlice(oldDepCell.Dependents, bare)
 	}
 }
 
@@ -262,24 +266,29 @@ func ExpandRangesInFormula(formula string) (string, error) {
 	return result, nil
 }
 
-// Returns the cell based on its address
+// Returns the cell based on its address. Sheet-qualified refs (Sheet2!A1,
+// 'Q4 Budget'!B2, $A$1) resolve to that sheet. Missing cells are created so
+// single-cell dependents can be tracked; range scans do not use this.
 func GetCellByRef(table *tview.Table, ref string) (*cell.Cell, error) {
-	activeData := GetActiveSheetData()
-    if activeData == nil {
-        return nil, fmt.Errorf("no active sheet")
-    }
+	sheetName, row, col, err := SplitRef(ref)
+	if err != nil {
+		return nil, err
+	}
+	if row < 1 || col < 1 {
+		return nil, fmt.Errorf("invalid reference %s", ref)
+	}
+	data := dataForSheet(sheetName)
+	if data == nil {
+		return nil, fmt.Errorf("sheet not found")
+	}
 
-	row, col := utils.ParseCellRef(ref)
-	
 	key := [2]int{int(row), int(col)}
-	
-	if cellData, exists := activeData[key]; exists {
+	if cellData, exists := data[key]; exists && cellData != nil {
 		return cellData, nil
 	}
-	
+
 	newCell := cell.NewCell(row, col, "")
-	activeData[key] = newCell
-	
+	data[key] = newCell
 	return newCell, nil
 }
 
@@ -289,35 +298,34 @@ func GetCellValue(table *tview.Table, ref string) (float64, error) {
 	if err != nil {
 		return 0, err
 	}
-	
+
 	if c.Display == nil || c.RawValue == nil {
 		return 0, nil
 	}
-	
+
 	if c.IsFormula() && !c.HasFlag(cell.FlagEvaluated) {
 		if err := EvaluateCell(table, c); err != nil {
 			return 0, err
 		}
 	}
-	
+
 	val := strings.TrimSpace(*c.Display)
 	val = strings.ReplaceAll(val, string(c.ThousandsSeparator), "")
 	val = strings.TrimPrefix(val, string(c.FinancialSign))
-	
+
 	if num, err := strconv.ParseFloat(val, 64); err == nil {
 		return num, nil
 	}
-	
+
 	if !c.IsFormula() {
 		rawVal := strings.TrimSpace(*c.RawValue)
 		if num, err := strconv.ParseFloat(rawVal, 64); err == nil {
 			return num, nil
 		}
 	}
-	
+
 	return 0, fmt.Errorf("cell %s does not contain a numeric value", ref)
 }
-
 
 // Helper function: checks if an item exists in a slice
 func contains(slice []*string, item string) bool {

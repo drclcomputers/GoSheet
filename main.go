@@ -11,11 +11,13 @@ package main
 import (
 	"fmt"
 	"gosheet/internal/services/fileop"
+	"gosheet/internal/services/sheetview"
 	"gosheet/internal/services/table"
 	"gosheet/internal/services/ui/file"
 	"gosheet/internal/utils"
 	"log"
 	"os"
+	"runtime/debug"
 
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
@@ -28,38 +30,40 @@ func main() {
 	//runtime.MemProfileRate = 1
 
 	utils.UpdateNrCellsOnScrn()
+	if utils.DEFAULT_VIEWPORT_ROWS > 6 {
+		utils.DEFAULT_VIEWPORT_ROWS -= 2
+	}
 
 	app := tview.NewApplication()
-	
+
 	defer func() {
-	    if r := recover(); r != nil {
-	        //fmt.Fprintf(os.Stderr, "Application crashed: %v\n", r)
-	        //fmt.Fprintf(os.Stderr, "Stack trace:\n%s\n", debug.Stack())
-	        os.Exit(-1)
-	    }
+		if r := recover(); r != nil {
+			fmt.Fprintf(os.Stderr, "\nGoSheet crashed: %v\n%s\n", r, debug.Stack())
+			os.Exit(1)
+		}
 	}()
 
 	app.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
-	    if event.Key() == tcell.KeyCtrlC {
-	        modal := tview.NewModal().
-	            SetText("Ctrl+C detected. Exiting...\nUnsaved edits will be lost.").
-	            AddButtons([]string{"OK"}).
-	            SetDoneFunc(func(buttonIndex int, buttonLabel string) {
-	                app.Stop()
-	            })
-	        app.SetRoot(modal, true).SetFocus(modal)
-	        return nil
-	    }
-	    return event
+		if event.Key() == tcell.KeyCtrlC {
+			modal := tview.NewModal().
+				SetText("Ctrl+C detected. Exiting...\nUnsaved edits will be lost.").
+				AddButtons([]string{"OK"}).
+				SetDoneFunc(func(buttonIndex int, buttonLabel string) {
+					app.Stop()
+				})
+			app.SetRoot(modal, true).SetFocus(modal)
+			return nil
+		}
+		return event
 	})
-	
+
 	var filename string
 
 	flag.StringVar(&filename, "file", "", "Path to .gsheet/.json/.txt/.csv file to open")
 	flag.Parse()
 
 	if filename == "" && len(flag.Args()) > 0 {
-	    filename = flag.Args()[0]
+		filename = flag.Args()[0]
 	}
 
 	var t *tview.Table
@@ -68,15 +72,15 @@ func main() {
 		fileop.AddToRecentFiles(filename)
 		t, err = table.OpenTable(app, filename)
 		if err != nil {
-			log.Panicln(err)
-			return
+			fmt.Fprintf(os.Stderr, "Could not open %s: %v\n", filename, err)
+			os.Exit(1)
 		}
 	} else {
 		filename = file.StartMenuUI(app)
 
 		if filename == "QUIT" {
-        	return
-    	}
+			return
+		}
 
 		if filename == "THERE_IS_NO_FILE_SELECTED" {
 			t = table.NewTable(app)
@@ -85,31 +89,36 @@ func main() {
 			t, err = table.OpenTable(app, filename)
 			if err != nil {
 				log.Println(err)
-				return 
+				return
 			}
 		}
-    }
+	}
 
+	if t != nil {
+		t.Select(1, 1)
+	} else {
+		return
+	}
 
-	if t != nil { t.Select(1, 1) } else { return }
-
-	app.SetRoot(t, true).SetFocus(t)
+	sheetview.Mount(app, t)
+	sheetview.Show(app)
 
 	if err := app.Run(); err != nil {
 		panic(err)
 	}
 
-	if len(utils.TOBEPRINTED) > 0 { fmt.Println(utils.TOBEPRINTED) }
-
+	if len(utils.TOBEPRINTED) > 0 {
+		fmt.Println(utils.TOBEPRINTED)
+	}
 
 	/*
-    // Print memory stats
-    var m runtime.MemStats
-    runtime.ReadMemStats(&m)
-    fmt.Printf("\nMemory Stats:\n")
-    fmt.Printf("Alloc = %v MB\n", m.Alloc/1024/1024)
-    fmt.Printf("TotalAlloc = %v MB\n", m.TotalAlloc/1024/1024)
-    fmt.Printf("Sys = %v MB\n", m.Sys/1024/1024)
-    fmt.Printf("NumGC = %v\n", m.NumGC)
+	   // Print memory stats
+	   var m runtime.MemStats
+	   runtime.ReadMemStats(&m)
+	   fmt.Printf("\nMemory Stats:\n")
+	   fmt.Printf("Alloc = %v MB\n", m.Alloc/1024/1024)
+	   fmt.Printf("TotalAlloc = %v MB\n", m.TotalAlloc/1024/1024)
+	   fmt.Printf("Sys = %v MB\n", m.Sys/1024/1024)
+	   fmt.Printf("NumGC = %v\n", m.NumGC)
 	*/
 }

@@ -9,6 +9,7 @@ package sheetmanager
 
 import (
 	"fmt"
+	"gosheet/internal/services/sheetview"
 	"strings"
 
 	"github.com/gdamore/tcell/v2"
@@ -16,17 +17,17 @@ import (
 )
 
 // showAddSheetDialog shows enhanced dialog to add a new sheet
-func showAddSheetDialog(app *tview.Application, 
+func showAddSheetDialog(app *tview.Application,
 	callbacks SheetManagerCallbacks, returnTo tview.Primitive, list *tview.List, infoPanel *tview.TextView) {
-	
+
 	form := tview.NewForm()
 	form.SetFieldBackgroundColor(tcell.ColorBlack)
 	form.SetButtonBackgroundColor(tcell.ColorDarkGreen)
 	form.SetButtonTextColor(tcell.ColorWhite)
-	
+
 	sheets := callbacks.GetSheets()
 	defaultName := fmt.Sprintf("Sheet%d", len(sheets)+1)
-	
+
 	nameInput := tview.NewInputField().
 		SetLabel("Sheet Name: ").
 		SetText(defaultName).
@@ -69,10 +70,10 @@ func showAddSheetDialog(app *tview.Application,
 // showRenameSheetFromManager shows enhanced rename dialog
 func showRenameSheetFromManager(app *tview.Application,
 	callbacks SheetManagerCallbacks, returnTo tview.Primitive, list *tview.List, infoPanel *tview.TextView) {
-	
+
 	selectedIndex := list.GetCurrentItem()
 	sheets := callbacks.GetSheets()
-	
+
 	if selectedIndex < 0 || selectedIndex >= len(sheets) {
 		return
 	}
@@ -83,7 +84,7 @@ func showRenameSheetFromManager(app *tview.Application,
 	form.SetFieldBackgroundColor(tcell.ColorBlack)
 	form.SetButtonBackgroundColor(tcell.ColorDarkBlue)
 	form.SetButtonTextColor(tcell.ColorWhite)
-	
+
 	nameInput := tview.NewInputField().
 		SetLabel(" New Name: ").
 		SetText(sheet.Name).
@@ -117,7 +118,7 @@ func showRenameSheetFromManager(app *tview.Application,
 		})
 
 	form.SetBorder(true).
-		SetTitle( " Rename Sheet ").
+		SetTitle(" Rename Sheet ").
 		SetBorderColor(tcell.ColorBlue).
 		SetTitleAlign(tview.AlignCenter)
 
@@ -127,7 +128,7 @@ func showRenameSheetFromManager(app *tview.Application,
 // confirmDeleteSheetFromManager shows enhanced deletion confirmation
 func confirmDeleteSheetFromManager(app *tview.Application,
 	callbacks SheetManagerCallbacks, returnTo tview.Primitive, list *tview.List, infoPanel *tview.TextView) {
-	
+
 	sheets := callbacks.GetSheets()
 	if len(sheets) <= 1 {
 		ShowWarningModal(app, returnTo, "Cannot delete the last sheet!\n\nA workbook must have at least one sheet.")
@@ -182,10 +183,10 @@ func confirmDeleteSheetFromManager(app *tview.Application,
 // duplicateSheetFromManager duplicates with visual feedback
 func duplicateSheetFromManager(app *tview.Application, table *tview.Table,
 	callbacks SheetManagerCallbacks, list *tview.List, infoPanel *tview.TextView) {
-	
+
 	selectedIndex := list.GetCurrentItem()
 	sheets := callbacks.GetSheets()
-	
+
 	if selectedIndex < 0 || selectedIndex >= len(sheets) {
 		return
 	}
@@ -206,10 +207,10 @@ func duplicateSheetFromManager(app *tview.Application, table *tview.Table,
 // showMoveSheetDialog shows enhanced reorder dialog
 func showMoveSheetDialog(app *tview.Application,
 	callbacks SheetManagerCallbacks, returnTo tview.Primitive, list *tview.List, infoPanel *tview.TextView) {
-	
+
 	selectedIndex := list.GetCurrentItem()
 	sheets := callbacks.GetSheets()
-	
+
 	if selectedIndex < 0 || selectedIndex >= len(sheets) {
 		return
 	}
@@ -218,7 +219,7 @@ func showMoveSheetDialog(app *tview.Application,
 	form.SetFieldBackgroundColor(tcell.ColorBlack)
 	form.SetButtonBackgroundColor(tcell.ColorDarkGoldenrod)
 	form.SetButtonTextColor(tcell.ColorWhite)
-	
+
 	positions := make([]string, len(sheets))
 	for i := range sheets {
 		if i == selectedIndex {
@@ -231,7 +232,7 @@ func showMoveSheetDialog(app *tview.Application,
 	form.AddDropDown("Move to:", positions, selectedIndex, nil).
 		AddButton("Move", func() {
 			newPos, _ := form.GetFormItem(0).(*tview.DropDown).GetCurrentOption()
-			
+
 			if newPos == selectedIndex {
 				app.SetRoot(returnTo, true).SetFocus(list)
 				return
@@ -263,12 +264,12 @@ func showMoveSheetDialog(app *tview.Application,
 }
 
 // switchToSelectedSheet switches with smooth feedback
-func switchToSelectedSheet(app *tview.Application, table *tview.Table, 
+func switchToSelectedSheet(app *tview.Application, table *tview.Table,
 	callbacks SheetManagerCallbacks, list *tview.List) {
-	
+
 	selectedIndex := list.GetCurrentItem()
 	sheets := callbacks.GetSheets()
-	
+
 	if selectedIndex < 0 || selectedIndex >= len(sheets) {
 		return
 	}
@@ -280,8 +281,6 @@ func switchToSelectedSheet(app *tview.Application, table *tview.Table,
 	callbacks.UpdateTabBar()
 	callbacks.UpdateTableTitle()
 	callbacks.RenderActiveSheet()
-	
-	app.SetRoot(table, true).SetFocus(table)
+
+	sheetview.Show(app)
 }
-
-

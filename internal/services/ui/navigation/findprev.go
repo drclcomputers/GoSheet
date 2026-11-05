@@ -14,10 +14,9 @@ import (
 	"github.com/rivo/tview"
 )
 
-
 func findPrevious(table *tview.Table, searchTerm string, caseSensitive, matchWholeWord bool, globalData map[[2]int]*cell.Cell, globalViewport *utils.Viewport, RenderVisible func(table *tview.Table, globalViewport *utils.Viewport, globalData map[[2]int]*cell.Cell)) bool {
 	var startRow, startCol int32
-	
+
 	if lastSearchRow == 0 && lastSearchCol == 0 {
 		visualRow, visualCol := utils.ConvertToInt32(table.GetSelection())
 		startRow, startCol = globalViewport.ToAbsolute(visualRow, visualCol)
@@ -29,15 +28,15 @@ func findPrevious(table *tview.Table, searchTerm string, caseSensitive, matchWho
 			startRow--
 		}
 	}
-	
+
 	maxRow, maxCol := int32(utils.MAX_ROWS), int32(utils.MAX_COLS)
-	
+
 	for r := startRow; r >= 1; r-- {
 		colEnd := maxCol
 		if r == startRow {
 			colEnd = startCol
 		}
-		
+
 		for c := colEnd; c >= 1; c-- {
 			if matchCellInData(globalData, r, c, searchTerm, caseSensitive, matchWholeWord) {
 				navigateToCell(table, r, c, globalViewport, globalData, RenderVisible)
@@ -46,7 +45,7 @@ func findPrevious(table *tview.Table, searchTerm string, caseSensitive, matchWho
 			}
 		}
 	}
-	
+
 	for r := maxRow; r > startRow; r-- {
 		for c := maxCol; c >= 1; c-- {
 			if matchCellInData(globalData, r, c, searchTerm, caseSensitive, matchWholeWord) {
@@ -56,11 +55,9 @@ func findPrevious(table *tview.Table, searchTerm string, caseSensitive, matchWho
 			}
 		}
 	}
-	
+
 	return false
 }
-
-
 
 func FindPreviousQuick(table *tview.Table, globalData map[[2]int]*cell.Cell, globalViewport *utils.Viewport, RenderVisible func(table *tview.Table, globalViewport *utils.Viewport, globalData map[[2]int]*cell.Cell)) bool {
 	if lastSearchTerm == "" {

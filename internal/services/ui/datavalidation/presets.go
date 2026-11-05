@@ -30,7 +30,7 @@ func GetValidationPresets() []ValidationPreset {
 				{Name: "max", Label: "Maximum:", Type: "number", Placeholder: "100"},
 			},
 			BuildRule: func(params map[string]string) string {
-				return fmt.Sprintf("THIS >= %s && THIS <= %s && THIS == FLOOR(THIS)", 
+				return fmt.Sprintf("THIS >= %s && THIS <= %s && THIS == FLOOR(THIS)",
 					params["min"], params["max"])
 			},
 		},
@@ -93,7 +93,7 @@ func GetValidationPresets() []ValidationPreset {
 				{Name: "max", Label: "Maximum length:", Type: "number", Placeholder: "50"},
 			},
 			BuildRule: func(params map[string]string) string {
-				return fmt.Sprintf("LEN(THIS) >= %s && LEN(THIS) <= %s", 
+				return fmt.Sprintf("LEN(THIS) >= %s && LEN(THIS) <= %s",
 					params["min"], params["max"])
 			},
 		},
@@ -119,7 +119,7 @@ func GetValidationPresets() []ValidationPreset {
 			Name:        "List - Allowed Values",
 			Description: "Value must be one of the specified options",
 			Fields: []ValidationField{
-				{Name: "list", Label: "Allowed values (comma-separated):", Type: "text", 
+				{Name: "list", Label: "Allowed values (comma-separated):", Type: "text",
 					Placeholder: "Yes,No,Maybe"},
 			},
 			BuildRule: func(params map[string]string) string {
@@ -166,7 +166,7 @@ func detectPresetFromRule(rule string) (int, map[string]string) {
 	}
 
 	presets := GetValidationPresets()
-	
+
 	for i, preset := range presets {
 		if preset.Name == "Custom" {
 			continue
@@ -242,5 +242,5 @@ func detectPresetFromRule(rule string) (int, map[string]string) {
 		}
 	}
 
-	return 0, nil 
+	return 0, nil
 }

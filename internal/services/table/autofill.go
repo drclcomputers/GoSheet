@@ -10,6 +10,7 @@ package table
 import (
 	"fmt"
 	"gosheet/internal/services/cell"
+	"gosheet/internal/services/sheetview"
 	"gosheet/internal/services/ui"
 	"gosheet/internal/utils"
 	"strconv"
@@ -34,14 +35,14 @@ const (
 func ShowFillDialog(app *tview.Application, table *tview.Table) {
 	activeData := GetActiveSheetData()
 	activeViewport := GetActiveViewport()
-	
+
 	if activeData == nil || activeViewport == nil {
 		return
 	}
 
 	r1, c1, r2, c2 := getSelectionRange(table)
-	
-	if (r1 == r2 && c1 == c2) {
+
+	if r1 == r2 && c1 == c2 {
 		ui.ShowWarningModal(app, table, "Please select at least 2 cells to create a fill pattern.")
 		return
 	}
@@ -50,7 +51,7 @@ func ShowFillDialog(app *tview.Application, table *tview.Table) {
 
 	directions := []string{}
 	directionMap := map[string]FillDirection{}
-	
+
 	if r2 < utils.MAX_ROWS {
 		directions = append(directions, "Down")
 		directionMap["Down"] = FillDown
@@ -92,7 +93,7 @@ func ShowFillDialog(app *tview.Application, table *tview.Table) {
 		"Text Pattern",
 		"Copy Values",
 	}
-	
+
 	var fillType int
 	form.AddDropDown("Fill Type:", fillTypes, 0, func(option string, index int) {
 		fillType = index
@@ -107,12 +108,12 @@ func ShowFillDialog(app *tview.Application, table *tview.Table) {
 		}
 
 		performFill(table, r1, c1, r2, c2, selectedDirection, count, fillType)
-		app.SetRoot(table, true).SetFocus(table)
+		sheetview.Show(app)
 		clearSelectionRange()
 	})
 
 	form.AddButton("x Cancel", func() {
-		app.SetRoot(table, true).SetFocus(table)
+		sheetview.Show(app)
 	})
 
 	form.SetBorder(true).
@@ -127,7 +128,7 @@ func ShowFillDialog(app *tview.Application, table *tview.Table) {
 func performFill(table *tview.Table, r1, c1, r2, c2 int32, direction FillDirection, count int, fillType int) {
 	activeData := GetActiveSheetData()
 	activeViewport := GetActiveViewport()
-	
+
 	if activeData == nil || activeViewport == nil {
 		return
 	}
@@ -224,7 +225,7 @@ func performFill(table *tview.Table, r1, c1, r2, c2 int32, direction FillDirecti
 func createFilledCell(table *tview.Table, r, c int32, value string) {
 	activeData := GetActiveSheetData()
 	activeViewport := GetActiveViewport()
-	
+
 	if activeData == nil || activeViewport == nil {
 		return
 	}
@@ -347,19 +348,19 @@ func detectLinearPattern(values []string) Pattern {
 		prefix string
 		suffix string
 	}
-	
+
 	numsWithContext := []numWithContext{}
-	
+
 	for _, v := range values {
 		v = strings.TrimSpace(v)
-		
+
 		var prefix, suffix, numStr string
 		var foundNum bool
-		
+
 		numStart, numEnd := -1, -1
 		inNumber := false
 		hasDecimal := false
-		
+
 		for i, ch := range v {
 			if ch >= '0' && ch <= '9' {
 				if !inNumber {
@@ -374,14 +375,14 @@ func detectLinearPattern(values []string) Pattern {
 				break
 			}
 		}
-		
+
 		if numStart >= 0 && numEnd > numStart {
 			prefix = v[:numStart]
 			numStr = v[numStart:numEnd]
 			if numEnd < len(v) {
 				suffix = v[numEnd:]
 			}
-			
+
 			if num, err := strconv.ParseFloat(numStr, 64); err == nil {
 				numsWithContext = append(numsWithContext, numWithContext{
 					num:    num,
@@ -391,7 +392,7 @@ func detectLinearPattern(values []string) Pattern {
 				foundNum = true
 			}
 		}
-		
+
 		if !foundNum {
 			if num, err := strconv.ParseFloat(v, 64); err == nil {
 				numsWithContext = append(numsWithContext, numWithContext{
@@ -409,9 +410,9 @@ func detectLinearPattern(values []string) Pattern {
 
 	prefix := numsWithContext[0].prefix
 	suffix := numsWithContext[0].suffix
-	
+
 	step := numsWithContext[1].num - numsWithContext[0].num
-	
+
 	return &LinearPattern{
 		start:  numsWithContext[0].num,
 		step:   step,

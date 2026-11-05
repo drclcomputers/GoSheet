@@ -15,46 +15,48 @@ import (
 
 // Format style bits
 const (
-    FlagItalic = 1 << iota
-    FlagBold
-    FlagUnderline
-    FlagAllCaps
-    FlagStrikethrough
-    FlagEditable
+	FlagItalic = 1 << iota
+	FlagBold
+	FlagUnderline
+	FlagAllCaps
+	FlagStrikethrough
+	FlagEditable
 	FlagFormula
 	FlagEvaluated
 )
 
 // Custom Cell definition
 type Cell struct {
-    RawValue      *string  
-    Display       *string 
-    Type          *string  
+	RawValue *string
+	Display  *string
+	Type     *string
 
-    Row           int32     
-	Column        int32
-    MaxWidth      int32
-	MinWidth      int32
-  
-    Align         int8
-	Flags 		  uint8	
+	Row      int32
+	Column   int32
+	MaxWidth int32
+	MinWidth int32
+
+	Align int8
+	Flags uint8
 
 	DecimalPoints      int32
-    ThousandsSeparator rune
-    DecimalSeparator   rune
-    FinancialSign      rune
+	ThousandsSeparator rune
+	DecimalSeparator   rune
+	FinancialSign      rune
 	DateTimeFormat     *string
 
-	Color    utils.ColorRGB
-    BgColor  utils.ColorRGB 
+	Color   utils.ColorRGB
+	BgColor utils.ColorRGB
 
 	Notes      *string
 	Valrule    *string
 	Valrulemsg *string
-	              
-    DependsOn     []*string          
-    Dependents    []*string
 
-	tvCell        *tview.TableCell
+	DependsOn  []*string
+	Dependents []*string
+	// RangeDeps lists ranges this formula reads, as "Sheet!A1:B10".
+	// Runtime only — recomputed on evaluation. Not part of the file format.
+	RangeDeps []string `json:"-"`
+
+	tvCell *tview.TableCell
 }
-

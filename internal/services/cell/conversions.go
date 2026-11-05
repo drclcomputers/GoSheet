@@ -103,7 +103,7 @@ func ToCustomCell(tv *tview.TableCell, row, col int32) *Cell {
 	displayCopy := text
 	t := "string"
 	autotype := "auto"
-	
+
 	c := &Cell{
 		RawValue:           &rawValueCopy,
 		Display:            &displayCopy,
@@ -115,7 +115,7 @@ func ToCustomCell(tv *tview.TableCell, row, col int32) *Cell {
 		Align:              int8(align),
 		Flags:              FlagEditable,
 		DecimalPoints:      utils.DEFAULT_CELL_DECIMAL_POINTS,
-		ThousandsSeparator: utils.DEFAULT_CELL_DECIMAL_SEPARATOR,
+		ThousandsSeparator: utils.DEFAULT_CELL_THOUSANDS_SEPARATOR,
 		DecimalSeparator:   utils.DEFAULT_CELL_DECIMAL_SEPARATOR,
 		FinancialSign:      utils.DEFAULT_CELL_FINANCIAL_SIGN,
 		DateTimeFormat:     &autotype,
@@ -159,7 +159,7 @@ func ToCustomCell(tv *tview.TableCell, row, col int32) *Cell {
 				dateTimeCopy := *old.DateTimeFormat
 				c.DateTimeFormat = &dateTimeCopy
 			}
-			
+
 			c.Color = old.Color
 			c.BgColor = old.BgColor
 			c.Flags = old.Flags
@@ -168,7 +168,7 @@ func ToCustomCell(tv *tview.TableCell, row, col int32) *Cell {
 			c.ThousandsSeparator = old.ThousandsSeparator
 			c.DecimalSeparator = old.DecimalSeparator
 			c.FinancialSign = old.FinancialSign
-			
+
 			if old.DependsOn != nil {
 				c.DependsOn = make([]*string, len(old.DependsOn))
 				for i, dep := range old.DependsOn {

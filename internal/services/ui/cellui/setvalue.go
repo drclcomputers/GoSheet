@@ -10,6 +10,7 @@ package cellui
 import (
 	"fmt"
 	"gosheet/internal/services/cell"
+	"gosheet/internal/services/sheetview"
 	"gosheet/internal/services/ui/datavalidation"
 	"gosheet/internal/utils"
 	"strconv"
@@ -20,7 +21,7 @@ import (
 
 func updateCellValue(app *tview.Application, container *tview.Flex, c *cell.Cell, text string, leftForm *tview.Form) {
 	text = strings.TrimSpace(text)
-	
+
 	if c.RawValue == nil {
 		c.RawValue = new(string)
 	}
@@ -31,21 +32,21 @@ func updateCellValue(app *tview.Application, container *tview.Flex, c *cell.Cell
 		typeStr := "string"
 		c.Type = &typeStr
 	}
-	
+
 	if strings.HasPrefix(text, "$=") {
 		*c.RawValue = text
 		c.SetFlag(cell.FlagFormula)
 		c.ClearFlag(cell.FlagEvaluated)
-		*c.Display = text 
+		*c.Display = text
 		return
 	}
-	
+
 	if c.HasFlag(cell.FlagFormula) && !strings.HasPrefix(text, "$=") {
 		c.ClearFlag(cell.FlagFormula)
 		c.ClearFlag(cell.FlagEvaluated)
 		c.DependsOn = nil
 	}
-	
+
 	switch strings.ToLower(*c.Type) {
 	case "string":
 		*c.RawValue = text
@@ -70,8 +71,6 @@ func updateCellValue(app *tview.Application, container *tview.Flex, c *cell.Cell
 		}
 	}
 }
-
-
 
 func SaveCellFormButtonAndKeyMap(app *tview.Application, table *tview.Table, container *tview.Flex, c, oldCell *cell.Cell, row, column int32, leftForm *tview.Form, RecordCellEdit func(table *tview.Table, row, col int32, oldCell, newCell *cell.Cell), EvaluateCell func(table *tview.Table, c *cell.Cell) error, RecalculateCell func(table *tview.Table, c *cell.Cell) error, globalData map[[2]int]*cell.Cell, globalViewport *utils.Viewport) {
 	valueField := leftForm.GetFormItem(0).(*tview.InputField)
@@ -158,5 +157,5 @@ func SaveCellFormButtonAndKeyMap(app *tview.Application, table *tview.Table, con
 
 	RecalculateCell(table, c)
 
-	app.SetRoot(table, true).SetFocus(table)
+	sheetview.Show(app)
 }

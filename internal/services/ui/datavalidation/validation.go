@@ -46,20 +46,20 @@ func ValidateValidationRule(ruleText string, cellData *cell.Cell) bool {
 	options := []expr.Option{
 		expr.AllowUndefinedVariables(),
 	}
-	
+
 	for name, fn := range functions {
 		options = append(options, expr.Function(name, fn))
 	}
 
 	program, err := expr.Compile(testRule, options...)
 	if err != nil {
-		return false 
+		return false
 	}
 
 	_, err = expr.Run(program, env)
 	if err != nil {
-		return false 
-	}	
+		return false
+	}
 
 	return true
 }
@@ -160,7 +160,7 @@ func CheckValidationRule(cellData *cell.Cell, newValue string) (bool, string) {
 	result, err := expr.Run(program, env)
 	if err != nil {
 		return false, "Could not compile validation rule"
-	}	
+	}
 
 	isValid, ok := result.(bool)
 	if !ok {

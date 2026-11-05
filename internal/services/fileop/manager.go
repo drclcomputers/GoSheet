@@ -24,20 +24,20 @@ func NewFileManager() *FileManager {
 		readers: make(map[FileFormat]FileReader),
 		writers: make(map[FileFormat]FileWriter),
 	}
-	
+
 	nativeHandler := &NativeFormatHandler{}
 	fm.RegisterReader(FormatGSheet, nativeHandler)
 	fm.RegisterReader(FormatJSON, nativeHandler)
 	fm.RegisterWriter(FormatGSheet, nativeHandler)
 	fm.RegisterWriter(FormatJSON, nativeHandler)
-	
+
 	htmlHandler := &HTMLFormatHandler{}
 	fm.RegisterWriter(FormatHTML, htmlHandler)
-	
+
 	textHandler := &TextFormatHandler{}
 	fm.RegisterReader(FormatTXT, textHandler)
 	fm.RegisterWriter(FormatTXT, textHandler)
-	
+
 	excelHandler := &ExcelFormatHandler{}
 	fm.RegisterReader(FormatXLSX, excelHandler)
 	fm.RegisterWriter(FormatXLSX, excelHandler)
@@ -48,7 +48,7 @@ func NewFileManager() *FileManager {
 
 	pdfHandler := &PDFFormatHandler{}
 	fm.RegisterWriter(FormatPDF, pdfHandler)
-	
+
 	return fm
 }
 
@@ -67,26 +67,26 @@ func (fm *FileManager) Open(filename string) (*WorkbookResult, error) {
 	if _, err := os.Stat(filename); os.IsNotExist(err) {
 		return nil, fmt.Errorf("file does not exist: %s", filename)
 	}
-	
+
 	format, ok := DetectFormat(filename)
 	if !ok {
 		return nil, fmt.Errorf("unsupported file format")
 	}
-	
+
 	if !format.SupportsRead() {
 		return nil, fmt.Errorf("format %s does not support reading", format.Description())
 	}
-	
+
 	reader, ok := fm.readers[format]
 	if !ok {
 		return nil, fmt.Errorf("no reader available for format %s", format.Description())
 	}
-	
+
 	result, err := reader.Read(filename)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read %s file: %v", format.Description(), err)
 	}
-	
+
 	result.Format = format
 	return result, nil
 }
@@ -97,16 +97,16 @@ func (fm *FileManager) Save(filename string, sheets []SheetInfo, activeSheet int
 	if !ok {
 		return fmt.Errorf("unsupported file format")
 	}
-	
+
 	if !format.SupportsWrite() {
 		return fmt.Errorf("format %s does not support writing", format.Description())
 	}
-	
+
 	writer, ok := fm.writers[format]
 	if !ok {
 		return fmt.Errorf("no writer available for format %s", format.Description())
 	}
-	
+
 	if !format.SupportsMultipleSheets() && len(sheets) > 1 {
 		if activeSheet >= 0 && activeSheet < len(sheets) {
 			sheets = []SheetInfo{sheets[activeSheet]}
@@ -115,7 +115,7 @@ func (fm *FileManager) Save(filename string, sheets []SheetInfo, activeSheet int
 		}
 		activeSheet = 0
 	}
-	
+
 	dir := filename[:len(filename)-len(format.String())]
 	if idx := len(dir) - 1; idx >= 0 {
 		for i := idx; i >= 0; i-- {
@@ -128,11 +128,11 @@ func (fm *FileManager) Save(filename string, sheets []SheetInfo, activeSheet int
 			}
 		}
 	}
-	
+
 	if err := writer.Write(filename, sheets, activeSheet); err != nil {
 		return fmt.Errorf("failed to write %s file: %v", format.Description(), err)
 	}
-	
+
 	return nil
 }
 
@@ -142,7 +142,7 @@ func (fm *FileManager) SaveAs(filename string, sheets []SheetInfo, activeSheet i
 		filename[len(filename)-len(targetFormat.String()):] != targetFormat.String() {
 		filename = filename + targetFormat.String()
 	}
-	
+
 	return fm.Save(filename, sheets, activeSheet)
 }
 
@@ -152,11 +152,11 @@ func (fm *FileManager) CanOpen(filename string) bool {
 	if !ok {
 		return false
 	}
-	
+
 	if !format.SupportsRead() {
 		return false
 	}
-	
+
 	_, hasReader := fm.readers[format]
 	return hasReader
 }
@@ -166,7 +166,7 @@ func (fm *FileManager) CanSave(format FileFormat) bool {
 	if !format.SupportsWrite() {
 		return false
 	}
-	
+
 	_, hasWriter := fm.writers[format]
 	return hasWriter
 }

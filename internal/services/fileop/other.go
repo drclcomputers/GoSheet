@@ -22,28 +22,28 @@ func GetRecentFileList() ([]string, []string) {
 	if err != nil {
 		return []string{}, []string{}
 	}
-	
+
 	recentFile := filepath.Join(homeDir, recentFilesPath)
 	data, err := os.ReadFile(recentFile)
 	if err != nil {
 		return []string{}, []string{}
 	}
-	
+
 	lines := strings.Split(string(data), "\n")
 	var filenames, locations []string
-	
+
 	for _, line := range lines {
 		line = strings.TrimSpace(line)
 		if line == "" {
 			continue
 		}
-		
+
 		if _, err := os.Stat(line); err == nil {
 			locations = append(locations, line)
 			filenames = append(filenames, filepath.Base(line))
 		}
 	}
-	
+
 	return filenames, locations
 }
 
@@ -72,20 +72,20 @@ func AddToRecentFiles(filepathtodir string) {
 
 	existing := []string{}
 	if data, err := os.ReadFile(recentFile); err == nil {
-	    lines := strings.SplitN(string(data), "\n", bytes.Count(data, []byte{'\n'})+1)
-	    for _, line := range lines {
-	        line = strings.TrimSpace(line)
-	        if line == "" {
-	            continue
-	        }
-	        normalizedExisting, err := filepath.Abs(line)
-	        if err != nil {
-	            normalizedExisting = line
-	        }
-	        if normalizedExisting != normalizedNew {
-	            existing = append(existing, line)
-	        }
-	    }
+		lines := strings.SplitN(string(data), "\n", bytes.Count(data, []byte{'\n'})+1)
+		for _, line := range lines {
+			line = strings.TrimSpace(line)
+			if line == "" {
+				continue
+			}
+			normalizedExisting, err := filepath.Abs(line)
+			if err != nil {
+				normalizedExisting = line
+			}
+			if normalizedExisting != normalizedNew {
+				existing = append(existing, line)
+			}
+		}
 	}
 
 	existing = append([]string{filepathtodir}, existing...)
@@ -96,5 +96,3 @@ func AddToRecentFiles(filepathtodir string) {
 
 	os.WriteFile(recentFile, []byte(strings.Join(existing, "\n")), 0644)
 }
-
-

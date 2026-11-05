@@ -14,6 +14,7 @@ import (
 
 	"gosheet/internal/services/cell"
 	"gosheet/internal/services/fileop"
+	"gosheet/internal/services/sheetview"
 	"gosheet/internal/services/ui/cellui"
 	"gosheet/internal/utils"
 
@@ -38,17 +39,17 @@ func showOverwriteConfirmation(app *tview.Application, table *tview.Table, filen
 			if buttonLabel == "Overwrite" {
 				performSave(app, table, filename, format, shouldExit, globalData)
 			} else {
-				app.SetRoot(table, true).SetFocus(table)
+				sheetview.Show(app)
 			}
 		})
-	
+
 	modal.SetBackgroundColor(tcell.ColorDarkRed).SetBorderColor(tcell.ColorRed)
 	app.SetRoot(modal, true).SetFocus(modal)
 }
 
 func performSave(app *tview.Application, table *tview.Table, filename string, format FileFormatUI, shouldExit bool, globalData map[[2]int]*cell.Cell) {
 	err := format.SaveFunc(table, filename, globalData)
-	
+
 	if err != nil {
 		ShowErrorModal(app, table, fmt.Sprintf("Failed to save file:\n%s", err.Error()))
 		return
@@ -57,7 +58,7 @@ func performSave(app *tview.Application, table *tview.Table, filename string, fo
 	if format.Extension == ".json" || format.Extension == ".gsheet" || format.Extension == ".txt" || format.Extension == ".xlsx" {
 		fileop.AddToRecentFiles(filename)
 	}
-	
+
 	message := fmt.Sprintf("File saved successfully!\n\nLocation:\n%s", filename)
 	modal := tview.NewModal().
 		SetText(message).
@@ -66,14 +67,13 @@ func performSave(app *tview.Application, table *tview.Table, filename string, fo
 			if shouldExit {
 				app.Stop()
 			} else {
-				app.SetRoot(table, true).SetFocus(table)
+				sheetview.Show(app)
 			}
 		})
-	
+
 	modal.SetBackgroundColor(tcell.ColorDarkGreen).SetBorderColor(tcell.ColorGreen)
 	app.SetRoot(modal, true).SetFocus(modal)
 }
-
 
 // Modal used for showing that a cell is uneditable
 func ShowUneditableModal(app *tview.Application, table *tview.Table, row, col int32, RecordCellEdit func(table *tview.Table, row, col int32, oldCell, newCell *cell.Cell), EvaluateCell func(table *tview.Table, c *cell.Cell) error, RecalculateCell func(table *tview.Table, c *cell.Cell) error, globalData map[[2]int]*cell.Cell, globalViewport *utils.Viewport) {
@@ -85,7 +85,7 @@ func ShowUneditableModal(app *tview.Application, table *tview.Table, row, col in
 			case "Yes":
 				cellui.EditCellDialog(app, table, row, col, RecordCellEdit, EvaluateCell, RecalculateCell, globalData, globalViewport)
 			case "Cancel":
-				app.SetRoot(table, true).SetFocus(table)
+				sheetview.Show(app)
 			}
 		})
 

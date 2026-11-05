@@ -18,18 +18,25 @@ import (
 // Utility Functions
 func getTypeIndex(cellType string) int {
 	switch strings.TrimSpace(strings.ToLower(cellType)) {
-	case "number": return 1
-	case "financial": return 2
-	case "datetime": return 3
-	default: return 0
+	case "number":
+		return 1
+	case "financial":
+		return 2
+	case "datetime":
+		return 3
+	default:
+		return 0
 	}
 }
 
 func getAlignIndex(align int8) int {
 	switch align {
-	case tview.AlignCenter: return 1
-	case tview.AlignRight: return 2
-	default: return 0
+	case tview.AlignCenter:
+		return 1
+	case tview.AlignRight:
+		return 2
+	default:
+		return 0
 	}
 }
 
@@ -63,10 +70,14 @@ func getColorIndices(c *cell.Cell) (int, int) {
 
 func getDateTypeFormat(opt string) int {
 	switch opt {
-	case "date": return 1
-	case "time": return 2
-	case "datetime": return 3
-	default: return 0
+	case "date":
+		return 1
+	case "time":
+		return 2
+	case "datetime":
+		return 3
+	default:
+		return 0
 	}
 }
 
@@ -88,14 +99,16 @@ func safeStringValue(ptr *string) string {
 
 func disableFormattingFields(items ...tview.Primitive) {
 	for _, item := range items {
-		if d, ok := item.(interface{ SetDisabled(bool) *tview.DropDown }); ok { d.SetDisabled(true) }
+		if d, ok := item.(interface{ SetDisabled(bool) *tview.DropDown }); ok {
+			d.SetDisabled(true)
+		}
 	}
 }
 
 func toStringSlice(runes []rune) []string {
 	out := make([]string, len(runes))
-	for i, r := range runes { out[i] = string(r) }
+	for i, r := range runes {
+		out[i] = string(r)
+	}
 	return out
 }
-
-

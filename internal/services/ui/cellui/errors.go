@@ -10,6 +10,7 @@ package cellui
 import (
 	"fmt"
 	"gosheet/internal/services/cell"
+	"gosheet/internal/services/sheetview"
 	"gosheet/internal/utils"
 
 	"github.com/gdamore/tcell/v2"
@@ -26,14 +27,13 @@ func ShowUneditableModal(app *tview.Application, table *tview.Table, row, col in
 			case "Yes":
 				EditCellDialog(app, table, row, col, RecordCellEdit, EvaluateCell, RecalculateCell, globalData, globalViewport)
 			case "Cancel":
-				app.SetRoot(table, true).SetFocus(table)
+				sheetview.Show(app)
 			}
 		})
 
 	modal.SetBorder(true).SetTitle(" Confirm Edit ").SetTitleAlign(tview.AlignCenter)
 	app.SetRoot(modal, true).SetFocus(modal)
 }
-
 
 // Shows a modal in case of a type mismatch
 func ShowTypeErrorModal(app *tview.Application, form *tview.Flex, c *cell.Cell, leftForm *tview.Form) {

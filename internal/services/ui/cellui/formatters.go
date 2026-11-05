@@ -30,7 +30,7 @@ func setFormattingEnabled(cellType string,
 		enable(decimalPointsInput, true)
 		enable(dateTimeFormatDropdown, false)
 	case "number":
-		enable(financialSignDropdown, false) 
+		enable(financialSignDropdown, false)
 		enable(thousandsSeparatorDropdown, true)
 		enable(decimalSeparatorDropdown, true)
 		enable(decimalPointsInput, true)
@@ -49,4 +49,3 @@ func setFormattingEnabled(cellType string,
 		enable(dateTimeFormatDropdown, false)
 	}
 }
-

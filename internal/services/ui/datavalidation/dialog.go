@@ -107,7 +107,7 @@ func ShowValidationRuleDialog(app *tview.Application, table *tview.Table, return
 					}
 				}
 			}
-			
+
 			allFilled := true
 			for _, field := range preset.Fields {
 				if params[field.Name] == "" {
@@ -115,12 +115,12 @@ func ShowValidationRuleDialog(app *tview.Application, table *tview.Table, return
 					break
 				}
 			}
-			
+
 			if !allFilled {
 				showValidationErrorModal(app, container, container, "Please fill in all required fields before applying.")
 				return
 			}
-			
+
 			finalRule = preset.BuildRule(params)
 		}
 
@@ -146,7 +146,7 @@ func ShowValidationRuleDialog(app *tview.Application, table *tview.Table, return
 		currentFormItemsInDynamic = nil
 		preset := presets[presetIdx]
 
-		previewText.SetText(fmt.Sprintf("[yellow]%s[white]\n\n%s\n\n[gray]Empty cells are always allowed, validation only applies when entering a value.[-]", 
+		previewText.SetText(fmt.Sprintf("[yellow]%s[white]\n\n%s\n\n[gray]Empty cells are always allowed, validation only applies when entering a value.[-]",
 			preset.Name, preset.Description))
 
 		if preset.Name == "Custom" {
@@ -163,7 +163,7 @@ func ShowValidationRuleDialog(app *tview.Application, table *tview.Table, return
 			//		items = append(items, item)
 			//	}
 			container.Clear()
-				container.AddItem(presetDropdown, 0, 1, false).
+			container.AddItem(presetDropdown, 0, 1, false).
 				AddItem(previewText, 0, 2, false).
 				AddItem(customRuleArea, 0, 5, true).
 				AddItem(customMessageInput, 0, 1, false).
@@ -184,16 +184,16 @@ func ShowValidationRuleDialog(app *tview.Application, table *tview.Table, return
 					SetLabel(field.Label).
 					SetPlaceholder(field.Placeholder).
 					SetFieldWidth(30)
-				
+
 				if detectedParams != nil && detectedPresetIdx == presetIdx {
 					if val, ok := detectedParams[field.Name]; ok {
 						inputField.SetText(val)
 					}
 				}
-				
+
 				dynamicForm.AddFormItem(inputField)
 				currentFormItemsInDynamic = append(currentFormItemsInDynamic, inputField)
-				
+
 				idx := i
 				inputField.SetChangedFunc(func(text string) {
 					params := make(map[string]string)
@@ -203,7 +203,7 @@ func ShowValidationRuleDialog(app *tview.Application, table *tview.Table, return
 							params[preset.Fields[j].Name] = fi.GetText()
 						}
 					}
-					
+
 					allFilled := true
 					for _, f := range preset.Fields {
 						if params[f.Name] == "" {
@@ -211,22 +211,22 @@ func ShowValidationRuleDialog(app *tview.Application, table *tview.Table, return
 							break
 						}
 					}
-					
+
 					if allFilled {
 						rule := preset.BuildRule(params)
-						previewText.SetText(fmt.Sprintf("[yellow]%s[white]\n\n%s\n\n[green]Generated Rule:[white]\n%s\n\n[gray]Empty cells are always allowed.[-]", 
+						previewText.SetText(fmt.Sprintf("[yellow]%s[white]\n\n%s\n\n[green]Generated Rule:[white]\n%s\n\n[gray]Empty cells are always allowed.[-]",
 							preset.Name, preset.Description, rule))
 					} else {
-						previewText.SetText(fmt.Sprintf("[yellow]%s[white]\n\n%s\n\n[gray]Fill in all fields to see the generated rule.\nEmpty cells are always allowed.[-]", 
+						previewText.SetText(fmt.Sprintf("[yellow]%s[white]\n\n%s\n\n[gray]Fill in all fields to see the generated rule.\nEmpty cells are always allowed.[-]",
 							preset.Name, preset.Description))
 					}
-					_ = idx 
+					_ = idx
 				})
 			}
-			
+
 			if detectedParams != nil && detectedPresetIdx == presetIdx && len(preset.Fields) > 0 {
 				rule := preset.BuildRule(detectedParams)
-				previewText.SetText(fmt.Sprintf("[yellow]%s[white]\n\n%s\n\n[green]Current Rule:[white]\n%s\n\n[gray]Empty cells are always allowed.[-]", 
+				previewText.SetText(fmt.Sprintf("[yellow]%s[white]\n\n%s\n\n[green]Current Rule:[white]\n%s\n\n[gray]Empty cells are always allowed.[-]",
 					preset.Name, preset.Description, rule))
 			}
 		}
@@ -245,16 +245,15 @@ func ShowValidationRuleDialog(app *tview.Application, table *tview.Table, return
 
 	updateDynamicForm(detectedPresetIdx)
 
-
 	container.SetBorder(true).
 		SetTitle(fmt.Sprintf(" Data Validation - %s%d  •  Ctrl+←/→ to navigate  •  Esc to cancel ", utils.ColumnName(col), row)).
 		SetBorderColor(tcell.ColorYellow)
 
 	getFocusablePrimitives := func() []tview.Primitive {
 		focusable := []tview.Primitive{}
-		
+
 		focusable = append(focusable, presetDropdown)
-		
+
 		for i := 0; i < container.GetItemCount(); i++ {
 			item := container.GetItem(i)
 			if item == customRuleArea {
@@ -265,7 +264,7 @@ func ShowValidationRuleDialog(app *tview.Application, table *tview.Table, return
 				break
 			}
 		}
-		
+
 		focusable = append(focusable, customMessageInput)
 		focusable = append(focusable, buttonForm)
 
@@ -281,7 +280,7 @@ func ShowValidationRuleDialog(app *tview.Application, table *tview.Table, return
 		}
 		if event.Modifiers()&tcell.ModCtrl != 0 {
 			focusables := getFocusablePrimitives()
-			
+
 			if event.Key() == tcell.KeyRight {
 				currentPrim++
 				currentPrim %= len(focusables)
@@ -301,4 +300,3 @@ func ShowValidationRuleDialog(app *tview.Application, table *tview.Table, return
 
 	app.SetRoot(container, true).SetFocus(presetDropdown)
 }
-

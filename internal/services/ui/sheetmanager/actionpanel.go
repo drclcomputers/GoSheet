@@ -9,6 +9,7 @@ package sheetmanager
 
 import (
 	"fmt"
+	"gosheet/internal/services/sheetview"
 
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
@@ -17,7 +18,7 @@ import (
 // createActionPanel creates an enhanced button panel with icons and descriptions
 func createActionPanel(app *tview.Application, table *tview.Table,
 	callbacks SheetManagerCallbacks, list *tview.List, infoPanel *tview.TextView) *tview.Flex {
-	
+
 	actionPanel := tview.NewFlex().SetDirection(tview.FlexRow)
 	actionPanel.SetBorder(true).
 		SetTitle(" Actions ").
@@ -28,16 +29,16 @@ func createActionPanel(app *tview.Application, table *tview.Table,
 		btn := tview.NewBox().
 			SetBorder(true).
 			SetBorderColor(color)
-		
+
 		btn.SetDrawFunc(func(screen tcell.Screen, x, y, width, height int) (int, int, int, int) {
 			tview.Print(screen, fmt.Sprintf(" %s %s", icon, label), x+1, y+1, width-2, tview.AlignLeft, color)
-			
+
 			tview.Print(screen, shortcut, x+width-len(shortcut)-2, y+1, len(shortcut), tview.AlignRight, tcell.ColorYellow)
-			
+
 			if len(description) > 0 {
 				tview.Print(screen, description, x+1, y+2, width-2, tview.AlignLeft, tcell.ColorGray)
 			}
-			
+
 			return x + 1, y + 3, width - 2, height - 3
 		})
 
@@ -98,7 +99,7 @@ func createActionPanel(app *tview.Application, table *tview.Table,
 		"", "Exit", "Esc",
 		"Exit sheet manager",
 		tcell.ColorLightBlue,
-		func() { app.SetRoot(table, true).SetFocus(table) },
+		func() { sheetview.Show(app) },
 	)
 
 	actionPanel.

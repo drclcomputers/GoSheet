@@ -21,6 +21,11 @@ func GovalFuncs() map[string]ExprFunction {
 	mergeFunctions(functions, StringFunctions())
 	mergeFunctions(functions, DateTimeFunctions())
 	mergeFunctions(functions, LogicalFunctions())
+	mergeFunctions(functions, LookupFunctions())
+
+	if avg, ok := functions["AVG"]; ok {
+		functions["AVERAGE"] = avg
+	}
 
 	return functions
 }

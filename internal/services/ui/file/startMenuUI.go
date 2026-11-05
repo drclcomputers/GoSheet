@@ -54,19 +54,19 @@ func selectFile(app *tview.Application, filename string) {
 
 // StartMenuUI displays the startup menu and returns the selected filename
 func StartMenuUI(app *tview.Application) string {
-	selectedFile = "" 
-	
+	selectedFile = ""
+
 	container := tview.NewFlex()
-	
+
 	leftPanel := tview.NewFlex().SetDirection(tview.FlexRow)
-	
+
 	title := tview.NewTextView().
 		SetText(fmt.Sprintf("[::b]GoSheet[::-] [yellow]v%s[::-]", utils.VER)).
 		SetTextAlign(tview.AlignCenter).
 		SetDynamicColors(true)
 	title.SetBorder(true).
 		SetBorderColor(tcell.ColorLightBlue)
-	
+
 	newSheetBtn := tview.NewTextView().
 		SetText(newSheetButtonLabel).
 		SetTextAlign(tview.AlignCenter).
@@ -117,26 +117,26 @@ func StartMenuUI(app *tview.Application) string {
 		AddItem(newSheetBtn, 0, 2, true).
 		AddItem(openFileBtn, 0, 2, true).
 		AddItem(optionsBtn, 0, 2, true)
-	
+
 	rightPanel := tview.NewFlex().SetDirection(tview.FlexRow)
-	
+
 	recentTitle := tview.NewTextView().
 		SetText("[::b]Recent Files[::-]").
 		SetTextAlign(tview.AlignCenter).
 		SetDynamicColors(true)
 	recentTitle.SetBorder(true).
 		SetBorderColor(tcell.ColorLightBlue)
-	
+
 	filenames, locations := fileop.GetRecentFileList()
 	recentList := tview.NewList()
-	
+
 	if len(filenames) == 0 {
 		recentList.AddItem("No recent files", "", 0, nil)
 		recentList.SetSelectedTextColor(tcell.ColorGray)
 	} else {
 		for i, filename := range filenames {
 			loc := locations[i]
-			
+
 			info, _ := os.Stat(loc)
 			var sizeStr, modStr string
 			if info != nil {
@@ -150,9 +150,9 @@ func StartMenuUI(app *tview.Application) string {
 				}
 				modStr = info.ModTime().Format("15:04 - Jan 02, 2006")
 			}
-			
+
 			secondaryText := fmt.Sprintf("%s  •  %s  •  %s", utils.PrettyPath(loc, "recentfiles"), modStr, sizeStr)
-			
+
 			recentList.AddItem(filename, secondaryText, rune('1'+i), func() {
 				if _, err := os.Stat(loc); os.IsNotExist(err) {
 					ShowErrorModal(app, container, fmt.Sprintf("File not found: %s", loc))
@@ -162,27 +162,27 @@ func StartMenuUI(app *tview.Application) string {
 			})
 		}
 	}
-	
+
 	recentList.SetBorder(true).SetBorderColor(tcell.ColorLightBlue)
 	recentList.SetSelectedBackgroundColor(tcell.ColorDarkCyan)
 	recentList.SetSelectedTextColor(tcell.ColorWhite)
-	
+
 	rightPanel.
 		AddItem(recentTitle, 3, 0, false).
 		AddItem(recentList, 0, 1, true)
-	
+
 	container.
 		AddItem(leftPanel, 0, 1, true).
 		AddItem(rightPanel, 0, 3, false)
-	
+
 	container.SetBorder(true).
 		SetTitle(" Welcome to GoSheet | Use Ctrl+←/→ to navigate around the menus | Esc to quit ").
 		SetBorderColor(tcell.ColorLightBlue)
-	
+
 	leftItems := []tview.Primitive{newSheetBtn, openFileBtn, optionsBtn}
 	currentLeftItem := 0
 	inLeftPanel := true
-	
+
 	container.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		switch {
 		case event.Key() == tcell.KeyEscape || event.Rune() == 'q' || event.Rune() == 'Q':
@@ -228,7 +228,7 @@ func StartMenuUI(app *tview.Application) string {
 		}
 		return event
 	})
-	
+
 	for i, item := range leftItems {
 		idx := i
 		if tv, ok := item.(*tview.TextView); ok {
@@ -238,16 +238,16 @@ func StartMenuUI(app *tview.Application) string {
 			})
 		}
 	}
-	
+
 	recentList.SetChangedFunc(func(index int, mainText, secondaryText string, shortcut rune) {
 		inLeftPanel = false
 	})
-	
+
 	app.SetRoot(container, true).SetFocus(newSheetBtn)
 	if err := app.Run(); err != nil {
 		return "QUIT"
 	}
-	
+
 	return selectedFile
 }
 
@@ -258,8 +258,7 @@ func ShowErrorModal(app *tview.Application, returnTo tview.Primitive, message st
 		SetDoneFunc(func(buttonIndex int, buttonLabel string) {
 			app.SetRoot(returnTo, true).SetFocus(returnTo)
 		})
-	
+
 	modal.SetBackgroundColor(tcell.ColorDarkRed).SetBorderColor(tcell.ColorRed)
 	app.SetRoot(modal, true).SetFocus(modal)
 }
-

@@ -78,7 +78,7 @@ func (h *CSVFormatHandler) Read(filename string) (*WorkbookResult, error) {
 	reader := csv.NewReader(file)
 	reader.LazyQuotes = true
 	reader.TrimLeadingSpace = true
-	reader.FieldsPerRecord = -1 
+	reader.FieldsPerRecord = -1
 
 	var cells []*cell.Cell
 	var maxCol int32
@@ -100,7 +100,7 @@ func (h *CSVFormatHandler) Read(filename string) (*WorkbookResult, error) {
 		for colIdx, value := range record {
 			value = strings.TrimSpace(value)
 			if value == "" {
-				continue 
+				continue
 			}
 
 			colNum := int32(colIdx + 1)
@@ -112,23 +112,25 @@ func (h *CSVFormatHandler) Read(filename string) (*WorkbookResult, error) {
 				cellType = "number"
 			}
 
+			rawCopy := value
+			dispCopy := value
 			c := &cell.Cell{
-				Row:      rowNum,
-				Column:   colNum,
+				Row:    rowNum,
+				Column: colNum,
 
 				MaxWidth: utils.DEFAULT_CELL_MAX_WIDTH,
 				MinWidth: utils.DEFAULT_CELL_MIN_WIDTH,
 
-				RawValue: &value,
-				Display:  &value,
+				RawValue: &rawCopy,
+				Display:  &dispCopy,
 				Type:     &cellType,
 
 				Notes:      &emptyStr,
 				Valrule:    &emptyStr,
 				Valrulemsg: &emptyStr,
 
-				Color:              utils.ColorOptions["White"],
-				BgColor:            utils.ColorOptions["Black"],
+				Color:   utils.ColorOptions["White"],
+				BgColor: utils.ColorOptions["Black"],
 
 				DecimalPoints:      utils.DEFAULT_CELL_DECIMAL_POINTS,
 				ThousandsSeparator: utils.DEFAULT_CELL_THOUSANDS_SEPARATOR,

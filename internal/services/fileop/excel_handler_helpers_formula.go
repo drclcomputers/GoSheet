@@ -102,13 +102,13 @@ func (h *ExcelFormatHandler) convertExcelFormulaToGoSheet(formula string) string
 func replaceFunction(formula, oldFunc, newFunc string) string {
 	result := formula
 	searchStr := oldFunc + "("
-	
+
 	for {
 		idx := strings.Index(result, searchStr)
 		if idx == -1 {
 			break
 		}
-		
+
 		if idx > 0 {
 			prev := result[idx-1]
 			if (prev >= 'A' && prev <= 'Z') || (prev >= '0' && prev <= '9') || prev == '_' {
@@ -116,12 +116,12 @@ func replaceFunction(formula, oldFunc, newFunc string) string {
 				continue
 			}
 		}
-		
+
 		result = result[:idx] + newFunc + result[idx+len(oldFunc):]
 	}
-	
+
 	result = strings.ReplaceAll(result, "§", oldFunc)
-	
+
 	return result
 }
 
@@ -129,13 +129,13 @@ func replaceFunction(formula, oldFunc, newFunc string) string {
 func replaceFunctionWithWrapper(formula, oldFunc, wrapper string) string {
 	result := formula
 	searchStr := oldFunc + "("
-	
+
 	for {
 		idx := strings.Index(result, searchStr)
 		if idx == -1 {
 			break
 		}
-		
+
 		if idx > 0 {
 			prev := result[idx-1]
 			if (prev >= 'A' && prev <= 'Z') || (prev >= '0' && prev <= '9') || prev == '_' {
@@ -143,16 +143,16 @@ func replaceFunctionWithWrapper(formula, oldFunc, wrapper string) string {
 				continue
 			}
 		}
-		
+
 		args, endIdx := extractFunctionArgs(result, idx+len(searchStr)-1)
 		if endIdx == -1 {
 			break
 		}
-		
+
 		replacement := "(" + wrapper + "(" + args + "))"
 		result = result[:idx] + replacement + result[endIdx+1:]
 	}
-	
+
 	result = strings.ReplaceAll(result, "§", oldFunc)
 	return result
 }
@@ -161,13 +161,13 @@ func replaceFunctionWithWrapper(formula, oldFunc, wrapper string) string {
 func replaceFunctionWithInverse(formula, oldFunc, newFunc, wrapper string) string {
 	result := formula
 	searchStr := oldFunc + "("
-	
+
 	for {
 		idx := strings.Index(result, searchStr)
 		if idx == -1 {
 			break
 		}
-		
+
 		if idx > 0 {
 			prev := result[idx-1]
 			if (prev >= 'A' && prev <= 'Z') || (prev >= '0' && prev <= '9') || prev == '_' {
@@ -175,16 +175,16 @@ func replaceFunctionWithInverse(formula, oldFunc, newFunc, wrapper string) strin
 				continue
 			}
 		}
-		
+
 		args, endIdx := extractFunctionArgs(result, idx+len(searchStr)-1)
 		if endIdx == -1 {
 			break
 		}
-		
+
 		replacement := newFunc + "(" + wrapper + "(" + args + "))"
 		result = result[:idx] + replacement + result[endIdx+1:]
 	}
-	
+
 	result = strings.ReplaceAll(result, "§", oldFunc)
 	return result
 }
@@ -193,18 +193,18 @@ func replaceFunctionWithInverse(formula, oldFunc, newFunc, wrapper string) strin
 func replaceInverseWrapper(formula, pattern, newFunc string) string {
 	result := formula
 	searchStr := pattern + "("
-	
+
 	for {
 		idx := strings.Index(result, searchStr)
 		if idx == -1 {
 			break
 		}
-		
+
 		args, endIdx := extractFunctionArgs(result, idx+len(searchStr)-1)
 		if endIdx == -1 {
 			break
 		}
-		
+
 		startIdx := idx
 		if idx > 0 && result[idx-1] == '(' {
 			startIdx = idx - 1
@@ -212,11 +212,11 @@ func replaceInverseWrapper(formula, pattern, newFunc string) string {
 				endIdx = endIdx + 1
 			}
 		}
-		
+
 		replacement := newFunc + "(" + args + ")"
 		result = result[:startIdx] + replacement + result[endIdx+1:]
 	}
-	
+
 	return result
 }
 
@@ -224,26 +224,26 @@ func replaceInverseWrapper(formula, pattern, newFunc string) string {
 func replaceInverseArgument(formula, funcName, pattern, newFunc string) string {
 	result := formula
 	searchStr := funcName + "(" + pattern
-	
+
 	for {
 		idx := strings.Index(result, searchStr)
 		if idx == -1 {
 			break
 		}
-		
+
 		argStart := idx + len(searchStr)
-		
+
 		args, endIdx := extractFunctionArgs(result, argStart-1)
 		if endIdx == -1 {
 			break
 		}
-		
+
 		funcStart := idx
-		
+
 		replacement := newFunc + "(" + args + ")"
 		result = result[:funcStart] + replacement + result[endIdx+1:]
 	}
-	
+
 	return result
 }
 
@@ -251,13 +251,13 @@ func replaceInverseArgument(formula, funcName, pattern, newFunc string) string {
 func replaceBesselJ0(formula string) string {
 	result := formula
 	searchStr := "J0("
-	
+
 	for {
 		idx := strings.Index(result, searchStr)
 		if idx == -1 {
 			break
 		}
-		
+
 		if idx > 0 {
 			prev := result[idx-1]
 			if (prev >= 'A' && prev <= 'Z') || (prev >= '0' && prev <= '9') || prev == '_' {
@@ -265,16 +265,16 @@ func replaceBesselJ0(formula string) string {
 				continue
 			}
 		}
-		
+
 		args, endIdx := extractFunctionArgs(result, idx+2)
 		if endIdx == -1 {
 			break
 		}
-		
+
 		replacement := "BESSELJ(" + args + ",0)"
 		result = result[:idx] + replacement + result[endIdx+1:]
 	}
-	
+
 	result = strings.ReplaceAll(result, "§", "J0")
 	return result
 }
@@ -283,13 +283,13 @@ func replaceBesselJ0(formula string) string {
 func replaceBesselJ1(formula string) string {
 	result := formula
 	searchStr := "J1("
-	
+
 	for {
 		idx := strings.Index(result, searchStr)
 		if idx == -1 {
 			break
 		}
-		
+
 		if idx > 0 {
 			prev := result[idx-1]
 			if (prev >= 'A' && prev <= 'Z') || (prev >= '0' && prev <= '9') || prev == '_' {
@@ -297,16 +297,16 @@ func replaceBesselJ1(formula string) string {
 				continue
 			}
 		}
-		
+
 		args, endIdx := extractFunctionArgs(result, idx+2)
 		if endIdx == -1 {
 			break
 		}
-		
+
 		replacement := "BESSELJ(" + args + ",1)"
 		result = result[:idx] + replacement + result[endIdx+1:]
 	}
-	
+
 	result = strings.ReplaceAll(result, "§", "J1")
 	return result
 }
@@ -315,13 +315,13 @@ func replaceBesselJ1(formula string) string {
 func replaceBesselYN(formula string) string {
 	result := formula
 	searchStr := "YN("
-	
+
 	for {
 		idx := strings.Index(result, searchStr)
 		if idx == -1 {
 			break
 		}
-		
+
 		if idx > 0 {
 			prev := result[idx-1]
 			if (prev >= 'A' && prev <= 'Z') || (prev >= '0' && prev <= '9') || prev == '_' {
@@ -329,12 +329,12 @@ func replaceBesselYN(formula string) string {
 				continue
 			}
 		}
-		
+
 		args, endIdx := extractFunctionArgs(result, idx+2)
 		if endIdx == -1 {
 			break
 		}
-		
+
 		parts := splitFunctionArgs(args)
 		if len(parts) == 2 {
 			replacement := "BESSELY(" + parts[1] + "," + parts[0] + ")"
@@ -343,7 +343,7 @@ func replaceBesselYN(formula string) string {
 			break
 		}
 	}
-	
+
 	result = strings.ReplaceAll(result, "§", "YN")
 	return result
 }
@@ -352,18 +352,18 @@ func replaceBesselYN(formula string) string {
 func replaceExcelBesselJ0(formula string) string {
 	result := formula
 	searchStr := "BESSELJ("
-	
+
 	for {
 		idx := strings.Index(result, searchStr)
 		if idx == -1 {
 			break
 		}
-		
+
 		args, endIdx := extractFunctionArgs(result, idx+7)
 		if endIdx == -1 {
 			break
 		}
-		
+
 		parts := splitFunctionArgs(args)
 		if len(parts) == 2 && strings.TrimSpace(parts[1]) == "0" {
 			replacement := "J0(" + parts[0] + ")"
@@ -372,7 +372,7 @@ func replaceExcelBesselJ0(formula string) string {
 			result = result[:idx] + "§BESSELJ§" + result[idx+8:]
 		}
 	}
-	
+
 	result = strings.ReplaceAll(result, "§BESSELJ§", "BESSELJ")
 	return result
 }
@@ -380,18 +380,18 @@ func replaceExcelBesselJ0(formula string) string {
 func replaceExcelBesselJ1(formula string) string {
 	result := formula
 	searchStr := "BESSELJ("
-	
+
 	for {
 		idx := strings.Index(result, searchStr)
 		if idx == -1 {
 			break
 		}
-		
+
 		args, endIdx := extractFunctionArgs(result, idx+7)
 		if endIdx == -1 {
 			break
 		}
-		
+
 		parts := splitFunctionArgs(args)
 		if len(parts) == 2 && strings.TrimSpace(parts[1]) == "1" {
 			replacement := "J1(" + parts[0] + ")"
@@ -400,7 +400,7 @@ func replaceExcelBesselJ1(formula string) string {
 			result = result[:idx] + "§BESSELJ§" + result[idx+8:]
 		}
 	}
-	
+
 	result = strings.ReplaceAll(result, "§BESSELJ§", "BESSELJ")
 	return result
 }
@@ -408,18 +408,18 @@ func replaceExcelBesselJ1(formula string) string {
 func replaceExcelBesselYN(formula string) string {
 	result := formula
 	searchStr := "BESSELY("
-	
+
 	for {
 		idx := strings.Index(result, searchStr)
 		if idx == -1 {
 			break
 		}
-		
+
 		args, endIdx := extractFunctionArgs(result, idx+7)
 		if endIdx == -1 {
 			break
 		}
-		
+
 		parts := splitFunctionArgs(args)
 		if len(parts) == 2 {
 			replacement := "YN(" + parts[1] + "," + parts[0] + ")"
@@ -428,7 +428,7 @@ func replaceExcelBesselYN(formula string) string {
 			break
 		}
 	}
-	
+
 	return result
 }
 
@@ -437,10 +437,10 @@ func extractFunctionArgs(formula string, startIdx int) (string, int) {
 	if startIdx >= len(formula) || formula[startIdx] != '(' {
 		return "", -1
 	}
-	
+
 	depth := 1
 	i := startIdx + 1
-	
+
 	for i < len(formula) && depth > 0 {
 		switch formula[i] {
 		case '(':
@@ -450,11 +450,11 @@ func extractFunctionArgs(formula string, startIdx int) (string, int) {
 		}
 		i++
 	}
-	
+
 	if depth != 0 {
 		return "", -1
 	}
-	
+
 	return formula[startIdx+1 : i-1], i - 1
 }
 
@@ -463,7 +463,7 @@ func splitFunctionArgs(args string) []string {
 	var parts []string
 	var current strings.Builder
 	depth := 0
-	
+
 	for _, ch := range args {
 		if ch == '(' {
 			depth++
@@ -478,10 +478,10 @@ func splitFunctionArgs(args string) []string {
 			current.WriteRune(ch)
 		}
 	}
-	
+
 	if current.Len() > 0 {
 		parts = append(parts, strings.TrimSpace(current.String()))
 	}
-	
+
 	return parts
 }

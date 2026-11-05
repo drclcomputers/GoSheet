@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![Version](https://img.shields.io/badge/version-2.8.7-blue.svg)
+![Version](https://img.shields.io/badge/version-2.9.0-blue.svg)
 ![Go Version](https://img.shields.io/badge/go-1.24.2-00ADD8.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 ![Platform](https://img.shields.io/badge/platform-linux%20%7C%20macos%20%7C%20windows-lightgrey.svg)
@@ -38,7 +38,7 @@ GoSheet is a feature-rich, lightweight spreadsheet application that runs entirel
 ### Core Spreadsheet Features
 
 - **📊 Workbook Management**: Create, rename, duplicate, and reorder sheets
-- **🔢 Formula Engine**: 104 built-in functions with circular dependency detection
+- **🔢 Formula Engine**: 110+ built-in functions, cross-sheet references, circular dependency detection
 - **🎨 Cell Formatting**: Bold, italic, underline, strikethrough, colors, alignment
 - **📐 Data Types**: String, Number, Financial, DateTime with automatic detection
 - **✅ Data Validation**: Excel-like validation rules with custom error messages
@@ -108,11 +108,14 @@ go build -o gosheet
 
 | Key Combination    | Action                  |
 | ------------------ | ----------------------- |
-| **Arrow Keys**     | Navigate cells          |
-| **Shift + Arrows** | Select range            |
-| **Enter**          | Edit selected cell      |
-| **Escape**         | Save menu / Exit dialog |
-| **Alt + G**        | Go to cell              |
+| **Arrow Keys**     | Navigate cells                         |
+| **Type**           | Replace the selected cell              |
+| **F2**             | Edit the cell in the formula bar       |
+| **Enter**          | Open the full format dialog            |
+| **Delete**         | Clear the selection                    |
+| **Shift + Arrows** | Select range                           |
+| **Escape**         | Save menu / cancel the formula bar     |
+| **Alt + G**        | Go to cell                             |
 
 ### Editing & Clipboard
 
@@ -222,9 +225,13 @@ GoSheet includes **104 built-in functions** organized into 22 categories:
 
 `CHOOSE`, `ISNUMBER`, `ISTEXT`, `ISBLANK`
 
-### Statistical (3)
+### Statistical
 
-`COUNT`, `SUM`, `PRODUCT`
+`COUNT`, `COUNTA`, `COUNTBLANK`, `SUM`, `PRODUCT`, `AVG` / `AVERAGE`
+
+### Lookup (4)
+
+`VLOOKUP`, `HLOOKUP`, `INDEX`, `MATCH`
 
 ### Constants (5)
 
@@ -253,9 +260,22 @@ GoSheet includes **104 built-in functions** organized into 22 categories:
 ### Formula Examples
 
 ```excel
-# Basic arithmetic
-$= 10 + 20 * 3
+# Basic arithmetic. Use = or the legacy $= prefix.
+= 10 + 20 * 3
+=A1 + B2
 
+# Other sheets
+=Prices!B2
+='Q4 Budget'!A1
+
+# Lookups
+=VLOOKUP("pear", Prices!A1:B2, 2, FALSE)
+=INDEX(A1:C10, 2, 3)
+=MATCH("pear", A1:A10, 0)
+=AVERAGE(A1:A10)
+```
+
+```excel
 # Cell references
 $= A1 + B2
 

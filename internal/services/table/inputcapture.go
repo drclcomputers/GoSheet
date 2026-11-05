@@ -28,19 +28,19 @@ func InputCaptureService(app *tview.Application, table *tview.Table, vp *utils.V
 		}
 
 		if event.Key() == tcell.KeyCtrlC {
-		    modal := tview.NewModal().
-		        SetText("Ctrl+C detected. Exiting...\nUnsaved edits will be lost.").
-		        AddButtons([]string{"OK"}).
-		        SetDoneFunc(func(buttonIndex int, buttonLabel string) {
-		            app.Stop()
-		        })
-		    app.SetRoot(modal, true).SetFocus(modal)
-		    return nil
+			modal := tview.NewModal().
+				SetText("Ctrl+C detected. Exiting...\nUnsaved edits will be lost.").
+				AddButtons([]string{"OK"}).
+				SetDoneFunc(func(buttonIndex int, buttonLabel string) {
+					app.Stop()
+				})
+			app.SetRoot(modal, true).SetFocus(modal)
+			return nil
 		}
 
 		activeData := GetActiveSheetData()
 		activeViewport := GetActiveViewport()
-		
+
 		if activeData == nil || activeViewport == nil {
 			return event
 		}
@@ -51,7 +51,7 @@ func InputCaptureService(app *tview.Application, table *tview.Table, vp *utils.V
 			isSelecting = false
 			clearSelectionRange()
 
-				switch event.Key() {
+			switch event.Key() {
 			case tcell.KeyUp:
 				if visualRow == 1 && activeViewport.TopRow > 1 {
 					activeViewport.TopRow--
@@ -60,7 +60,7 @@ func InputCaptureService(app *tview.Application, table *tview.Table, vp *utils.V
 					return nil
 				}
 				return event
-			
+
 			case tcell.KeyDown:
 				if activeViewport.TopRow+activeViewport.ViewRows >= utils.MAX_ROWS {
 					return nil
@@ -72,7 +72,7 @@ func InputCaptureService(app *tview.Application, table *tview.Table, vp *utils.V
 					return nil
 				}
 				return event
-			
+
 			case tcell.KeyLeft:
 				if visualCol == 1 && activeViewport.LeftCol > 1 {
 					activeViewport.LeftCol--
@@ -81,7 +81,7 @@ func InputCaptureService(app *tview.Application, table *tview.Table, vp *utils.V
 					return nil
 				}
 				return event
-				
+
 			case tcell.KeyRight:
 				if activeViewport.LeftCol+activeViewport.ViewCols >= utils.MAX_COLS {
 					return nil
@@ -195,11 +195,23 @@ func InputCaptureService(app *tview.Application, table *tview.Table, vp *utils.V
 			navigation.FindNextQuick(table, activeData, activeViewport, RenderVisible)
 			return nil
 
+		// F2 → edit in the formula bar, keeping the current value
+		case event.Key() == tcell.KeyF2:
+			startQuickEdit(app, table, "", true)
+			return nil
+
+		// Delete → clear the selection (Alt+Delete still works)
+		case event.Key() == tcell.KeyDelete && event.Modifiers()&tcell.ModAlt == 0:
+			deleteSelection(app, table)
+			MarkAsModified(table)
+			syncFormulaBar(table)
+			return nil
+
 		// F3 → Find Previous
 		case event.Key() == tcell.KeyF3:
 			navigation.FindPreviousQuick(table, activeData, activeViewport, RenderVisible)
 			return nil
-			
+
 		// ALT + C → Copy
 		case (event.Rune() == 'c' || event.Rune() == 'C') && event.Modifiers()&tcell.ModAlt != 0:
 			copySelection(table)
@@ -234,10 +246,10 @@ func InputCaptureService(app *tview.Application, table *tview.Table, vp *utils.V
 			MarkAsModified(table)
 			return nil
 
-		// Alt + A → AutoFill selected cells 
+		// Alt + A → AutoFill selected cells
 		case (event.Rune() == 'a' || event.Rune() == 'A') && event.Modifiers()&tcell.ModAlt != 0:
-    		ShowFillDialog(app, table)
-    		return nil
+			ShowFillDialog(app, table)
+			return nil
 
 		// Alt + Z → Undo
 		case (event.Rune() == 'z' || event.Rune() == 'Z') && event.Modifiers()&tcell.ModAlt != 0:
@@ -295,11 +307,11 @@ func InputCaptureService(app *tview.Application, table *tview.Table, vp *utils.V
 
 		// ALt + 1-9 - Quick switch between sheets
 		case event.Rune() >= '1' && event.Rune() <= '9' && event.Modifiers()&tcell.ModAlt != 0:
-    		idx := int(event.Rune() - '1')
-    		if globalWorkbook != nil && idx < len(globalWorkbook.Sheets) {
-    		    SwitchSheet(app, table, idx)
-    		}
-    		return nil
+			idx := int(event.Rune() - '1')
+			if globalWorkbook != nil && idx < len(globalWorkbook.Sheets) {
+				SwitchSheet(app, table, idx)
+			}
+			return nil
 
 		// Alt + / → Show Help modal
 		case event.Rune() == '/' && event.Modifiers()&tcell.ModAlt != 0:
@@ -310,13 +322,18 @@ func InputCaptureService(app *tview.Application, table *tview.Table, vp *utils.V
 		case event.Key() == tcell.KeyEscape || ((event.Rune() == 's' || event.Rune() == 'S') && event.Modifiers()&tcell.ModAlt != 0):
 			file.ShowUnifiedFileDialog(app, table, "save", activeData, table, SetCurrentFilename, MarkAsSaved, HasUnsavedChanges, GetCurrentFilename())
 			return nil
-			
+
+		// Type-to-replace. Alt chords are handled above.
+		case event.Key() == tcell.KeyRune && event.Modifiers()&^tcell.ModShift == 0 && event.Rune() >= 32:
+			startQuickEdit(app, table, string(event.Rune()), false)
+			return nil
+
 		default:
 			isSelecting = false
 		}
-		
+
 		return event
 	})
-	
+
 	return table
-}	
+}

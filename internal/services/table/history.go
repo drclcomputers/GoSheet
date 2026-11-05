@@ -10,6 +10,7 @@ package table
 import (
 	"gosheet/internal/services/cell"
 	"gosheet/internal/utils"
+
 	"github.com/rivo/tview"
 )
 
@@ -63,8 +64,8 @@ func RecordAction(action *Action) {
 
 	if len(history.undoStack) > history.maxSize {
 		newStack := make([]*Action, history.maxSize)
-	    copy(newStack, history.undoStack[1:])
-	    history.undoStack = newStack
+		copy(newStack, history.undoStack[1:])
+		history.undoStack = newStack
 	}
 
 	history.redoStack = nil
@@ -106,7 +107,7 @@ func restoreCell(table *tview.Table, row, col int32, cellData *cell.Cell) {
 
 	activeData := GetActiveSheetData()
 	activeViewport := GetActiveViewport()
-	
+
 	if activeData == nil || activeViewport == nil {
 		return
 	}
@@ -152,7 +153,7 @@ func restoreCell(table *tview.Table, row, col int32, cellData *cell.Cell) {
 func clearCell(table *tview.Table, row, col int32) {
 	activeData := GetActiveSheetData()
 	activeViewport := GetActiveViewport()
-	
+
 	if activeData == nil || activeViewport == nil {
 		return
 	}

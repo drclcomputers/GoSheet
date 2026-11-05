@@ -37,7 +37,7 @@ func (h *NativeFormatHandler) Read(filename string) (*WorkbookResult, error) {
 
 	var reader io.Reader = file
 	isGSheet := strings.HasSuffix(filename, ".gsheet")
-	
+
 	if isGSheet {
 		gz, err := gzip.NewReader(file)
 		if err != nil {
@@ -79,7 +79,7 @@ func (h *NativeFormatHandler) Read(filename string) (*WorkbookResult, error) {
 // Write writes workbook to .gsheet or .json format
 func (h *NativeFormatHandler) Write(filename string, sheets []SheetInfo, activeSheet int) error {
 	isGSheet := strings.HasSuffix(filename, ".gsheet")
-	
+
 	wbData := WorkbookData{
 		Version:     utils.FILEVER,
 		ActiveSheet: activeSheet,
@@ -121,7 +121,7 @@ func (h *NativeFormatHandler) Write(filename string, sheets []SheetInfo, activeS
 	if isGSheet {
 		gz := gzip.NewWriter(f)
 		defer gz.Close()
-		
+
 		_, err = gz.Write(jsonBytes)
 		return err
 	}

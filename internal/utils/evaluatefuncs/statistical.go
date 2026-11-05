@@ -12,50 +12,49 @@ import "fmt"
 func StatisticalFunctions() map[string]ExprFunction {
 	return map[string]ExprFunction{
 		"AVG": func(args ...any) (any, error) {
-			if err := validateArgs("AVG", args, 2, -1); err != nil {
-				return nil, err
+			if len(args) == 0 {
+				return nil, fmt.Errorf("AVG requires at least 1 argument(s), got 0")
+			}
+			nums := NumericValues(args)
+			if len(nums) == 0 {
+				return nil, fmt.Errorf("division by zero")
 			}
 			sum := 0.0
-			for _, arg := range args {
-				f, _ := toFloat(arg)
-				sum += f
+			for _, n := range nums {
+				sum += n
 			}
-			return sum / float64(len(args)), nil
+			return sum / float64(len(nums)), nil
 		},
 
 		"COUNT": func(args ...any) (any, error) {
-			if err := validateArgs("COUNT", args, 1, -1); err != nil {
-				return nil, err
+			if len(args) == 0 {
+				return nil, fmt.Errorf("COUNT requires at least 1 argument(s), got 0")
 			}
-			count := 0
-			for _, arg := range args {
-				if _, ok := arg.(float64); ok {
-					count++
-				}
-			}
-			return float64(count), nil
+			return float64(len(NumericValues(args))), nil
 		},
 
 		"SUM": func(args ...any) (any, error) {
-			if err := validateArgs("SUM", args, 2, -1); err != nil {
-				return nil, err
+			if len(args) == 0 {
+				return nil, fmt.Errorf("SUM requires at least 1 argument(s), got 0")
 			}
 			sum := 0.0
-			for _, arg := range args {
-				f, _ := toFloat(arg)
-				sum += f
+			for _, n := range NumericValues(args) {
+				sum += n
 			}
 			return sum, nil
 		},
 
 		"PRODUCT": func(args ...any) (any, error) {
-			if err := validateArgs("PRODUCT", args, 2, -1); err != nil {
-				return nil, err
+			if len(args) == 0 {
+				return nil, fmt.Errorf("PRODUCT requires at least 1 argument(s), got 0")
+			}
+			nums := NumericValues(args)
+			if len(nums) == 0 {
+				return 0.0, nil
 			}
 			product := 1.0
-			for _, arg := range args {
-				f, _ := toFloat(arg)
-				product *= f
+			for _, n := range nums {
+				product *= n
 			}
 			return product, nil
 		},
