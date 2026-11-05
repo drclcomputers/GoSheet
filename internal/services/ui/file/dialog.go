@@ -360,7 +360,7 @@ func ShowUnifiedFileDialog(app *tview.Application, returnTo tview.Primitive, mod
 	}
 
 	form.AddButton("Cancel", func() {
-		app.SetRoot(returnTo, true).SetFocus(returnTo)
+		sheetview.Back(app, returnTo, returnTo)
 	})
 
 	form.AddButton("Exit", func() {
@@ -406,7 +406,7 @@ func ShowUnifiedFileDialog(app *tview.Application, returnTo tview.Primitive, mod
 		AddItem(fileList, 0, 1, false)
 
 	instructions := tview.NewTextView().
-		SetText(" [yellow::b]Ctrl+←/→[::-] Switch Panel  [yellow::b]Enter[::-] Select  [yellow::b]Tab/Shift+Tab[::-] Navigate form buttons  [yellow::b]Esc[::-] Cancel").
+		SetText(" [#f0d090]Alt+←/→[-] panels    [#f0d090]Enter[-] select    [#f0d090]Tab[-] buttons    [#f0d090]Esc[-] back").
 		SetDynamicColors(true).
 		SetTextAlign(tview.AlignCenter)
 
@@ -414,7 +414,9 @@ func ShowUnifiedFileDialog(app *tview.Application, returnTo tview.Primitive, mod
 		AddItem(mainLayout, 0, 1, true).
 		AddItem(instructions, 1, 0, false)
 
-	container.SetBorder(true).SetBorderColor(tcell.ColorLightBlue)
+	container.SetBorder(true).
+		SetBorderColor(tcell.NewRGBColor(70, 160, 170)).
+		SetTitleColor(tcell.NewRGBColor(240, 208, 144))
 	if mode == "save" {
 		container.SetTitle(" Save Spreadsheet ")
 	} else {
@@ -427,13 +429,13 @@ func ShowUnifiedFileDialog(app *tview.Application, returnTo tview.Primitive, mod
 	container.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		switch {
 		case event.Key() == tcell.KeyEscape:
-			app.SetRoot(returnTo, true).SetFocus(returnTo)
+			sheetview.Back(app, returnTo, returnTo)
 			return nil
-		case event.Modifiers()&tcell.ModCtrl != 0 && event.Key() == tcell.KeyRight:
+		case (event.Modifiers()&tcell.ModCtrl != 0 || event.Modifiers()&tcell.ModAlt != 0) && event.Key() == tcell.KeyRight:
 			currentFocus = (currentFocus + 1) % len(focusables)
 			app.SetFocus(focusables[currentFocus])
 			return nil
-		case event.Modifiers()&tcell.ModCtrl != 0 && event.Key() == tcell.KeyLeft:
+		case (event.Modifiers()&tcell.ModCtrl != 0 || event.Modifiers()&tcell.ModAlt != 0) && event.Key() == tcell.KeyLeft:
 			currentFocus = (currentFocus - 1 + len(focusables)) % len(focusables)
 			app.SetFocus(focusables[currentFocus])
 			return nil

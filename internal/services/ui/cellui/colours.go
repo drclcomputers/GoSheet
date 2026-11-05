@@ -10,6 +10,7 @@ package cellui
 import (
 	"fmt"
 	"gosheet/internal/services/cell"
+	"gosheet/internal/services/sheetview"
 	"gosheet/internal/utils"
 	"strconv"
 
@@ -208,11 +209,11 @@ func showCustomColorPicker(app *tview.Application, returnTo *tview.Flex, c *cell
 			c.BgColor = color
 		}
 
-		app.SetRoot(returnTo, true).SetFocus(parentForm)
+		sheetview.Back(app, returnTo, parentForm)
 	})
 
 	pickerForm.AddButton("Cancel", func() {
-		app.SetRoot(returnTo, true).SetFocus(parentForm)
+		sheetview.Back(app, returnTo, parentForm)
 	})
 
 	title := " Custom Text Color "

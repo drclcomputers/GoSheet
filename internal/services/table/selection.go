@@ -23,6 +23,12 @@ var anchorRow, anchorCol int32
 var isSelecting bool
 var lastHeadRow, lastHeadCol int
 
+var (
+	headerBG  = tcell.NewRGBColor(32, 40, 58)
+	headerFG  = tcell.NewRGBColor(168, 188, 214)
+	headerHot = tcell.NewRGBColor(36, 120, 136)
+)
+
 func resetHeaderTrack() {
 	lastHeadRow, lastHeadCol = 0, 0
 }
@@ -56,10 +62,10 @@ func SelectInTable(app *tview.Application, table *tview.Table, vp *utils.Viewpor
 		absRow, absCol := activeViewport.ToAbsolute(int32(row), int32(column))
 
 		if lastHeadRow != 0 || lastHeadCol != 0 {
-			paintHeader(table, lastHeadRow, lastHeadCol, tcell.ColorBlack)
+			paintHeader(table, lastHeadRow, lastHeadCol, headerBG)
 		}
 		if row > 0 && column > 0 {
-			paintHeader(table, row, column, tcell.ColorBlue)
+			paintHeader(table, row, column, headerHot)
 			lastHeadRow, lastHeadCol = row, column
 			activeData := GetActiveSheetData()
 			addr, raw := currentCellRaw(activeData, absRow, absCol)

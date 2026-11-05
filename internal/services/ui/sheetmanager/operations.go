@@ -53,10 +53,10 @@ func showAddSheetDialog(app *tview.Application,
 			infoPanel.SetText(getWorkbookInfoText(callbacks.GetWorkbookInfo()))
 			callbacks.MarkAsModified()
 
-			app.SetRoot(returnTo, true).SetFocus(list)
+			sheetview.Back(app, returnTo, list)
 		}).
 		AddButton("Cancel", func() {
-			app.SetRoot(returnTo, true).SetFocus(list)
+			sheetview.Back(app, returnTo, list)
 		})
 
 	form.SetBorder(true).
@@ -111,10 +111,10 @@ func showRenameSheetFromManager(app *tview.Application,
 			infoPanel.SetText(getWorkbookInfoText(callbacks.GetWorkbookInfo()))
 			callbacks.MarkAsModified()
 
-			app.SetRoot(returnTo, true).SetFocus(list)
+			sheetview.Back(app, returnTo, list)
 		}).
 		AddButton("x Cancel", func() {
-			app.SetRoot(returnTo, true).SetFocus(list)
+			sheetview.Back(app, returnTo, list)
 		})
 
 	form.SetBorder(true).
@@ -160,7 +160,7 @@ func confirmDeleteSheetFromManager(app *tview.Application,
 			if strings.Contains(buttonLabel, "Delete") {
 				if err := callbacks.DeleteSheet(selectedIndex); err != nil {
 					ShowWarningModal(app, returnTo, err.Error())
-					app.SetRoot(returnTo, true).SetFocus(list)
+					sheetview.Back(app, returnTo, list)
 					return
 				}
 
@@ -171,7 +171,7 @@ func confirmDeleteSheetFromManager(app *tview.Application,
 				infoPanel.SetText(getWorkbookInfoText(callbacks.GetWorkbookInfo()))
 				callbacks.MarkAsModified()
 			}
-			app.SetRoot(returnTo, true).SetFocus(list)
+			sheetview.Back(app, returnTo, list)
 		})
 
 	modal.SetBackgroundColor(tcell.ColorDarkRed).
@@ -234,7 +234,7 @@ func showMoveSheetDialog(app *tview.Application,
 			newPos, _ := form.GetFormItem(0).(*tview.DropDown).GetCurrentOption()
 
 			if newPos == selectedIndex {
-				app.SetRoot(returnTo, true).SetFocus(list)
+				sheetview.Back(app, returnTo, list)
 				return
 			}
 
@@ -249,10 +249,10 @@ func showMoveSheetDialog(app *tview.Application,
 			callbacks.MarkAsModified()
 
 			list.SetCurrentItem(newPos)
-			app.SetRoot(returnTo, true).SetFocus(list)
+			sheetview.Back(app, returnTo, list)
 		}).
 		AddButton("Cancel", func() {
-			app.SetRoot(returnTo, true).SetFocus(list)
+			sheetview.Back(app, returnTo, list)
 		})
 
 	form.SetBorder(true).

@@ -106,16 +106,16 @@ go build -o gosheet
 
 ### Note: For MacOS users, activating 'Use Option as Meta Key' is mandatory for Alt commands to work. Here is a link "https://superuser.com/questions/1038947/using-the-option-key-properly-on-mac-terminal" for more info.
 
-| Key Combination    | Action                             |
-| ------------------ | ---------------------------------- |
-| **Arrow Keys**     | Navigate cells                     |
-| **Type**           | Replace the selected cell          |
-| **F2**             | Edit the cell in the formula bar   |
-| **Enter**          | Open the full format dialog        |
-| **Delete**         | Clear the selection                |
-| **Shift + Arrows** | Select range                       |
-| **Escape**         | Save menu / cancel the formula bar |
-| **Alt + G**        | Go to cell                         |
+| Key Combination    | Action                  |
+| ------------------ | ----------------------- |
+| **Arrow Keys**     | Navigate cells                         |
+| **Type**           | Replace the selected cell              |
+| **F2**             | Edit the cell in the formula bar       |
+| **Enter**          | Open the full format dialog            |
+| **Delete**         | Clear the selection                    |
+| **Shift + Arrows** | Select range                           |
+| **Escape**         | Save menu / cancel the formula bar     |
+| **Alt + G**        | Go to cell                             |
 
 ### Editing & Clipboard
 

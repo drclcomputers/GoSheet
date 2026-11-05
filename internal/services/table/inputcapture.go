@@ -314,8 +314,8 @@ func InputCaptureService(app *tview.Application, table *tview.Table, vp *utils.V
 			}
 			return nil
 
-		// Alt + / → Show Help modal
-		case event.Rune() == '/' && event.Modifiers()&tcell.ModAlt != 0:
+		// ? or Alt + / → Show Help modal
+		case event.Rune() == '?' || (event.Rune() == '/' && event.Modifiers()&tcell.ModAlt != 0):
 			ui.ShowHelpModal(app, table)
 			return nil
 

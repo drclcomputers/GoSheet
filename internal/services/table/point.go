@@ -28,7 +28,7 @@ type pointSession struct {
 
 var pointing pointSession
 
-const pointStatus = " formula · arrows insert a cell · Alt+PgUp/PgDn another sheet · Enter accept · Esc cancel "
+const pointStatus = " [#f0d090]pointing[-]   arrows pick a cell    [#f0d090]Alt+PgUp/PgDn[-] other sheet    [#f0d090]Enter[-] accept    [#f0d090]Esc[-] cancel "
 
 func armPoint(text string) {
 	home := ""

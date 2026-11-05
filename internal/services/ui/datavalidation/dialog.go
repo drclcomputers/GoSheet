@@ -10,6 +10,7 @@ package datavalidation
 import (
 	"fmt"
 	"gosheet/internal/services/cell"
+	"gosheet/internal/services/sheetview"
 	"gosheet/internal/utils"
 	"strings"
 
@@ -132,11 +133,11 @@ func ShowValidationRuleDialog(app *tview.Application, table *tview.Table, return
 
 	buttonForm.AddButton("Delete", func() {
 		deleteRule(cellData, table, row, col, globalData, globalViewport)
-		app.SetRoot(returnTo, true).SetFocus(focus)
+		sheetview.Back(app, returnTo, focus)
 	})
 
 	buttonForm.AddButton("Cancel", func() {
-		app.SetRoot(returnTo, true).SetFocus(focus)
+		sheetview.Back(app, returnTo, focus)
 	})
 
 	var currentFormItemsInDynamic []tview.FormItem
@@ -275,7 +276,7 @@ func ShowValidationRuleDialog(app *tview.Application, table *tview.Table, return
 
 	container.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		if event.Key() == tcell.KeyEscape {
-			app.SetRoot(returnTo, true).SetFocus(focus)
+			sheetview.Back(app, returnTo, focus)
 			return nil
 		}
 		if event.Modifiers()&tcell.ModCtrl != 0 {

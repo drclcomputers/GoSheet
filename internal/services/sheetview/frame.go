@@ -8,6 +8,8 @@
 package sheetview
 
 import (
+	"strings"
+
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 )
@@ -24,6 +26,7 @@ type frame struct {
 	editing     bool
 	addrText    string
 	formulaText string
+	idle        string
 }
 
 var (
@@ -36,31 +39,37 @@ var (
 // Mount builds the chrome around the grid. Call once, then Show.
 func Mount(app *tview.Application, grid tview.Primitive) tview.Primitive {
 	addr := tview.NewTextView().SetDynamicColors(true).SetTextAlign(tview.AlignCenter)
-	addr.SetBackgroundColor(tcell.ColorDarkBlue)
-	addr.SetTextColor(tcell.ColorWhite)
+	addr.SetBackgroundColor(tcell.NewRGBColor(58, 46, 22))
+	addr.SetTextColor(tcell.NewRGBColor(240, 208, 144))
 
 	formula := tview.NewTextView().SetDynamicColors(true).SetWrap(false).SetScrollable(false)
-	formula.SetBackgroundColor(tcell.ColorBlack)
-	formula.SetTextColor(tcell.ColorWhite)
+	formula.SetBackgroundColor(tcell.NewRGBColor(18, 22, 34))
+	formula.SetTextColor(tcell.NewRGBColor(232, 236, 244))
 
 	editor := tview.NewTextArea().SetWrap(false)
-	editor.SetBackgroundColor(tcell.ColorBlack)
-	editor.SetTextStyle(tcell.StyleDefault.Background(tcell.ColorBlack).Foreground(tcell.ColorYellow))
+	editor.SetBackgroundColor(tcell.NewRGBColor(18, 22, 34))
+	editor.SetTextStyle(tcell.StyleDefault.
+		Background(tcell.NewRGBColor(18, 22, 34)).
+		Foreground(tcell.NewRGBColor(240, 208, 144)))
 
 	pages := tview.NewPages()
 	pages.AddPage("view", formula, true, true)
 	pages.AddPage("edit", editor, true, false)
 
+	idle := " [#7dcea0]Sheet[-]    [#8aa0b8]type[-] edit    [#f0d090]F2[-] formula    [#f0d090]Enter[-] format    [#f0d090]Del[-] clear    [#f0d090]?[-] help "
 	status := tview.NewTextView().SetDynamicColors(true).SetWrap(false)
-	status.SetBackgroundColor(tcell.ColorDarkSlateGray)
-	status.SetTextColor(tcell.ColorWhite)
-	status.SetText(" type to replace  ·  F2 edit  ·  Enter format  ·  Del clear  ·  Alt+/ help ")
+	status.SetBackgroundColor(tcell.NewRGBColor(14, 17, 26))
+	status.SetTextColor(tcell.NewRGBColor(210, 218, 230))
+	status.SetText(idle)
 
 	bar := tview.NewFlex().SetDirection(tview.FlexColumn)
 	bar.AddItem(addr, 18, 0, false)
 	bar.AddItem(pages, 0, 1, false)
 
+	bar.SetBackgroundColor(tcell.NewRGBColor(18, 22, 34))
+
 	root := tview.NewFlex().SetDirection(tview.FlexRow)
+	root.SetBackgroundColor(tcell.NewRGBColor(14, 17, 26))
 	root.AddItem(bar, 1, 0, false)
 	root.AddItem(grid, 0, 1, true)
 	root.AddItem(status, 1, 0, false)
@@ -68,6 +77,7 @@ func Mount(app *tview.Application, grid tview.Primitive) tview.Primitive {
 	current = &frame{
 		app: app, root: root, grid: grid,
 		addr: addr, pages: pages, formula: formula, editor: editor, status: status,
+		idle: idle,
 	}
 	return root
 }
@@ -87,7 +97,27 @@ func Show(app *tview.Application) {
 	}
 	current.editing = false
 	current.pages.SwitchToPage("view")
+	if current.idle != "" {
+		current.status.SetText(current.idle)
+	}
 	app.SetRoot(current.root, true).SetFocus(current.grid)
+}
+
+// Back closes a dialog. If the screen under it is the grid, the formula bar
+// and the shortcut line are restored. Putting the table back by itself is
+// what made that line vanish.
+func Back(app *tview.Application, returnTo, focus tview.Primitive) {
+	if app == nil {
+		return
+	}
+	if current != nil && (returnTo == nil || returnTo == current.grid || returnTo == current.root) {
+		Show(app)
+		return
+	}
+	if focus == nil {
+		focus = returnTo
+	}
+	app.SetRoot(returnTo, true).SetFocus(focus)
 }
 
 // SetBar updates the address and the raw contents of the selected cell.
@@ -99,10 +129,10 @@ func SetBar(addr, formula string) {
 	current.formulaText = formula
 	current.addr.SetText(addr)
 	if formula == "" {
-		current.formula.SetText(" [gray]empty")
+		current.formula.SetText(" [#5ec8c8]fx[-]  [#5c6b7a]empty[-]")
 		return
 	}
-	current.formula.SetText(" " + tview.Escape(formula))
+	current.formula.SetText(" [#5ec8c8]fx[-]  " + tview.Escape(formula))
 }
 
 // SetAddr updates the name box. Safe while a formula is being edited.
@@ -166,11 +196,24 @@ func ReplaceEdit(start, end int, insert string) {
 }
 
 // SetStatus replaces the shortcut hint line.
+// While a formula is being typed the hint is temporary; the previous one
+// comes back when editing ends or a dialog closes.
 func SetStatus(text string) {
 	if current == nil {
 		return
 	}
+	if !current.editing {
+		current.idle = text
+	}
 	current.status.SetText(text)
+}
+
+// Hint is the one-line shortcut bar for the sheet.
+func Hint(sheet string) string {
+	if strings.TrimSpace(sheet) == "" {
+		sheet = "Sheet"
+	}
+	return " [#7dcea0]" + sheet + "[-]    [#8aa0b8]type[-] edit    [#f0d090]F2[-] formula    [#f0d090]Enter[-] format    [#f0d090]Del[-] clear    [#f0d090]?[-] help "
 }
 
 // BeginEdit opens the formula bar for typing. commit is called only on Enter.
@@ -190,8 +233,12 @@ func BeginEdit(text string, commit func(string)) {
 		if editFinish != nil {
 			editFinish()
 		}
+		if current.idle != "" {
+			current.status.SetText(current.idle)
+		}
 		// Drop focus before hiding the editor page. Pages.SwitchToPage
 		// refocuses itself when a child is focused, and that callback is nil
+		// if focus was placed on the field directly — which panics (exit 255).
 		current.app.SetFocus(current.grid)
 		current.pages.SwitchToPage("view")
 		if accept && commit != nil {

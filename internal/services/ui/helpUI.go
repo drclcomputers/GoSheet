@@ -16,75 +16,45 @@ import (
 
 // Help Modal
 func ShowHelpModal(app *tview.Application, table *tview.Table) {
-	helpText := `[yellow]NAVIGATION:[white]
-  Arrow Keys           Navigate cells
-  Shift + Arrows       Select range
-  Alt + G              Go to cell
-  Escape               Save dialog
+	helpText := `[#f0d090::b]EVERY DAY[-]
+  Arrows          Move
+  Shift+Arrows    Select a block
+  Type            Replace the cell
+  F2              Edit in the formula bar
+  Enter           Format the cell
+  Delete          Clear
+  ?               This help
+  Esc             Save
 
-  Note: In menus, such as the start menu, you can use Ctrl+←/→ to navigate around.
+[#7dcea0::b]FORMULAS[-]
+  =               Start a formula. Arrows insert the highlighted cell
+  Alt+PgUp/PgDn   Point at another sheet, for example Prices!B2
+  Alt+1 … 9       Jump to a sheet
 
-[yellow]EDITING:[white]
-  Type                 Replace cell (formula bar)
-  F2                   Edit cell in the formula bar
-  Enter                Open the full format dialog
-  = or $=              Start a formula (=SUM(A1:A10) or Prices!B2)
-  Arrows in a formula  Insert the highlighted cell
-  Alt+PgUp / PgDn      Point at a cell on another sheet ('Q4 Budget'!A1)
-  Delete               Clear selection
-  Alt + S              Save Menu
-  Alt + N              Edit cell comment
-  Alt + A              AutoFill
+[#8ecae6::b]LESS OFTEN[-]  (Alt + the letter)
+  S save     G go to cell     F find     H replace
+  C copy     X cut     V paste     Z undo     Y redo
+  A fill     O sort     N comment
+  = insert row/column     - delete row/column
+  M sheets     T sheet menu
 
-[yellow]Sheet Management:[white]
-  Alt+M           Open Sheet Manager
-  Alt+T           Quick Sheet Menu
-  Alt+PageUp      Previous Sheet
-  Alt+PageDown    Next Sheet
+[#8aa0b8]Ctrl+←/→ is only for moving between panels in the file window.
+Everything else is Alt, or a plain key. F3 / F4 repeat a search.[-]
 
-[yellow]In Sheet Manager:[white]
-  Alt+N           New Sheet
-  Alt+R           Rename Sheet
-  Alt+D           Delete Sheet
-  Alt+M           Move/Reorder
-  Alt+C           Duplicate Sheet
-  Alt+S           Switch to Sheet
-
-[yellow]CLIPBOARD:[white]
-  Alt + C              Copy
-  Alt + V              Paste
-  Alt + X              Cut
-  Alt + R              Copy format
-  Alt + I              Paste format
-  Alt + Z              Undo last action
-  Alt + Y              Redo last action
-
-[yellow]SEARCH & REPLACE:[white]
-  Alt + F              Find dialog
-  Alt + H              Replace dialog
-  F3                   Find previous
-  F4                   Find next
-
-[yellow]ROWS & COLUMNS:[white]
-  Alt + Minus (-)      Delete row/column
-  Alt + Equal (=)      Insert row/column
-
-[yellow]SORTING:[white]
-  Alt + O              Sort dialog
-
-[yellow]HELP:[white]
-  Alt + /              Show this help`
+[#5c6b7a]Esc closes this.[-]`
 
 	textView := tview.NewTextView().
 		SetDynamicColors(true).
 		SetText(helpText).
 		SetScrollable(true).
-		SetWrap(false)
+		SetWrap(true)
 
 	textView.SetBorder(true).
-		SetTitle(" Keyboard Shortcuts - Use arrow keys to scroll • Press ESC to close ").
+		SetTitle(" GoSheet  ·  ? or Esc closes ").
 		SetTitleAlign(tview.AlignCenter).
-		SetBackgroundColor(tcell.ColorBlack)
+		SetTitleColor(tcell.NewRGBColor(240, 208, 144)).
+		SetBorderColor(tcell.NewRGBColor(70, 160, 170)).
+		SetBackgroundColor(tcell.NewRGBColor(14, 17, 26))
 
 	textView.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		switch event.Key() {
@@ -107,7 +77,7 @@ func ShowWarningModal(app *tview.Application, returnTo tview.Primitive, message 
 		SetText(message).
 		AddButtons([]string{"OK"}).
 		SetDoneFunc(func(buttonIndex int, buttonLabel string) {
-			app.SetRoot(returnTo, true).SetFocus(returnTo)
+			sheetview.Back(app, returnTo, returnTo)
 		})
 	modal.SetBorder(true).SetTitle(" Info ").SetTitleAlign(tview.AlignCenter)
 	app.SetRoot(modal, true).SetFocus(modal)

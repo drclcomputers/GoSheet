@@ -9,6 +9,7 @@ package datavalidation
 
 import (
 	"gosheet/internal/services/cell"
+	"gosheet/internal/services/sheetview"
 	"gosheet/internal/utils"
 	"strings"
 
@@ -43,7 +44,7 @@ func saveRule(app *tview.Application, table *tview.Table, cellData *cell.Cell, r
 			table.SetCell(int(visualR), int(visualC), cellData.ToTViewCell())
 		}
 
-		app.SetRoot(returnTo, true).SetFocus(focus)
+		sheetview.Back(app, returnTo, focus)
 	} else {
 		showValidationErrorModal(app, container, form, "Invalid validation rule!\n\nMake sure:\n- You use 'THIS' instead of cell references (e.g., A1)\n- The syntax is correct\n- The rule returns true/false")
 	}

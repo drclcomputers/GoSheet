@@ -12,6 +12,7 @@ import (
 	"os"
 
 	"gosheet/internal/services/fileop"
+	"gosheet/internal/services/sheetview"
 	"gosheet/internal/services/ui"
 	"gosheet/internal/utils"
 
@@ -65,14 +66,17 @@ func StartMenuUI(app *tview.Application) string {
 		SetTextAlign(tview.AlignCenter).
 		SetDynamicColors(true)
 	title.SetBorder(true).
-		SetBorderColor(tcell.ColorLightBlue)
+		SetTitleColor(tcell.NewRGBColor(240, 208, 144)).
+		SetBorderColor(tcell.NewRGBColor(70, 160, 170)).
+		SetBackgroundColor(tcell.NewRGBColor(14, 17, 26))
 
 	newSheetBtn := tview.NewTextView().
 		SetText(newSheetButtonLabel).
 		SetTextAlign(tview.AlignCenter).
 		SetTextColor(tcell.ColorLightGreen)
 	newSheetBtn.SetBorder(true).
-		SetBorderColor(tcell.ColorGreen)
+		SetBorderColor(tcell.NewRGBColor(90, 180, 140)).
+		SetBackgroundColor(tcell.NewRGBColor(16, 28, 26))
 	newSheetBtn.SetScrollable(false)
 
 	newSheetBtn.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
@@ -85,9 +89,10 @@ func StartMenuUI(app *tview.Application) string {
 	openFileBtn := tview.NewTextView().
 		SetText(openFileButtonLabel).
 		SetTextAlign(tview.AlignCenter).
-		SetTextColor(tcell.ColorLightBlue)
+		SetTextColor(tcell.NewRGBColor(168, 212, 220))
 	openFileBtn.SetBorder(true).
-		SetBorderColor(tcell.ColorBlue)
+		SetBorderColor(tcell.NewRGBColor(70, 160, 170)).
+		SetBackgroundColor(tcell.NewRGBColor(14, 22, 32))
 	openFileBtn.SetScrollable(false)
 
 	openFileBtn.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
@@ -100,9 +105,10 @@ func StartMenuUI(app *tview.Application) string {
 	optionsBtn := tview.NewTextView().
 		SetText(optionsButtonLabel).
 		SetTextAlign(tview.AlignCenter).
-		SetTextColor(tcell.ColorYellow)
+		SetTextColor(tcell.NewRGBColor(240, 208, 144))
 	optionsBtn.SetBorder(true).
-		SetBorderColor(tcell.ColorYellow)
+		SetBorderColor(tcell.NewRGBColor(160, 130, 70)).
+		SetBackgroundColor(tcell.NewRGBColor(28, 24, 16))
 	optionsBtn.SetScrollable(false)
 
 	optionsBtn.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
@@ -125,7 +131,8 @@ func StartMenuUI(app *tview.Application) string {
 		SetTextAlign(tview.AlignCenter).
 		SetDynamicColors(true)
 	recentTitle.SetBorder(true).
-		SetBorderColor(tcell.ColorLightBlue)
+		SetBorderColor(tcell.NewRGBColor(70, 160, 170)).
+		SetBackgroundColor(tcell.NewRGBColor(14, 17, 26))
 
 	filenames, locations := fileop.GetRecentFileList()
 	recentList := tview.NewList()
@@ -163,9 +170,10 @@ func StartMenuUI(app *tview.Application) string {
 		}
 	}
 
-	recentList.SetBorder(true).SetBorderColor(tcell.ColorLightBlue)
-	recentList.SetSelectedBackgroundColor(tcell.ColorDarkCyan)
+	recentList.SetBorder(true).SetBorderColor(tcell.NewRGBColor(70, 160, 170))
+	recentList.SetSelectedBackgroundColor(tcell.NewRGBColor(28, 110, 128))
 	recentList.SetSelectedTextColor(tcell.ColorWhite)
+	recentList.SetBackgroundColor(tcell.NewRGBColor(14, 17, 26))
 
 	rightPanel.
 		AddItem(recentTitle, 3, 0, false).
@@ -176,8 +184,10 @@ func StartMenuUI(app *tview.Application) string {
 		AddItem(rightPanel, 0, 3, false)
 
 	container.SetBorder(true).
-		SetTitle(" Welcome to GoSheet | Use Ctrl+←/→ to navigate around the menus | Esc to quit ").
-		SetBorderColor(tcell.ColorLightBlue)
+		SetTitle(" GoSheet  ·  arrows or tab to move  ·  Enter to choose  ·  Esc quits ").
+		SetTitleColor(tcell.NewRGBColor(240, 208, 144)).
+		SetBorderColor(tcell.NewRGBColor(70, 160, 170)).
+		SetBackgroundColor(tcell.NewRGBColor(10, 12, 18))
 
 	leftItems := []tview.Primitive{newSheetBtn, openFileBtn, optionsBtn}
 	currentLeftItem := 0
@@ -195,7 +205,8 @@ func StartMenuUI(app *tview.Application) string {
 		case event.Rune() == 'o' && event.Modifiers()&tcell.ModAlt != 0:
 			ShowUnifiedFileDialog(app, container, "open", nil, nil, nil, nil, nil, "")
 			return nil
-		case event.Key() == tcell.KeyLeft && event.Modifiers()&tcell.ModCtrl != 0:
+		case event.Key() == tcell.KeyLeft && (event.Modifiers()&tcell.ModCtrl != 0 || event.Modifiers() == 0),
+			event.Key() == tcell.KeyBacktab:
 			if inLeftPanel {
 				currentLeftItem--
 				if currentLeftItem < 0 {
@@ -210,7 +221,8 @@ func StartMenuUI(app *tview.Application) string {
 				app.SetFocus(leftItems[currentLeftItem])
 			}
 			return nil
-		case event.Key() == tcell.KeyRight && event.Modifiers()&tcell.ModCtrl != 0:
+		case event.Key() == tcell.KeyRight && (event.Modifiers()&tcell.ModCtrl != 0 || event.Modifiers() == 0),
+			event.Key() == tcell.KeyTab:
 			if inLeftPanel {
 				currentLeftItem++
 				if currentLeftItem >= len(leftItems) {
@@ -256,7 +268,7 @@ func ShowErrorModal(app *tview.Application, returnTo tview.Primitive, message st
 		SetText(fmt.Sprintf("Error\n\n%s", message)).
 		AddButtons([]string{"OK"}).
 		SetDoneFunc(func(buttonIndex int, buttonLabel string) {
-			app.SetRoot(returnTo, true).SetFocus(returnTo)
+			sheetview.Back(app, returnTo, returnTo)
 		})
 
 	modal.SetBackgroundColor(tcell.ColorDarkRed).SetBorderColor(tcell.ColorRed)

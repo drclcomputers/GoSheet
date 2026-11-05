@@ -10,6 +10,7 @@ package datavalidation
 import (
 	"fmt"
 	"gosheet/internal/services/cell"
+	"gosheet/internal/services/sheetview"
 	"gosheet/internal/utils/evaluatefuncs"
 	"strconv"
 	"strings"
@@ -82,7 +83,7 @@ func EnforceValidationOnEdit(app *tview.Application, returnTo tview.Primitive, c
 			SetText(fmt.Sprintf("Validation Failed!\n\n%s\n\nValidation Rule:\n%s", displayMsg, *cellData.Valrule)).
 			AddButtons([]string{"OK"}).
 			SetDoneFunc(func(buttonIndex int, buttonLabel string) {
-				app.SetRoot(returnTo, true).SetFocus(returnTo)
+				sheetview.Back(app, returnTo, returnTo)
 			})
 
 		modal.SetBackgroundColor(tcell.ColorDarkRed).

@@ -7,7 +7,11 @@
 
 package sheetmanager
 
-import "github.com/rivo/tview"
+import (
+	"gosheet/internal/services/sheetview"
+
+	"github.com/rivo/tview"
+)
 
 // Warning Modal
 func ShowWarningModal(app *tview.Application, returnTo tview.Primitive, message string) {
@@ -15,7 +19,7 @@ func ShowWarningModal(app *tview.Application, returnTo tview.Primitive, message 
 		SetText(message).
 		AddButtons([]string{"OK"}).
 		SetDoneFunc(func(buttonIndex int, buttonLabel string) {
-			app.SetRoot(returnTo, true).SetFocus(returnTo)
+			sheetview.Back(app, returnTo, returnTo)
 		})
 	modal.SetBorder(true).SetTitle(" Info ").SetTitleAlign(tview.AlignCenter)
 	app.SetRoot(modal, true).SetFocus(modal)

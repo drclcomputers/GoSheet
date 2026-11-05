@@ -73,8 +73,14 @@ func CreateTable(title string) *tview.Table {
 	table := tview.NewTable().
 		SetBorders(false).
 		SetFixed(1, 1).
-		SetSelectable(true, true)
-	table.SetBorder(true)
+		SetSelectable(true, true).
+		SetSelectedStyle(tcell.StyleDefault.
+			Foreground(tcell.NewRGBColor(255, 255, 255)).
+			Background(tcell.NewRGBColor(28, 110, 128)).
+			Bold(true))
+	table.SetBorder(true).
+		SetBorderColor(tcell.NewRGBColor(70, 160, 170)).
+		SetTitleColor(tcell.NewRGBColor(240, 208, 144))
 
 	SetCurrentFilename(table, title)
 	updateTableTitle(table)
@@ -199,12 +205,19 @@ func isEmptyCell(c *cell.Cell) bool {
 func RenderVisible(table *tview.Table, vp *utils.Viewport, data map[[2]int]*cell.Cell) {
 	table.Clear()
 
-	table.SetCell(0, 0, tview.NewTableCell("").SetAlign(tview.AlignCenter))
+	table.SetCell(0, 0, tview.NewTableCell("").
+		SetAlign(tview.AlignCenter).
+		SetTextColor(headerFG).
+		SetBackgroundColor(headerBG))
 
 	for c := vp.LeftCol; c < vp.LeftCol+vp.ViewCols; c++ {
 		label := utils.ColumnName(int32(c))
 		colCell := cell.NewCell(0, int32(c), label)
-		table.SetCell(0, int(c-vp.LeftCol+1), colCell.ToTViewCell().SetAlign(tview.AlignCenter))
+		hv := colCell.ToTViewCell().
+			SetAlign(tview.AlignCenter).
+			SetTextColor(headerFG).
+			SetBackgroundColor(headerBG)
+		table.SetCell(0, int(c-vp.LeftCol+1), hv)
 	}
 
 	for r := vp.TopRow; r < vp.TopRow+vp.ViewRows; r++ {
@@ -212,7 +225,10 @@ func RenderVisible(table *tview.Table, vp *utils.Viewport, data map[[2]int]*cell
 		rowCell := cell.NewCell(int32(r), 0, label)
 		rowCell.MinWidth = 2
 		rowCell.MaxWidth = int32(len(label)) + 2
-		table.SetCell(int(r-vp.TopRow+1), 0, rowCell.ToTViewCell())
+		hv := rowCell.ToTViewCell().
+			SetTextColor(headerFG).
+			SetBackgroundColor(headerBG)
+		table.SetCell(int(r-vp.TopRow+1), 0, hv)
 	}
 
 	for r := vp.TopRow; r < vp.TopRow+vp.ViewRows; r++ {
@@ -227,8 +243,8 @@ func RenderVisible(table *tview.Table, vp *utils.Viewport, data map[[2]int]*cell
 			} else {
 				tvCell = tview.NewTableCell("").
 					SetAlign(tview.AlignLeft).
-					SetTextColor(tcell.NewRGBColor(255, 255, 255)).
-					SetBackgroundColor(tcell.NewRGBColor(0, 0, 0))
+					SetTextColor(tcell.NewRGBColor(232, 236, 244)).
+					SetBackgroundColor(tcell.NewRGBColor(12, 14, 22))
 			}
 
 			table.SetCell(int(visualRow), int(visualCol), tvCell)
@@ -290,7 +306,7 @@ func updateTableTitle(table *tview.Table) {
 
 	table.SetTitle(title)
 	if !sheetview.Editing() {
-		sheetview.SetStatus(fmt.Sprintf(" %s  ·  type to replace · F2 edit · Enter format · Del clear · Alt+/ help ", sheet.Name))
+		sheetview.SetStatus(sheetview.Hint(sheet.Name))
 	}
 }
 
