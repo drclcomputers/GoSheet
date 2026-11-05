@@ -13,7 +13,6 @@ import (
 	"gosheet/internal/services/sheetview"
 	"gosheet/internal/utils"
 
-	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 )
 
@@ -136,7 +135,7 @@ func highlightRange(table *tview.Table, absR1, absC1, absR2, absC2 int32) {
 				visualR, visualC := activeViewport.ToRelative(absR, absC)
 				currentCell := table.GetCell(int(visualR), int(visualC))
 				if currentCell != nil {
-					currentCell.SetBackgroundColor(tcell.ColorDarkGray)
+					currentCell.SetBackgroundColor(selectBG)
 				}
 			}
 		}
@@ -147,7 +146,7 @@ func highlightRange(table *tview.Table, absR1, absC1, absR2, absC2 int32) {
 			if activeViewport.IsVisible(0, c) {
 				_, visualC := activeViewport.ToRelative(0, c)
 				if headerCell := table.GetCell(0, int(visualC)); headerCell != nil {
-					headerCell.SetBackgroundColor(tcell.ColorBlue)
+					headerCell.SetBackgroundColor(selectBG)
 				}
 			}
 		}
@@ -158,7 +157,7 @@ func highlightRange(table *tview.Table, absR1, absC1, absR2, absC2 int32) {
 			if activeViewport.IsVisible(r, 0) {
 				visualR, _ := activeViewport.ToRelative(r, 0)
 				if headerCell := table.GetCell(int(visualR), 0); headerCell != nil {
-					headerCell.SetBackgroundColor(tcell.ColorBlue)
+					headerCell.SetBackgroundColor(selectBG)
 				}
 			}
 		}

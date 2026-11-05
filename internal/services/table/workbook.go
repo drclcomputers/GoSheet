@@ -115,13 +115,20 @@ func (wb *Workbook) DeleteSheet(index int) error {
 		return fmt.Errorf("invalid sheet index")
 	}
 
+	doomed := wb.Sheets[index]
+	name := doomed.Name
+	wb.rewriteFormulas(name, "", doomed)
+
 	wb.Sheets = append(wb.Sheets[:index], wb.Sheets[index+1:]...)
 
-	// Adjust active sheet if necessary
 	if wb.ActiveSheet >= len(wb.Sheets) {
 		wb.ActiveSheet = len(wb.Sheets) - 1
+	} else if wb.ActiveSheet > index {
+		wb.ActiveSheet--
 	}
 
+	wb.scrubDeadDependents()
+	wb.recalculateAll()
 	wb.HasChanges = true
 	return nil
 }
@@ -131,7 +138,14 @@ func (wb *Workbook) RenameSheet(index int, newName string) error {
 	if index < 0 || index >= len(wb.Sheets) {
 		return fmt.Errorf("invalid sheet index")
 	}
+	old := wb.Sheets[index].Name
+	if old == newName {
+		return nil
+	}
 	wb.Sheets[index].Name = newName
+	wb.rewriteFormulas(old, newName, nil)
+	wb.scrubDeadDependents()
+	wb.recalculateAll()
 	wb.HasChanges = true
 	return nil
 }

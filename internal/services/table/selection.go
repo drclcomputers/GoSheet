@@ -24,10 +24,10 @@ var isSelecting bool
 var lastHeadRow, lastHeadCol int
 
 var (
-	headerBG  = tcell.NewRGBColor(32, 40, 58)
-	headerFG  = tcell.NewRGBColor(168, 188, 214)
-	headerHot = tcell.NewRGBColor(36, 120, 136)
-	sheetBG   = tcell.NewRGBColor(12, 14, 22)
+	headerBG = tcell.NewRGBColor(32, 40, 58)
+	headerFG = tcell.NewRGBColor(168, 188, 214)
+	selectBG = tcell.NewRGBColor(28, 110, 128)
+	sheetBG  = tcell.NewRGBColor(12, 14, 22)
 )
 
 func resetHeaderTrack() {
@@ -66,7 +66,7 @@ func SelectInTable(app *tview.Application, table *tview.Table, vp *utils.Viewpor
 			paintHeader(table, lastHeadRow, lastHeadCol, headerBG)
 		}
 		if row > 0 && column > 0 {
-			paintHeader(table, row, column, headerHot)
+			paintHeader(table, row, column, selectBG)
 			lastHeadRow, lastHeadCol = row, column
 			activeData := GetActiveSheetData()
 			addr, raw := currentCellRaw(activeData, absRow, absCol)

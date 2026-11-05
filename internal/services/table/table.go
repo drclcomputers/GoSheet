@@ -76,7 +76,7 @@ func CreateTable(title string) *tview.Table {
 		SetSelectable(true, true).
 		SetSelectedStyle(tcell.StyleDefault.
 			Foreground(tcell.NewRGBColor(255, 255, 255)).
-			Background(tcell.NewRGBColor(28, 110, 128)).
+			Background(selectBG).
 			Bold(true))
 	table.SetBorder(true).
 		SetBorderColor(tcell.NewRGBColor(70, 160, 170)).

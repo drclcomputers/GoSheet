@@ -33,6 +33,7 @@ const (
 	pieceRaw pieceKind = iota
 	pieceCell
 	pieceRange
+	pieceBroken
 )
 
 type piece struct {
@@ -47,6 +48,11 @@ func parseFormula(formula string) ([]piece, error) {
 	s := formula
 	i := 0
 	for i < len(s) {
+		if strings.HasPrefix(s[i:], "#REF!") {
+			pieces = append(pieces, piece{kind: pieceBroken})
+			i += len("#REF!")
+			continue
+		}
 		ch := s[i]
 		if ch == '"' {
 			j := i + 1
@@ -401,6 +407,8 @@ func bindPieces(pieces []piece, tableCellValue func(addr) (any, error), tableRan
 			name := fmt.Sprintf("R%d", len(params))
 			params[name] = m
 			b.WriteString(name)
+		case pieceBroken:
+			return "", nil, fmt.Errorf("sheet not found")
 		}
 	}
 	return b.String(), params, nil
@@ -602,4 +610,183 @@ func rangeCovers(dep, sheet string, row, col int32) bool {
 		return false
 	}
 	return row >= r1 && row <= r2 && col >= c1 && col <= c2
+}
+func sheetPrefix(s string, i int) (name string, afterBang int, ok bool) {
+	if i >= len(s) {
+		return "", i, false
+	}
+	if s[i] == '\'' {
+		j := i + 1
+		var b strings.Builder
+		for j < len(s) {
+			if s[j] == '\'' {
+				if j+1 < len(s) && s[j+1] == '\'' {
+					b.WriteByte('\'')
+					j += 2
+					continue
+				}
+				break
+			}
+			b.WriteByte(s[j])
+			j++
+		}
+		if j >= len(s) || s[j] != '\'' || j+1 >= len(s) || s[j+1] != '!' {
+			return "", i, false
+		}
+		return b.String(), j + 2, true
+	}
+	if !isIdentStart(s[i]) {
+		return "", i, false
+	}
+	word, j := readWord(s, i)
+	if j >= len(s) || s[j] != '!' {
+		return "", i, false
+	}
+	return word, j + 1, true
+}
+
+func appendStringLiteral(s string, i int, b *strings.Builder) int {
+	b.WriteByte(s[i])
+	j := i + 1
+	for j < len(s) {
+		if s[j] == '\\' && j+1 < len(s) {
+			b.WriteByte(s[j])
+			b.WriteByte(s[j+1])
+			j += 2
+			continue
+		}
+		b.WriteByte(s[j])
+		if s[j] == '"' {
+			if j+1 < len(s) && s[j+1] == '"' {
+				b.WriteByte('"')
+				j += 2
+				continue
+			}
+			return j + 1
+		}
+		j++
+	}
+	return j
+}
+
+// rewriteSheetRefs renames or deletes explicit sheet references in a formula.
+// newName empty means the sheet was deleted and the reference becomes #REF!.
+// Text inside quotes is left alone. A1 with no sheet name is left alone.
+func rewriteSheetRefs(formula, oldName, newName string) (string, bool) {
+	if oldName == "" || strings.EqualFold(oldName, newName) && newName != "" && oldName == newName {
+		return formula, false
+	}
+	var b strings.Builder
+	changed := false
+	s := formula
+	i := 0
+	for i < len(s) {
+		if s[i] == '"' {
+			i = appendStringLiteral(s, i, &b)
+			continue
+		}
+		name, after, ok := sheetPrefix(s, i)
+		if ok && strings.EqualFold(name, oldName) {
+			if newName == "" {
+				if p, end, pok, err := parseRefToken(s, i); err == nil && pok && (p.kind == pieceCell || p.kind == pieceRange) {
+					b.WriteString("#REF!")
+					i = end
+					changed = true
+					continue
+				}
+			} else {
+				b.WriteString(quoteSheet(newName))
+				b.WriteByte('!')
+				i = after
+				changed = true
+				continue
+			}
+		}
+		b.WriteByte(s[i])
+		i++
+	}
+	if !changed {
+		return formula, false
+	}
+	return b.String(), true
+}
+
+func (wb *Workbook) rewriteFormulas(oldName, newName string, skip *Sheet) {
+	if wb == nil {
+		return
+	}
+	for _, sh := range wb.Sheets {
+		if sh == nil || sh == skip {
+			continue
+		}
+		for _, c := range sh.Data {
+			if c == nil || c.RawValue == nil || !c.IsFormula() {
+				continue
+			}
+			next, ok := rewriteSheetRefs(*c.RawValue, oldName, newName)
+			if !ok {
+				continue
+			}
+			s := next
+			c.RawValue = &s
+			c.ClearFlag(cell.FlagEvaluated)
+		}
+	}
+}
+
+func (wb *Workbook) scrubDeadDependents() {
+	if wb == nil {
+		return
+	}
+	for _, sh := range wb.Sheets {
+		if sh == nil {
+			continue
+		}
+		for _, c := range sh.Data {
+			if c == nil || len(c.Dependents) == 0 {
+				continue
+			}
+			kept := c.Dependents[:0]
+			for _, d := range c.Dependents {
+				if d == nil {
+					continue
+				}
+				sheet, _, _, err := SplitRef(*d)
+				if err != nil {
+					continue
+				}
+				if sheet != "" && sheetByName(sheet) == nil {
+					continue
+				}
+				kept = append(kept, d)
+			}
+			c.Dependents = kept
+		}
+	}
+}
+
+func (wb *Workbook) recalculateAll() {
+	if wb == nil {
+		return
+	}
+	for _, sh := range wb.Sheets {
+		if sh == nil {
+			continue
+		}
+		for _, c := range sh.Data {
+			if c != nil && c.IsFormula() {
+				c.ClearFlag(cell.FlagEvaluated)
+			}
+		}
+	}
+	for _, sh := range wb.Sheets {
+		if sh == nil {
+			continue
+		}
+		for _, c := range sh.Data {
+			if c != nil && c.IsFormula() && !c.HasFlag(cell.FlagEvaluated) {
+				_ = EvaluateCell(nil, c)
+			}
+		}
+	}
 }
