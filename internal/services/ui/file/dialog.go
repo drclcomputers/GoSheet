@@ -33,7 +33,7 @@ func ShowUnifiedFileDialog(app *tview.Application, returnTo tview.Primitive, mod
 	if mode == "save" {
 		currentPath = filepath.Dir(currentFilename)
 	}
-	var selectedFormat int = 0
+	var selectedFormat = saveFormatIndex(currentFilename)
 
 	quickAccessList := tview.NewList()
 	uitheme.StyleList(quickAccessList, "Quick access")
@@ -81,7 +81,7 @@ func ShowUnifiedFileDialog(app *tview.Application, returnTo tview.Primitive, mod
 
 				filenameInput.SetText(currentName + FileFormats[index].Extension)
 			}).
-			SetCurrentOption(0)
+			SetCurrentOption(selectedFormat)
 
 		form.AddFormItem(formatDropdown)
 	}

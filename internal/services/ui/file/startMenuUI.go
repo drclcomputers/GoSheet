@@ -13,7 +13,6 @@ import (
 
 	"gosheet/internal/services/fileop"
 	"gosheet/internal/services/sheetview"
-	"gosheet/internal/services/ui"
 	"gosheet/internal/services/uitheme"
 	"gosheet/internal/utils"
 
@@ -112,9 +111,10 @@ func StartMenuUI(app *tview.Application) string {
 		SetBackgroundColor(tcell.NewRGBColor(28, 24, 16))
 	optionsBtn.SetScrollable(false)
 
+	var recentList *tview.List
 	optionsBtn.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		if event.Key() == tcell.KeyEnter {
-			ui.ShowWarningModal(app, container, "Options menu coming soon!")
+			ShowOptions(app, container, func() { fillRecent(app, container, recentList) })
 		}
 		return event
 	})
@@ -135,41 +135,8 @@ func StartMenuUI(app *tview.Application) string {
 		SetBorderColor(tcell.NewRGBColor(70, 160, 170)).
 		SetBackgroundColor(tcell.NewRGBColor(14, 17, 26))
 
-	filenames, locations := fileop.GetRecentFileList()
-	recentList := tview.NewList()
-
-	if len(filenames) == 0 {
-		recentList.AddItem("No recent files", "", 0, nil)
-		recentList.SetSelectedTextColor(tcell.ColorGray)
-	} else {
-		for i, filename := range filenames {
-			loc := locations[i]
-
-			info, _ := os.Stat(loc)
-			var sizeStr, modStr string
-			if info != nil {
-				size := info.Size()
-				if size < 1024 {
-					sizeStr = fmt.Sprintf("%d B", size)
-				} else if size < 1024*1024 {
-					sizeStr = fmt.Sprintf("%.1f KB", float64(size)/1024)
-				} else {
-					sizeStr = fmt.Sprintf("%.1f MB", float64(size)/(1024*1024))
-				}
-				modStr = info.ModTime().Format("15:04 - Jan 02, 2006")
-			}
-
-			secondaryText := fmt.Sprintf("%s  •  %s  •  %s", utils.PrettyPath(loc, "recentfiles"), modStr, sizeStr)
-
-			recentList.AddItem(filename, secondaryText, rune('1'+i), func() {
-				if _, err := os.Stat(loc); os.IsNotExist(err) {
-					ShowErrorModal(app, container, fmt.Sprintf("File not found: %s", loc))
-				} else {
-					selectFile(app, loc)
-				}
-			})
-		}
-	}
+	recentList = tview.NewList()
+	fillRecent(app, container, recentList)
 
 	recentList.SetBorder(true).SetBorderColor(tcell.NewRGBColor(70, 160, 170))
 	recentList.SetSelectedBackgroundColor(tcell.NewRGBColor(28, 110, 128))
@@ -262,6 +229,48 @@ func StartMenuUI(app *tview.Application) string {
 	}
 
 	return selectedFile
+}
+
+func fillRecent(app *tview.Application, container tview.Primitive, recentList *tview.List) {
+	if recentList == nil {
+		return
+	}
+	recentList.Clear()
+	filenames, locations := fileop.GetRecentFileList()
+	if len(filenames) == 0 {
+		recentList.AddItem("No recent files", "", 0, nil)
+		recentList.SetSelectedTextColor(tcell.ColorGray)
+		return
+	}
+	recentList.SetSelectedTextColor(tcell.ColorWhite)
+	for i, filename := range filenames {
+		loc := locations[i]
+		info, _ := os.Stat(loc)
+		var sizeStr, modStr string
+		if info != nil {
+			size := info.Size()
+			if size < 1024 {
+				sizeStr = fmt.Sprintf("%d B", size)
+			} else if size < 1024*1024 {
+				sizeStr = fmt.Sprintf("%.1f KB", float64(size)/1024)
+			} else {
+				sizeStr = fmt.Sprintf("%.1f MB", float64(size)/(1024*1024))
+			}
+			modStr = info.ModTime().Format("15:04 - Jan 02, 2006")
+		}
+		secondaryText := fmt.Sprintf("%s  •  %s  •  %s", utils.PrettyPath(loc, "recentfiles"), modStr, sizeStr)
+		shortcut := rune(0)
+		if i < 9 {
+			shortcut = rune('1' + i)
+		}
+		recentList.AddItem(filename, secondaryText, shortcut, func() {
+			if _, err := os.Stat(loc); os.IsNotExist(err) {
+				ShowErrorModal(app, container, fmt.Sprintf("File not found: %s", loc))
+			} else {
+				selectFile(app, loc)
+			}
+		})
+	}
 }
 
 func ShowErrorModal(app *tview.Application, returnTo tview.Primitive, message string) {

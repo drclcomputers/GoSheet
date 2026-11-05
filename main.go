@@ -29,6 +29,8 @@ import (
 func main() {
 	//runtime.MemProfileRate = 1
 
+	utils.LoadSettings()
+	fileop.TrimRecentFiles()
 	utils.UpdateNrCellsOnScrn()
 	if utils.DEFAULT_VIEWPORT_ROWS > 6 {
 		utils.DEFAULT_VIEWPORT_ROWS -= 2

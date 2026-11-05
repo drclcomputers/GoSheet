@@ -9,6 +9,7 @@ package fileop
 
 import (
 	"bytes"
+	"gosheet/internal/utils"
 	"os"
 	"path/filepath"
 	"strings"
@@ -42,6 +43,15 @@ func GetRecentFileList() ([]string, []string) {
 			locations = append(locations, line)
 			filenames = append(filenames, filepath.Base(line))
 		}
+	}
+
+	limit := utils.DEFAULT_RECENT_FILES_NUMBER
+	if limit < 1 {
+		limit = 1
+	}
+	if len(filenames) > limit {
+		filenames = filenames[:limit]
+		locations = locations[:limit]
 	}
 
 	return filenames, locations
@@ -90,9 +100,55 @@ func AddToRecentFiles(filepathtodir string) {
 
 	existing = append([]string{filepathtodir}, existing...)
 
-	if len(existing) > 10 {
-		existing = existing[:10]
+	limit := utils.DEFAULT_RECENT_FILES_NUMBER
+	if limit < 1 {
+		limit = 1
+	}
+	if len(existing) > limit {
+		existing = existing[:limit]
 	}
 
 	os.WriteFile(recentFile, []byte(strings.Join(existing, "\n")), 0644)
+}
+
+// TrimRecentFiles shortens the saved list to the current limit.
+func TrimRecentFiles() {
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		return
+	}
+	recentFile := filepath.Join(homeDir, recentFilesPath)
+	data, err := os.ReadFile(recentFile)
+	if err != nil {
+		return
+	}
+	limit := utils.DEFAULT_RECENT_FILES_NUMBER
+	if limit < 1 {
+		limit = 1
+	}
+	var kept []string
+	for _, line := range strings.Split(string(data), "\n") {
+		line = strings.TrimSpace(line)
+		if line == "" {
+			continue
+		}
+		kept = append(kept, line)
+		if len(kept) >= limit {
+			break
+		}
+	}
+	_ = os.WriteFile(recentFile, []byte(strings.Join(kept, "\n")), 0644)
+}
+
+// ClearRecentFiles removes every path from the recent-file list.
+func ClearRecentFiles() error {
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		return err
+	}
+	recentFile := filepath.Join(homeDir, recentFilesPath)
+	if err := os.MkdirAll(filepath.Dir(recentFile), 0755); err != nil {
+		return err
+	}
+	return os.WriteFile(recentFile, []byte(""), 0644)
 }
