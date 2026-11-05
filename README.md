@@ -13,7 +13,7 @@
 
 </div>
 
-![Alt Text](https://github.com/drclcomputers/GoSheet/blob/main/demo_imgs/demo.gif)
+![Alt Text](https://github.com/drclcomputers/GoSheet/blob/main/docs/images/demo.gif)
 
 ---
 
@@ -36,6 +36,7 @@ GoSheet is a feature-rich, lightweight spreadsheet application that runs entirel
 ## ✨ Features
 
 ### Core Spreadsheet Features
+
 - **📊 Workbook Management**: Create, rename, duplicate, and reorder sheets
 - **🔢 Formula Engine**: 104 built-in functions with circular dependency detection
 - **🎨 Cell Formatting**: Bold, italic, underline, strikethrough, colors, alignment
@@ -48,6 +49,7 @@ GoSheet is a feature-rich, lightweight spreadsheet application that runs entirel
 - **🔄 AutoFill**: Smart pattern detection for dates, numbers, and sequences
 
 ### Advanced Features
+
 - **🎯 Smart Navigation**: Go-to-cell, keyboard shortcuts, multi-sheet switching
 - **📊 Sorting**: Ascending/descending sort with type-aware comparison
 - **🔐 Cell Protection**: Mark cells as editable/non-editable
@@ -64,6 +66,7 @@ GoSheet is a feature-rich, lightweight spreadsheet application that runs entirel
 ## 🚀 Installation
 
 ### Prerequisites
+
 - Go 1.24.2 or higher
 - Terminal with 256-color support (recommended)
 
@@ -103,55 +106,55 @@ go build -o gosheet
 
 ### Note: For MacOS users, activating 'Use Option as Meta Key' is mandatory for Alt commands to work. Here is a link "https://superuser.com/questions/1038947/using-the-option-key-properly-on-mac-terminal" for more info.
 
-| Key Combination | Action |
-|----------------|--------|
-| **Arrow Keys** | Navigate cells |
-| **Shift + Arrows** | Select range |
-| **Enter** | Edit selected cell |
-| **Escape** | Save menu / Exit dialog |
-| **Alt + G** | Go to cell |
+| Key Combination    | Action                  |
+| ------------------ | ----------------------- |
+| **Arrow Keys**     | Navigate cells          |
+| **Shift + Arrows** | Select range            |
+| **Enter**          | Edit selected cell      |
+| **Escape**         | Save menu / Exit dialog |
+| **Alt + G**        | Go to cell              |
 
 ### Editing & Clipboard
 
-| Key Combination | Action |
-|----------------|--------|
-| **Alt + C** | Copy selection |
-| **Alt + V** | Paste |
-| **Alt + X** | Cut |
-| **Alt + Delete** | Clear cells |
-| **Alt + Z** | Undo |
-| **Alt + Y** | Redo |
+| Key Combination  | Action         |
+| ---------------- | -------------- |
+| **Alt + C**      | Copy selection |
+| **Alt + V**      | Paste          |
+| **Alt + X**      | Cut            |
+| **Alt + Delete** | Clear cells    |
+| **Alt + Z**      | Undo           |
+| **Alt + Y**      | Redo           |
 
 ### Formatting
 
-| Key Combination | Action |
-|----------------|--------|
-| **Alt + R** | Copy cell format |
-| **Alt + I** | Paste cell format |
-| **Alt + N** | Edit cell comment |
+| Key Combination | Action            |
+| --------------- | ----------------- |
+| **Alt + R**     | Copy cell format  |
+| **Alt + I**     | Paste cell format |
+| **Alt + N**     | Edit cell comment |
 
 ### Sheet Management
 
-| Key Combination | Action |
-|----------------|--------|
-| **Alt + M** | Open Sheet Manager |
-| **Alt + T** | Quick Sheet Menu |
-| **Alt + PageUp** | Previous sheet |
-| **Alt + PageDown** | Next sheet |
-| **Alt + 1-9** | Quick switch to sheet |
+| Key Combination    | Action                |
+| ------------------ | --------------------- |
+| **Alt + M**        | Open Sheet Manager    |
+| **Alt + T**        | Quick Sheet Menu      |
+| **Alt + PageUp**   | Previous sheet        |
+| **Alt + PageDown** | Next sheet            |
+| **Alt + 1-9**      | Quick switch to sheet |
 
 ### Advanced Operations
 
-| Key Combination | Action |
-|----------------|--------|
-| **Alt + O** | Sort dialog |
-| **Alt + A** | AutoFill |
-| **Alt + F** | Find |
-| **Alt + H** | Replace |
-| **F3 / F4** | Find previous/next |
-| **Alt + =** | Insert row/column |
-| **Alt + -** | Delete row/column |
-| **Alt + /** | Show help |
+| Key Combination | Action             |
+| --------------- | ------------------ |
+| **Alt + O**     | Sort dialog        |
+| **Alt + A**     | AutoFill           |
+| **Alt + F**     | Find               |
+| **Alt + H**     | Replace            |
+| **F3 / F4**     | Find previous/next |
+| **Alt + =**     | Insert row/column  |
+| **Alt + -**     | Delete row/column  |
+| **Alt + /**     | Show help          |
 
 ---
 
@@ -162,68 +165,89 @@ GoSheet includes **104 built-in functions** organized into 22 categories:
 ### Mathematical Functions (31)
 
 #### Trigonometric (4)
+
 `SIN`, `COS`, `TAN`, `CTAN`
 
 #### Inverse Trigonometric (5)
+
 `ASIN`, `ACOS`, `ATAN`, `ATAN2`, `ACTAN`
 
 #### Additional Trigonometric (4)
+
 `SEC`, `CSEC`, `ASEC`, `ACSC`
 
 #### Degrees/Radians (2)
+
 `RAD`, `DEG`
 
 #### Hyperbolic (4)
+
 `SINH`, `COSH`, `TANH`, `CTANH`
 
 #### Additional Hyperbolic (8)
+
 `SECH`, `CSCH`, `ASINH`, `ACOSH`, `ATANH`, `ASECH`, `ACSCH`, `ACOTH`
 
 #### Exponential/Logarithmic (4)
+
 `EXP`, `LOG`, `LOG10`, `LOG2`
 
 ### Power & Basic Math (13)
 
 #### Power/Roots (3)
+
 `SQRT`, `CBRT`, `POW`
 
 #### Basic Math (7)
+
 `ABS`, `CEIL`, `FLOOR`, `ROUND`, `MIN`, `MAX`, `AVG`
 
 #### Utility Math (3)
+
 `SIGN`, `CLAMP`, `LERP`
 
 ### Logical Functions (6)
+
 `IF`, `IFS`, `AND`, `OR`, `NOT`, `XOR`
 
 ### String Functions (11)
+
 `LEFT`, `RIGHT`, `MID`, `UPPER`, `LOWER`, `PROPER`, `TRIM`, `FIND`, `SUBSTITUTE`, `LEN`, `CONCAT`
 
 ### Date/Time Functions (13)
+
 `NOW`, `TODAY`, `DATE`, `TIME`, `YEAR`, `MONTH`, `DAY`, `HOUR`, `MINUTE`, `SECOND`, `WEEKDAY`, `DATEDIFF`, `DATEADD`
 
 ### Type Checking (4)
+
 `CHOOSE`, `ISNUMBER`, `ISTEXT`, `ISBLANK`
 
 ### Statistical (3)
+
 `COUNT`, `SUM`, `PRODUCT`
 
 ### Constants (5)
+
 `PI`, `E`, `PHI`, `INF`, `NAN`
 
 ### Special Math (6)
+
 `ERF`, `ERFC`, `GAMMA`, `J0`, `J1`, `YN`
 
 ### Rounding/Precision (2)
+
 `TRUNC`, `ROUNDTO`
 
 ### Engineering (3)
+
 `HYPOT`, `MOD`, `REMAINDER`
 
 ### Bitwise Operations (5)
+
 `BITAND`, `BITOR`, `BITXOR`, `BITSHIFTLEFT`, `BITSHIFTRIGHT`
 
 ### Additional Math Utility (3)
+
 `FACTORIAL`, `GCD`, `LCM`
 
 ### Formula Examples
@@ -277,20 +301,22 @@ Cell D1: $=AVG(A1:A3, C1:C3)  → Result: 17.5
 
 ### Supported Formats
 
-| Format | Extension | Read | Write | Description |
-|--------|-----------|------|-------|-------------|
-| **GSheet** | `.gsheet` | ✅ | ✅ | Native format (gzipped JSON) |
-| **JSON** | `.json` | ✅ | ✅ | Human-readable JSON |
-| **Excel** | `.xlsx` | ✅ | ✅ | Microsoft Excel format |
-| **CSV** | `.csv` | ✅ | ✅ | Comma-separated values |
-| **PDF** | `.pdf` | ❌ | ✅ | Portable Document Format |
-| **TXT** | `.txt` | ✅ | ✅ | Tab-delimited text |
-| **HTML** | `.html` | ❌ | ✅ | Styled HTML table |
+| Format     | Extension | Read | Write | Description                  |
+| ---------- | --------- | ---- | ----- | ---------------------------- |
+| **GSheet** | `.gsheet` | ✅   | ✅    | Native format (gzipped JSON) |
+| **JSON**   | `.json`   | ✅   | ✅    | Human-readable JSON          |
+| **Excel**  | `.xlsx`   | ✅   | ✅    | Microsoft Excel format       |
+| **CSV**    | `.csv`    | ✅   | ✅    | Comma-separated values       |
+| **PDF**    | `.pdf`    | ❌   | ✅    | Portable Document Format     |
+| **TXT**    | `.txt`    | ✅   | ✅    | Tab-delimited text           |
+| **HTML**   | `.html`   | ❌   | ✅    | Styled HTML table            |
 
 ### Excel Support Notes
+
 **GoSheet provides comprehensive Excel import/export capabilities with the following features:**
 
 **Import Features:**
+
 - ✅ Multiple sheets with names preserved
 - ✅ Cell values and formulas (auto-evaluated on load)
 - ✅ Text formatting: bold, italic, underline, strikethrough
@@ -304,6 +330,7 @@ Cell D1: $=AVG(A1:A3, C1:C3)  → Result: 17.5
 - ❌ Charts, images, pivot tables, macros not supported
 
 **Export Features:**
+
 - ✅ All sheets with original names
 - ✅ Formulas (converted to Excel format)
 - ✅ All cell formatting preserved
@@ -314,8 +341,10 @@ Cell D1: $=AVG(A1:A3, C1:C3)  → Result: 17.5
 - ✅ Text alignment
 
 **Known Excel Compatibility Notes**
+
 - The @ Symbol Issue
-When opening GoSheet-exported Excel files in newer versions of Excel (2019/365), you may see an @ symbol automatically inserted before some formulas:
+  When opening GoSheet-exported Excel files in newer versions of Excel (2019/365), you may see an @ symbol automatically inserted before some formulas:
+
 ```excel
 # Original formula in GoSheet
 $=SUM(A1:A10)
@@ -323,6 +352,7 @@ $=SUM(A1:A10)
 # How Excel 2019+ may display it
 =@SUM(A1:A10)
 ```
+
 This is normal Excel behavior, not a bug in GoSheet. The @ is Excel's "implicit intersection operator" and doesn't affect functionality. Excel adds it automatically when loading the file. Users can manually remove it if desired, but it's not necessary.
 
 **Formula Conversion**
@@ -337,7 +367,7 @@ This is normal Excel behavior, not a bug in GoSheet. The @ is Excel's "implicit 
 - Use standard functions: Stick to common functions like SUM, AVG, IF, MAX, MIN for maximum compatibility
 - Test formulas: Always verify complex formulas work in Excel after export
 - Colors: **RGB colors** are fully supported and preserved
-- Formatting: **Bold**, *italic*, <ins>underline</ins>, and alignment are 100% compatible
+- Formatting: **Bold**, _italic_, <ins>underline</ins>, and alignment are 100% compatible
 - Save as **.gsheet**: Use **native format** for full feature preservation
 
 ---
@@ -425,8 +455,8 @@ gosheet/
 │   │       ├── navigation/        # Find, replace, and go-to dialogs
 │   │       └── sheetmanager/      # Sheet management UI
 │   └── utils/                 # Utility functions
-│       └── evaluatefuncs/         # Formula evaluation functions
-├── demo_imgs/                 # Demo screenshots and GIFs
+│       └── evaluatefuncs/     # Formula evaluation functions
+├── docs/images.               # Demo screenshots and GIFs
 ├── go.mod
 ├── go.sum
 ├── LICENSE.md
@@ -459,6 +489,7 @@ gosheet/
 - 🧪 Write tests
 
 ### Reporting Issues
+
 **When reporting issues, please include:**
 
 - GoSheet version (visible in start menu)
@@ -488,6 +519,7 @@ gosheet/
 - Commits: Write descriptive commit messages
 
 ### Areas for Contribution
+
 **Some areas where contributions would be especially valuable:**
 
 - 📊 Chart and graphing support
@@ -539,6 +571,7 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
 ### Inspiration
 
 GoSheet was inspired by:
+
 - VisiCalc (1979) - The original spreadsheet program
 - Lotus 1-2-3 (1983) - Revolutionary spreadsheet software
 - sc - Classic terminal spreadsheet calculator and its succesor sc-im
