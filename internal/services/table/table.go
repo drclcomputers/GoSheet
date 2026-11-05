@@ -244,7 +244,7 @@ func RenderVisible(table *tview.Table, vp *utils.Viewport, data map[[2]int]*cell
 				tvCell = tview.NewTableCell("").
 					SetAlign(tview.AlignLeft).
 					SetTextColor(tcell.NewRGBColor(232, 236, 244)).
-					SetBackgroundColor(tcell.NewRGBColor(12, 14, 22))
+					SetBackgroundColor(sheetBG)
 			}
 
 			table.SetCell(int(visualRow), int(visualCol), tvCell)

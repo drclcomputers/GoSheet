@@ -104,7 +104,7 @@ func imitatePasteCellFormat(app *tview.Application, table *tview.Table, visualTa
 	}
 
 	performActualFormatPaste(table, formatSourceCell, r1, c1, r2, c2)
-	clearSelectionRange()
+	clearSelectionRange(table)
 }
 
 // Function that actually pastes cells

@@ -109,7 +109,7 @@ func ShowFillDialog(app *tview.Application, table *tview.Table) {
 
 		performFill(table, r1, c1, r2, c2, selectedDirection, count, fillType)
 		sheetview.Show(app)
-		clearSelectionRange()
+		clearSelectionRange(table)
 	})
 
 	form.AddButton("x Cancel", func() {

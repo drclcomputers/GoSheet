@@ -114,7 +114,7 @@ func SortColumn(app *tview.Application, table *tview.Table, ascending bool) {
 		}
 	}
 
-	clearSelectionRange()
+	clearSelectionRange(table)
 }
 
 func getSortKey(c *cell.Cell) any {

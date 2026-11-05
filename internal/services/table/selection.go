@@ -27,6 +27,7 @@ var (
 	headerBG  = tcell.NewRGBColor(32, 40, 58)
 	headerFG  = tcell.NewRGBColor(168, 188, 214)
 	headerHot = tcell.NewRGBColor(36, 120, 136)
+	sheetBG   = tcell.NewRGBColor(12, 14, 22)
 )
 
 func resetHeaderTrack() {

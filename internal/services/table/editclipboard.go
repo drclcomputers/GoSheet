@@ -20,9 +20,41 @@ import (
 // Selection margins
 var selStartRow, selStartCol, selEndRow, selEndCol int32
 
-// Clear selected rows
-func clearSelectionRange() {
+// clearSelectionRange drops the shift-selection and paints every visible
+// cell back to the background it had before the highlight.
+func clearSelectionRange(table *tview.Table) {
+	had := selStartRow != 0 || selStartCol != 0 || selEndRow != 0 || selEndCol != 0
 	selStartRow, selStartCol, selEndRow, selEndCol = 0, 0, 0, 0
+	if had {
+		restoreVisibleBackgrounds(table)
+	}
+}
+
+// restoreVisibleBackgrounds puts each on-screen cell back to its own color.
+// Empty cells have no model, so they go back to the sheet background.
+func restoreVisibleBackgrounds(table *tview.Table) {
+	if table == nil {
+		return
+	}
+	for r := 0; r < table.GetRowCount(); r++ {
+		for c := 0; c < table.GetColumnCount(); c++ {
+			tv := table.GetCell(r, c)
+			if tv == nil {
+				continue
+			}
+			if r == 0 || c == 0 {
+				tv.SetBackgroundColor(headerBG)
+				continue
+			}
+			if ref := tv.GetReference(); ref != nil {
+				if cc, ok := ref.(*cell.Cell); ok {
+					tv.SetBackgroundColor(cc.BgColor.ToTCellColor())
+					continue
+				}
+			}
+			tv.SetBackgroundColor(sheetBG)
+		}
+	}
 }
 
 // Returns the selected cell
@@ -96,19 +128,7 @@ func highlightRange(table *tview.Table, absR1, absC1, absR2, absC2 int32) {
 		actualC1, actualC2 = actualC2, actualC1
 	}
 
-	for r := 1; r < table.GetRowCount(); r++ {
-		for c := 1; c < table.GetColumnCount(); c++ {
-			currentCell := table.GetCell(r, c)
-			if currentCell == nil {
-				continue
-			}
-			if ref := currentCell.GetReference(); ref != nil {
-				if cc, ok := ref.(*cell.Cell); ok {
-					currentCell.SetBackgroundColor(cc.BgColor.ToTCellColor())
-				}
-			}
-		}
-	}
+	restoreVisibleBackgrounds(table)
 
 	for absR := actualR1; absR <= actualR2; absR++ {
 		for absC := actualC1; absC <= actualC2; absC++ {
@@ -192,7 +212,7 @@ func copySelection(table *tview.Table) {
 		clipboard = append(clipboard, rowSlice)
 	}
 
-	clearSelectionRange()
+	clearSelectionRange(table)
 }
 
 // Pastes from clipboard
@@ -247,7 +267,7 @@ func pasteSelection(app *tview.Application, table *tview.Table, visualTargetRow,
 	}
 
 	performPaste(table, clipboard, targetRow, targetCol)
-	clearSelectionRange()
+	clearSelectionRange(table)
 }
 
 // Perform the actual pasting process
@@ -366,7 +386,7 @@ func cutSelection(app *tview.Application, table *tview.Table) {
 
 	copySelection(table)
 	clearCutCells(table, r1, c1, r2, c2)
-	clearSelectionRange()
+	clearSelectionRange(table)
 }
 
 // clearCutCells removes cells
@@ -464,7 +484,7 @@ func deleteSelection(app *tview.Application, table *tview.Table) {
 	}
 
 	performDelete(table, r1, c1, r2, c2)
-	clearSelectionRange()
+	clearSelectionRange(table)
 }
 
 // performDelete deletes cells

@@ -50,7 +50,7 @@ func InputCaptureService(app *tview.Application, table *tview.Table, vp *utils.V
 
 		if event.Modifiers() == 0 {
 			isSelecting = false
-			clearSelectionRange()
+			clearSelectionRange(table)
 
 			switch event.Key() {
 			case tcell.KeyUp:
