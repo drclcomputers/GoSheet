@@ -190,7 +190,7 @@ func buildEditCellForm(app *tview.Application, table *tview.Table, c, oldCell *c
 
 	buttonBar := tview.NewFlex().SetDirection(tview.FlexRow)
 	buttonText := tview.NewTextView().
-		SetText(" [#f0d090]Alt+←/→[-] section    [#f0d090]Tab[-] next field    [#f0d090]Alt+S[-] save    [#f0d090]Esc[-] cancel").
+		SetText(" [#f0d090]Alt+Shift+←/→[-] section    [#f0d090]Tab[-] next field    [#f0d090]Alt+S[-] save    [#f0d090]Esc[-] cancel").
 		SetDynamicColors(true).
 		SetTextAlign(tview.AlignCenter)
 	buttonText.SetBackgroundColor(tcell.NewRGBColor(14, 17, 26))
@@ -210,26 +210,30 @@ func buildEditCellForm(app *tview.Application, table *tview.Table, c, oldCell *c
 	allForms := []*tview.Form{leftForm, formatForm, rightForm, colorForm}
 	currentFormIndex := 0
 	markSection(allForms, 0)
+	var chords utils.AltChord
 
 	app.SetFocus(leftForm)
 
+	moveSection := func(dir int) {
+		n := len(allForms)
+		currentFormIndex = (currentFormIndex + dir + n) % n
+		markSection(allForms, currentFormIndex)
+		app.SetFocus(allForms[currentFormIndex])
+	}
+
 	container.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
-		switch {
-		case event.Key() == tcell.KeyEscape:
-			sheetview.Show(app)
-			return nil
-		case event.Modifiers()&tcell.ModAlt != 0 && (event.Rune() == 's' || event.Rune() == 'S'):
+		if utils.HasAlt(event.Modifiers()) && (event.Rune() == 's' || event.Rune() == 'S') {
 			SaveCellFormButtonAndKeyMap(app, table, container, c, oldCell, row, column, leftForm, RecordCellEdit, EvaluateCell, RecalculateCell, globalData, globalViewport)
 			return nil
-		case event.Key() == tcell.KeyRight && (event.Modifiers()&tcell.ModAlt != 0 || event.Modifiers()&tcell.ModCtrl != 0):
-			currentFormIndex = (currentFormIndex + 1) % len(allForms)
-			markSection(allForms, currentFormIndex)
-			app.SetFocus(allForms[currentFormIndex])
+		}
+		dir, consumed := chords.Handle(event, func(fn func()) { app.QueueUpdateDraw(fn) }, func() {
+			sheetview.Show(app)
+		})
+		if dir != 0 {
+			moveSection(dir)
 			return nil
-		case event.Key() == tcell.KeyLeft && (event.Modifiers()&tcell.ModAlt != 0 || event.Modifiers()&tcell.ModCtrl != 0):
-			currentFormIndex = (currentFormIndex - 1 + len(allForms)) % len(allForms)
-			markSection(allForms, currentFormIndex)
-			app.SetFocus(allForms[currentFormIndex])
+		}
+		if consumed {
 			return nil
 		}
 		return event

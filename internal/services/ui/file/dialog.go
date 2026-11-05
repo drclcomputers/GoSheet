@@ -406,7 +406,7 @@ func ShowUnifiedFileDialog(app *tview.Application, returnTo tview.Primitive, mod
 		AddItem(fileList, 0, 1, false)
 
 	instructions := tview.NewTextView().
-		SetText(" [#f0d090]Alt+←/→[-] panels    [#f0d090]Enter[-] select    [#f0d090]Tab[-] buttons    [#f0d090]Esc[-] back").
+		SetText(" [#f0d090]Alt+Shift+←/→[-] panels    [#f0d090]Enter[-] select    [#f0d090]Tab[-] buttons    [#f0d090]Esc[-] back").
 		SetDynamicColors(true).
 		SetTextAlign(tview.AlignCenter)
 
@@ -425,19 +425,18 @@ func ShowUnifiedFileDialog(app *tview.Application, returnTo tview.Primitive, mod
 
 	focusables := []tview.Primitive{quickAccessList, fileList, form}
 	currentFocus := 2
+	var chords utils.AltChord
 
 	container.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
-		switch {
-		case event.Key() == tcell.KeyEscape:
+		dir, consumed := chords.Handle(event, func(fn func()) { app.QueueUpdateDraw(fn) }, func() {
 			sheetview.Back(app, returnTo, returnTo)
-			return nil
-		case (event.Modifiers()&tcell.ModCtrl != 0 || event.Modifiers()&tcell.ModAlt != 0) && event.Key() == tcell.KeyRight:
-			currentFocus = (currentFocus + 1) % len(focusables)
+		})
+		if dir != 0 {
+			currentFocus = (currentFocus + dir + len(focusables)) % len(focusables)
 			app.SetFocus(focusables[currentFocus])
 			return nil
-		case (event.Modifiers()&tcell.ModCtrl != 0 || event.Modifiers()&tcell.ModAlt != 0) && event.Key() == tcell.KeyLeft:
-			currentFocus = (currentFocus - 1 + len(focusables)) % len(focusables)
-			app.SetFocus(focusables[currentFocus])
+		}
+		if consumed {
 			return nil
 		}
 		return event

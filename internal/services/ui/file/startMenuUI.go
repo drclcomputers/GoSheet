@@ -205,7 +205,7 @@ func StartMenuUI(app *tview.Application) string {
 		case event.Rune() == 'o' && event.Modifiers()&tcell.ModAlt != 0:
 			ShowUnifiedFileDialog(app, container, "open", nil, nil, nil, nil, nil, "")
 			return nil
-		case event.Key() == tcell.KeyLeft && (event.Modifiers()&tcell.ModCtrl != 0 || event.Modifiers() == 0),
+		case event.Key() == tcell.KeyLeft && (event.Modifiers() == 0 || utils.HasAlt(event.Modifiers())),
 			event.Key() == tcell.KeyBacktab:
 			if inLeftPanel {
 				currentLeftItem--
@@ -221,7 +221,7 @@ func StartMenuUI(app *tview.Application) string {
 				app.SetFocus(leftItems[currentLeftItem])
 			}
 			return nil
-		case event.Key() == tcell.KeyRight && (event.Modifiers()&tcell.ModCtrl != 0 || event.Modifiers() == 0),
+		case event.Key() == tcell.KeyRight && (event.Modifiers() == 0 || utils.HasAlt(event.Modifiers())),
 			event.Key() == tcell.KeyTab:
 			if inLeftPanel {
 				currentLeftItem++

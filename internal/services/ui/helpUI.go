@@ -38,7 +38,7 @@ func ShowHelpModal(app *tview.Application, table *tview.Table) {
   = insert row/column     - delete row/column
   M sheets     T sheet menu
 
-[#8aa0b8]Ctrl+←/→ is only for moving between panels in the file window.
+[#8aa0b8]Alt+Shift+←/→ moves between panels. Plain Alt+arrow is swallowed by the terminal.[-]
 Everything else is Alt, or a plain key. F3 / F4 repeat a search.[-]
 
 [#5c6b7a]Esc closes this.[-]`

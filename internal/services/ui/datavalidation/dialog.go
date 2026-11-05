@@ -247,7 +247,7 @@ func ShowValidationRuleDialog(app *tview.Application, table *tview.Table, return
 	updateDynamicForm(detectedPresetIdx)
 
 	container.SetBorder(true).
-		SetTitle(fmt.Sprintf(" Data Validation - %s%d  •  Ctrl+←/→ to navigate  •  Esc to cancel ", utils.ColumnName(col), row)).
+		SetTitle(fmt.Sprintf(" Data validation · %s%d ", utils.ColumnName(col), row)).
 		SetBorderColor(tcell.ColorYellow)
 
 	getFocusablePrimitives := func() []tview.Primitive {
@@ -273,28 +273,23 @@ func ShowValidationRuleDialog(app *tview.Application, table *tview.Table, return
 	}
 
 	currentPrim := 0
+	var chords utils.AltChord
 
 	container.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
-		if event.Key() == tcell.KeyEscape {
+		dir, consumed := chords.Handle(event, func(fn func()) { app.QueueUpdateDraw(fn) }, func() {
 			sheetview.Back(app, returnTo, focus)
-			return nil
-		}
-		if event.Modifiers()&tcell.ModCtrl != 0 {
+		})
+		if dir != 0 {
 			focusables := getFocusablePrimitives()
-
-			if event.Key() == tcell.KeyRight {
-				currentPrim++
-				currentPrim %= len(focusables)
-				app.SetFocus(focusables[currentPrim])
-				return nil
-			} else if event.Key() == tcell.KeyLeft {
-				currentPrim--
-				if currentPrim < 0 {
-					currentPrim = len(focusables) - 1
-				}
-				app.SetFocus(focusables[currentPrim])
+			if len(focusables) == 0 {
 				return nil
 			}
+			currentPrim = (currentPrim + dir + len(focusables)) % len(focusables)
+			app.SetFocus(focusables[currentPrim])
+			return nil
+		}
+		if consumed {
+			return nil
 		}
 		return event
 	})
