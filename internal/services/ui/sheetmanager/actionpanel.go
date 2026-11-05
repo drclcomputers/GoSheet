@@ -8,7 +8,6 @@
 package sheetmanager
 
 import (
-	"fmt"
 	"gosheet/internal/services/sheetview"
 
 	"github.com/gdamore/tcell/v2"
@@ -21,26 +20,33 @@ func createActionPanel(app *tview.Application, table *tview.Table,
 
 	actionPanel := tview.NewFlex().SetDirection(tview.FlexRow)
 	actionPanel.SetBorder(true).
-		SetTitle(" Actions ").
-		SetBorderColor(tcell.ColorLightBlue).
+		SetTitle(" Do ").
+		SetTitleColor(tcell.NewRGBColor(240, 208, 144)).
+		SetBorderColor(tcell.NewRGBColor(70, 160, 170)).
+		SetBackgroundColor(tcell.NewRGBColor(18, 22, 34)).
 		SetTitleAlign(tview.AlignLeft)
 
-	createActionBtn := func(icon, label, shortcut, description string, color tcell.Color, action func()) *tview.Box {
+	line := tcell.NewRGBColor(70, 160, 170)
+	amber := tcell.NewRGBColor(240, 208, 144)
+	ink := tcell.NewRGBColor(14, 17, 26)
+	muted := tcell.NewRGBColor(168, 188, 214)
+
+	createActionBtn := func(label, shortcut, description string, action func()) *tview.Box {
 		btn := tview.NewBox().
 			SetBorder(true).
-			SetBorderColor(color)
+			SetBorderColor(line).
+			SetBackgroundColor(ink)
 
 		btn.SetDrawFunc(func(screen tcell.Screen, x, y, width, height int) (int, int, int, int) {
-			tview.Print(screen, fmt.Sprintf(" %s %s", icon, label), x+1, y+1, width-2, tview.AlignLeft, color)
-
-			tview.Print(screen, shortcut, x+width-len(shortcut)-2, y+1, len(shortcut), tview.AlignRight, tcell.ColorYellow)
-
-			if len(description) > 0 {
-				tview.Print(screen, description, x+1, y+2, width-2, tview.AlignLeft, tcell.ColorGray)
+			tview.Print(screen, " "+label, x+1, y+1, width-len(shortcut)-4, tview.AlignLeft, tcell.NewRGBColor(232, 236, 244))
+			tview.Print(screen, shortcut, x+width-len(shortcut)-2, y+1, len(shortcut), tview.AlignRight, amber)
+			if description != "" && height > 3 {
+				tview.Print(screen, " "+description, x+1, y+2, width-2, tview.AlignLeft, muted)
 			}
-
 			return x + 1, y + 3, width - 2, height - 3
 		})
+		btn.SetFocusFunc(func() { btn.SetBorderColor(amber) })
+		btn.SetBlurFunc(func() { btn.SetBorderColor(line) })
 
 		btn.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 			if event.Key() == tcell.KeyEnter {
@@ -53,54 +59,20 @@ func createActionPanel(app *tview.Application, table *tview.Table,
 		return btn
 	}
 
-	newSheetBtn := createActionBtn(
-		"", "New Sheet", "Alt+N",
-		"Create a blank sheet",
-		tcell.ColorGreen,
-		func() { showAddSheetDialog(app, callbacks, actionPanel, list, infoPanel) },
-	)
-
-	renameBtn := createActionBtn(
-		"", "Rename", "Alt+R",
-		"Change sheet name",
-		tcell.ColorBlue,
-		func() { showRenameSheetFromManager(app, callbacks, actionPanel, list, infoPanel) },
-	)
-
-	duplicateBtn := createActionBtn(
-		"", "Duplicate", "Alt+C",
-		"Copy entire sheet",
-		tcell.ColorLightBlue,
-		func() { duplicateSheetFromManager(app, table, callbacks, list, infoPanel) },
-	)
-
-	moveBtn := createActionBtn(
-		"", "Move/Reorder", "Alt+M",
-		"Change sheet position",
-		tcell.ColorYellow,
-		func() { showMoveSheetDialog(app, callbacks, actionPanel, list, infoPanel) },
-	)
-
-	deleteBtn := createActionBtn(
-		"", "Delete", "Alt+D",
-		"Remove sheet permanently",
-		tcell.ColorRed,
-		func() { confirmDeleteSheetFromManager(app, callbacks, actionPanel, list, infoPanel) },
-	)
-
-	switchBtn := createActionBtn(
-		"", "Switch To", "Enter",
-		"Open selected sheet",
-		tcell.ColorLightBlue,
-		func() { switchToSelectedSheet(app, table, callbacks, list) },
-	)
-
-	exitBtn := createActionBtn(
-		"", "Exit", "Esc",
-		"Exit sheet manager",
-		tcell.ColorLightBlue,
-		func() { sheetview.Show(app) },
-	)
+	newSheetBtn := createActionBtn("New sheet", "Alt+N", "Blank sheet",
+		func() { showAddSheetDialog(app, callbacks, actionPanel, list, infoPanel) })
+	renameBtn := createActionBtn("Rename", "Alt+R", "Change the name",
+		func() { showRenameSheetFromManager(app, callbacks, actionPanel, list, infoPanel) })
+	duplicateBtn := createActionBtn("Duplicate", "Alt+C", "Copy this sheet",
+		func() { duplicateSheetFromManager(app, table, callbacks, list, infoPanel) })
+	moveBtn := createActionBtn("Move", "Alt+M", "Change the order",
+		func() { showMoveSheetDialog(app, callbacks, actionPanel, list, infoPanel) })
+	deleteBtn := createActionBtn("Delete", "Alt+D", "Remove this sheet",
+		func() { confirmDeleteSheetFromManager(app, callbacks, actionPanel, list, infoPanel) })
+	switchBtn := createActionBtn("Open", "Enter", "Switch to it",
+		func() { switchToSelectedSheet(app, table, callbacks, list) })
+	exitBtn := createActionBtn("Back", "Esc", "Return to the grid",
+		func() { sheetview.Show(app) })
 
 	actionPanel.
 		AddItem(newSheetBtn, 4, 0, false).

@@ -19,16 +19,16 @@ func updateSheetList(list *tview.List, callbacks SheetManagerCallbacks) {
 	sheets := callbacks.GetSheets()
 
 	for i, sheet := range sheets {
-		icon := ""
-		badge := ""
-
+		icon := "  "
 		if sheet.IsActive {
-			icon = ""
-			badge = " [yellow::b]> ACTIVE[::-]"
+			icon = "* "
 		}
 
-		mainText := fmt.Sprintf(" %s  %s%s", icon, sheet.Name, badge)
-		secondaryText := fmt.Sprintf("   └─ %d cells with data", sheet.CellCount)
+		mainText := icon + sheet.Name
+		secondaryText := fmt.Sprintf("    %d cells", sheet.CellCount)
+		if sheet.IsActive {
+			secondaryText = fmt.Sprintf("    active  ·  %d cells", sheet.CellCount)
+		}
 
 		list.AddItem(
 			mainText,
@@ -50,32 +50,27 @@ func updateSheetList(list *tview.List, callbacks SheetManagerCallbacks) {
 func getWorkbookInfoText(info WorkbookInfo) string {
 	fileName := info.FileName
 	if fileName == "" {
-		fileName = "[gray]Untitled Workbook[-]"
+		fileName = "[#5c6b7a]Untitled[-]"
 	} else {
-		fileName = "[white]" + fileName + "[-]"
+		fileName = "[#e8eef4]" + fileName + "[-]"
 	}
 
-	statusIcon := ""
-	statusColor := "green"
+	statusColor := "#7dcea0"
 	statusText := "Saved"
-
 	if info.HasChanges {
-		statusIcon = "o"
-		statusColor = "yellow"
+		statusColor = "#f0d090"
 		statusText = "Modified"
 	}
 
 	return fmt.Sprintf(
-		"[::b]WORKBOOK OVERVIEW[::-]\n"+
-			"[gray]━━━━━━━━━━━━━━━━━━━━[-]\n"+
-			"[lightblue]File:[-]\n  %s\n"+
-			"[lightblue]Status:[-]  [%s]%s %s[-]\n"+
-			"[lightblue]Structure:[-]\n"+
-			"  • Sheets: [white]%d[-]\n"+
-			"  • Active: [white]%s[-]\n"+
-			"  • Total Cells: [white]%d[-]",
+		"[#f0d090::b]Workbook[-]\n\n"+
+			"[#8aa0b8]File[-]\n  %s\n"+
+			"[#8aa0b8]Status[-]  [%s]%s[-]\n\n"+
+			"[#8aa0b8]Sheets[-]  [#e8eef4]%d[-]\n"+
+			"[#8aa0b8]Open[-]    [#e8eef4]%s[-]\n"+
+			"[#8aa0b8]Cells[-]   [#e8eef4]%d[-]",
 		fileName,
-		statusColor, statusIcon, statusText,
+		statusColor, statusText,
 		info.TotalSheets,
 		info.ActiveSheet,
 		info.TotalCells,
@@ -84,26 +79,20 @@ func getWorkbookInfoText(info WorkbookInfo) string {
 
 // getSheetInfoText returns enhanced info for a specific sheet
 func getSheetInfoText(sheet SheetInfo, index, total int) string {
-	statusIcon := "o"
-	statusColor := "gray"
-	statusText := "Inactive"
-
+	statusColor := "#8aa0b8"
+	statusText := "Not the open sheet"
 	if sheet.IsActive {
-		statusIcon = ">"
-		statusColor = "yellow"
-		statusText = "Active Sheet"
+		statusColor = "#f0d090"
+		statusText = "Open"
 	}
 
 	return fmt.Sprintf(
-		"[::b]SHEET DETAILS[::-]\n"+
-			"[gray]━━━━━━━━━━━━━━━━━━━━[-]\n"+
-			"[lightblue]Name:[-]  [white::b]%s[::-]\n"+
-			"[lightblue]Status:[-]  [%s]%s %s[-]\n"+
-			"[lightblue]Content:[-]\n"+
-			"  • Cells: [white]%d[-]\n"+
-			"  • Position: [white]%d[-] of [white]%d[-]",
+		"[#f0d090::b]%s[-]\n\n"+
+			"[#8aa0b8]Status[-]  [%s]%s[-]\n"+
+			"[#8aa0b8]Cells[-]   [#e8eef4]%d[-]\n"+
+			"[#8aa0b8]Order[-]   [#e8eef4]%d[-] of [#e8eef4]%d[-]",
 		sheet.Name,
-		statusColor, statusIcon, statusText,
+		statusColor, statusText,
 		sheet.CellCount,
 		index+1,
 		total,

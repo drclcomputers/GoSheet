@@ -16,14 +16,29 @@ import (
 	"github.com/rivo/tview"
 )
 
+func styleManagerForm(f *tview.Form, title string) {
+	f.SetBorder(true).
+		SetTitle(" " + title + " ").
+		SetTitleAlign(tview.AlignCenter).
+		SetTitleColor(tcell.NewRGBColor(240, 208, 144)).
+		SetBorderColor(tcell.NewRGBColor(70, 160, 170)).
+		SetBackgroundColor(tcell.NewRGBColor(18, 22, 34))
+	f.SetLabelColor(tcell.NewRGBColor(168, 188, 214))
+	f.SetFieldBackgroundColor(tcell.NewRGBColor(12, 14, 22))
+	f.SetFieldTextColor(tcell.NewRGBColor(232, 236, 244))
+	f.SetButtonBackgroundColor(tcell.NewRGBColor(28, 110, 128))
+	f.SetButtonTextColor(tcell.ColorWhite)
+	f.SetButtonActivatedStyle(tcell.StyleDefault.
+		Background(tcell.NewRGBColor(240, 208, 144)).
+		Foreground(tcell.NewRGBColor(14, 17, 26)))
+}
+
 // showAddSheetDialog shows enhanced dialog to add a new sheet
 func showAddSheetDialog(app *tview.Application,
 	callbacks SheetManagerCallbacks, returnTo tview.Primitive, list *tview.List, infoPanel *tview.TextView) {
 
 	form := tview.NewForm()
-	form.SetFieldBackgroundColor(tcell.ColorBlack)
-	form.SetButtonBackgroundColor(tcell.ColorDarkGreen)
-	form.SetButtonTextColor(tcell.ColorWhite)
+	styleManagerForm(form, "New sheet")
 
 	sheets := callbacks.GetSheets()
 	defaultName := fmt.Sprintf("Sheet%d", len(sheets)+1)
@@ -32,8 +47,8 @@ func showAddSheetDialog(app *tview.Application,
 		SetLabel("Sheet Name: ").
 		SetText(defaultName).
 		SetFieldWidth(30).
-		SetFieldBackgroundColor(tcell.ColorBlack).
-		SetFieldTextColor(tcell.ColorWhite)
+		SetFieldBackgroundColor(tcell.NewRGBColor(12, 14, 22)).
+		SetFieldTextColor(tcell.NewRGBColor(232, 236, 244))
 
 	form.AddFormItem(nameInput).
 		AddButton("Create", func() {
@@ -59,11 +74,6 @@ func showAddSheetDialog(app *tview.Application,
 			sheetview.Back(app, returnTo, list)
 		})
 
-	form.SetBorder(true).
-		SetTitle(" + Add New Sheet ").
-		SetBorderColor(tcell.ColorGreen).
-		SetTitleAlign(tview.AlignCenter)
-
 	app.SetRoot(form, true).SetFocus(form)
 }
 
@@ -81,16 +91,14 @@ func showRenameSheetFromManager(app *tview.Application,
 	sheet := sheets[selectedIndex]
 
 	form := tview.NewForm()
-	form.SetFieldBackgroundColor(tcell.ColorBlack)
-	form.SetButtonBackgroundColor(tcell.ColorDarkBlue)
-	form.SetButtonTextColor(tcell.ColorWhite)
+	styleManagerForm(form, "Rename")
 
 	nameInput := tview.NewInputField().
 		SetLabel(" New Name: ").
 		SetText(sheet.Name).
 		SetFieldWidth(30).
-		SetFieldBackgroundColor(tcell.ColorBlack).
-		SetFieldTextColor(tcell.ColorWhite)
+		SetFieldBackgroundColor(tcell.NewRGBColor(12, 14, 22)).
+		SetFieldTextColor(tcell.NewRGBColor(232, 236, 244))
 
 	form.AddFormItem(nameInput).
 		AddButton("Rename", func() {
@@ -113,14 +121,9 @@ func showRenameSheetFromManager(app *tview.Application,
 
 			sheetview.Back(app, returnTo, list)
 		}).
-		AddButton("x Cancel", func() {
+		AddButton("Cancel", func() {
 			sheetview.Back(app, returnTo, list)
 		})
-
-	form.SetBorder(true).
-		SetTitle(" Rename Sheet ").
-		SetBorderColor(tcell.ColorBlue).
-		SetTitleAlign(tview.AlignCenter)
 
 	app.SetRoot(form, true).SetFocus(form)
 }
@@ -216,9 +219,7 @@ func showMoveSheetDialog(app *tview.Application,
 	}
 
 	form := tview.NewForm()
-	form.SetFieldBackgroundColor(tcell.ColorBlack)
-	form.SetButtonBackgroundColor(tcell.ColorDarkGoldenrod)
-	form.SetButtonTextColor(tcell.ColorWhite)
+	styleManagerForm(form, "Move")
 
 	positions := make([]string, len(sheets))
 	for i := range sheets {
@@ -254,11 +255,6 @@ func showMoveSheetDialog(app *tview.Application,
 		AddButton("Cancel", func() {
 			sheetview.Back(app, returnTo, list)
 		})
-
-	form.SetBorder(true).
-		SetTitle(" Move/Reorder Sheet ").
-		SetBorderColor(tcell.ColorYellow).
-		SetTitleAlign(tview.AlignCenter)
 
 	app.SetRoot(form, true).SetFocus(form)
 }

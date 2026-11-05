@@ -216,11 +216,13 @@ func showCustomColorPicker(app *tview.Application, returnTo *tview.Flex, c *cell
 		sheetview.Back(app, returnTo, parentForm)
 	})
 
-	title := " Custom Text Color "
+	title := "Text color"
 	if !isTextColor {
-		title = " Custom Background Color "
+		title = "Background color"
 	}
-	pickerForm.SetBorder(true).SetTitle(title).SetTitleAlign(tview.AlignCenter)
+	styleCellForm(pickerForm, title)
+
+	preview.SetBorderColor(line).SetTitleColor(amber).SetTitleAlign(tview.AlignCenter)
 
 	topRow := tview.NewFlex().
 		AddItem(pickerForm, 0, 3, true).
@@ -228,8 +230,13 @@ func showCustomColorPicker(app *tview.Application, returnTo *tview.Flex, c *cell
 
 	container := tview.NewFlex().SetDirection(tview.FlexRow).
 		AddItem(topRow, 0, 1, true)
+	container.SetBackgroundColor(ink)
 
-	container.SetBorder(true).SetBorderColor(tcell.ColorYellow)
+	container.SetBorder(true).
+		SetBorderColor(line).
+		SetTitle(" Color ").
+		SetTitleColor(amber).
+		SetTitleAlign(tview.AlignCenter)
 
 	app.SetRoot(container, true).SetFocus(pickerForm)
 }

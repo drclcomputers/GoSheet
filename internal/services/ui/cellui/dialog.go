@@ -126,7 +126,7 @@ func buildEditCellForm(app *tview.Application, table *tview.Table, c, oldCell *c
 		}
 	})
 
-	leftForm.SetBorder(true).SetTitle(" Content ").SetTitleAlign(tview.AlignLeft)
+	styleCellForm(leftForm, "Content")
 
 	formatForm := tview.NewForm()
 	formatForm.AddFormItem(financialSignDropdown).
@@ -134,7 +134,7 @@ func buildEditCellForm(app *tview.Application, table *tview.Table, c, oldCell *c
 		AddFormItem(decimalSeparatorDropdown).
 		AddFormItem(decimalPointsInput).
 		AddFormItem(dateTimeFormatDropdown)
-	formatForm.SetBorder(true).SetTitle(" Formatting ").SetTitleAlign(tview.AlignLeft)
+	styleCellForm(formatForm, "Number format")
 
 	// Right Column - Styling
 	rightForm := tview.NewForm()
@@ -148,7 +148,7 @@ func buildEditCellForm(app *tview.Application, table *tview.Table, c, oldCell *c
 	rightForm.AddButton("Data Validation", func() {
 		datavalidation.ShowValidationRuleDialog(app, table, container, rightForm.GetFormItem(0), globalData, globalViewport)
 	})
-	rightForm.SetBorder(true).SetTitle(" Styling ").SetTitleAlign(tview.AlignLeft)
+	styleCellForm(rightForm, "Style")
 
 	// Color Form
 	colorForm := tview.NewForm()
@@ -160,21 +160,21 @@ func buildEditCellForm(app *tview.Application, table *tview.Table, c, oldCell *c
 		}
 		c.Color = utils.ColorOptions[option]
 	})
-	colorForm.AddButton("Custom Text Color", func() {
+	colorForm.AddButton("Custom text color", func() {
 		showCustomColorPicker(app, container, c, true, colorForm)
 	})
 
 	colorForm.AddDropDown("Background", utils.ColorOptionNames, bgColorIndex, func(option string, index int) {
 		if option == "Custom..." {
-			showCustomColorPicker(app, container, c, true, colorForm)
+			showCustomColorPicker(app, container, c, false, colorForm)
 			return
 		}
 		c.BgColor = utils.ColorOptions[option]
 	})
-	colorForm.AddButton("Custom BG Color", func() {
-		showCustomColorPicker(app, container, c, true, colorForm)
+	colorForm.AddButton("Custom background", func() {
+		showCustomColorPicker(app, container, c, false, colorForm)
 	})
-	colorForm.SetBorder(true).SetTitle(" Colors ").SetTitleAlign(tview.AlignLeft)
+	styleCellForm(colorForm, "Colors")
 
 	leftColumn := tview.NewFlex().SetDirection(tview.FlexRow).
 		AddItem(leftForm, 0, 1, false).
@@ -190,39 +190,45 @@ func buildEditCellForm(app *tview.Application, table *tview.Table, c, oldCell *c
 
 	buttonBar := tview.NewFlex().SetDirection(tview.FlexRow)
 	buttonText := tview.NewTextView().
-		SetText("  [yellow::b]Ctrl+→/←[::-] Switch Section   [yellow::b]Tab/Shift+Tab[::-] Next/Previous Field   [yellow::b]Alt+S[::-] Save   [yellow::b]ESC/Q[::-] Cancel").
+		SetText(" [#f0d090]Alt+←/→[-] section    [#f0d090]Tab[-] next field    [#f0d090]Alt+S[-] save    [#f0d090]Esc[-] cancel").
 		SetDynamicColors(true).
 		SetTextAlign(tview.AlignCenter)
+	buttonText.SetBackgroundColor(tcell.NewRGBColor(14, 17, 26))
 	buttonBar.AddItem(buttonText, 1, 0, false)
 
 	container = tview.NewFlex().SetDirection(tview.FlexRow).
 		AddItem(columns, 0, 1, true).
 		AddItem(buttonBar, 1, 0, false)
+	container.SetBackgroundColor(tcell.NewRGBColor(10, 12, 18))
 
 	container.SetBorder(true).
-		SetTitle(fmt.Sprintf(" Edit Cell %s%d ", utils.ColumnName(column), row)).
+		SetTitle(fmt.Sprintf(" Edit %s%d ", utils.ColumnName(column), row)).
 		SetTitleAlign(tview.AlignCenter).
-		SetBorderColor(tcell.ColorYellow)
+		SetTitleColor(tcell.NewRGBColor(240, 208, 144)).
+		SetBorderColor(tcell.NewRGBColor(70, 160, 170))
 
 	allForms := []*tview.Form{leftForm, formatForm, rightForm, colorForm}
 	currentFormIndex := 0
+	markSection(allForms, 0)
 
 	app.SetFocus(leftForm)
 
 	container.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		switch {
-		case event.Key() == tcell.KeyEscape || event.Rune() == 'q' || event.Rune() == 'Q':
+		case event.Key() == tcell.KeyEscape:
 			sheetview.Show(app)
 			return nil
 		case event.Modifiers()&tcell.ModAlt != 0 && (event.Rune() == 's' || event.Rune() == 'S'):
 			SaveCellFormButtonAndKeyMap(app, table, container, c, oldCell, row, column, leftForm, RecordCellEdit, EvaluateCell, RecalculateCell, globalData, globalViewport)
 			return nil
-		case event.Key() == tcell.KeyRight && event.Modifiers()&tcell.ModCtrl != 0:
+		case event.Key() == tcell.KeyRight && (event.Modifiers()&tcell.ModAlt != 0 || event.Modifiers()&tcell.ModCtrl != 0):
 			currentFormIndex = (currentFormIndex + 1) % len(allForms)
+			markSection(allForms, currentFormIndex)
 			app.SetFocus(allForms[currentFormIndex])
 			return nil
-		case event.Key() == tcell.KeyLeft && event.Modifiers()&tcell.ModCtrl != 0:
+		case event.Key() == tcell.KeyLeft && (event.Modifiers()&tcell.ModAlt != 0 || event.Modifiers()&tcell.ModCtrl != 0):
 			currentFormIndex = (currentFormIndex - 1 + len(allForms)) % len(allForms)
+			markSection(allForms, currentFormIndex)
 			app.SetFocus(allForms[currentFormIndex])
 			return nil
 		}

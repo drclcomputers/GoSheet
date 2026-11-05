@@ -17,14 +17,16 @@ import (
 // ShowSheetManager displays the comprehensive sheet management dialog
 func ShowSheetManager(app *tview.Application, table *tview.Table, callbacks SheetManagerCallbacks) {
 	list := tview.NewList().
-		SetSelectedBackgroundColor(tcell.ColorDarkCyan).
+		SetSelectedBackgroundColor(tcell.NewRGBColor(28, 110, 128)).
 		SetSelectedTextColor(tcell.ColorWhite).
-		SetMainTextColor(tcell.ColorWhite).
-		SetSecondaryTextColor(tcell.ColorGray).
+		SetMainTextColor(tcell.NewRGBColor(232, 236, 244)).
+		SetSecondaryTextColor(tcell.NewRGBColor(138, 160, 184)).
 		ShowSecondaryText(true)
 	list.SetBorder(true).
 		SetTitle(" Sheets ").
-		SetBorderColor(tcell.ColorLightBlue).
+		SetTitleColor(tcell.NewRGBColor(240, 208, 144)).
+		SetBorderColor(tcell.NewRGBColor(70, 160, 170)).
+		SetBackgroundColor(tcell.NewRGBColor(14, 17, 26)).
 		SetTitleAlign(tview.AlignLeft)
 
 	updateSheetList(list, callbacks)
@@ -35,8 +37,10 @@ func ShowSheetManager(app *tview.Application, table *tview.Table, callbacks Shee
 		SetWordWrap(true).
 		SetText(getWorkbookInfoText(callbacks.GetWorkbookInfo()))
 	infoPanel.SetBorder(true).
-		SetTitle(" Details ").
-		SetBorderColor(tcell.ColorLightBlue).
+		SetTitle(" This sheet ").
+		SetTitleColor(tcell.NewRGBColor(240, 208, 144)).
+		SetBorderColor(tcell.NewRGBColor(70, 160, 170)).
+		SetBackgroundColor(tcell.NewRGBColor(18, 22, 34)).
 		SetTitleAlign(tview.AlignLeft)
 
 	leftPanel := tview.NewFlex().SetDirection(tview.FlexRow).
@@ -45,12 +49,20 @@ func ShowSheetManager(app *tview.Application, table *tview.Table, callbacks Shee
 
 	mainContent := tview.NewFlex()
 
+	hint := tview.NewTextView().
+		SetDynamicColors(true).
+		SetText(" [#f0d090]Enter[-] open    [#f0d090]Alt+N[-] new    [#f0d090]Alt+R[-] rename    [#f0d090]Alt+C[-] duplicate    [#f0d090]Alt+M[-] move    [#f0d090]Alt+D[-] delete    [#f0d090]Esc[-] back")
+	hint.SetBackgroundColor(tcell.NewRGBColor(14, 17, 26))
+
 	mainLayout := tview.NewFlex().SetDirection(tview.FlexRow).
-		AddItem(mainContent, 0, 1, true)
+		AddItem(mainContent, 0, 1, true).
+		AddItem(hint, 1, 0, false)
+	mainLayout.SetBackgroundColor(tcell.NewRGBColor(10, 12, 18))
 
 	mainLayout.SetBorder(true).
-		SetTitle(" Sheet Manager ").
-		SetBorderColor(tcell.ColorYellow).
+		SetTitle(" Sheets ").
+		SetTitleColor(tcell.NewRGBColor(240, 208, 144)).
+		SetBorderColor(tcell.NewRGBColor(70, 160, 170)).
 		SetTitleAlign(tview.AlignCenter)
 
 	actionPanel := createActionPanel(app, table, callbacks, list, infoPanel)
