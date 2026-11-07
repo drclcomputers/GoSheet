@@ -56,7 +56,7 @@ func Mount(app *tview.Application, grid tview.Primitive) tview.Primitive {
 	pages.AddPage("view", formula, true, true)
 	pages.AddPage("edit", editor, true, false)
 
-	idle := " [#7dcea0]Sheet[-]    [#8aa0b8]type[-] edit    [#f0d090]F2[-] formula    [#f0d090]Enter[-] format    [#f0d090]Del[-] clear    [#f0d090]?[-] help "
+	idle := " [#7dcea0]Sheet[-]    [#f0d090]F2[-] formula    [#f0d090]Enter[-] format    [#f0d090]Del[-] clear    [#f0d090]?[-] help "
 	status := tview.NewTextView().SetDynamicColors(true).SetWrap(false)
 	status.SetBackgroundColor(tcell.NewRGBColor(14, 17, 26))
 	status.SetTextColor(tcell.NewRGBColor(210, 218, 230))
