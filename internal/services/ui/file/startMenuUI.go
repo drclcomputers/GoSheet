@@ -244,7 +244,7 @@ func fillRecent(app *tview.Application, container tview.Primitive, recentList *t
 	filenames, locations := fileop.GetRecentFileList()
 	if len(filenames) == 0 {
 		recentList.AddItem("No recent files", "", 0, nil)
-		recentList.SetSelectedTextColor(tcell.ColorGray)
+		recentList.SetSelectedTextColor(tcell.ColorWhite)
 		return
 	}
 	recentList.SetSelectedTextColor(tcell.ColorWhite)

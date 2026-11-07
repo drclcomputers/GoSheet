@@ -19,7 +19,7 @@ var (
 	Label = tcell.NewRGBColor(168, 188, 214)
 	Text  = tcell.NewRGBColor(232, 236, 244)
 	Btn   = tcell.NewRGBColor(28, 110, 128)
-	Warn  = tcell.NewRGBColor(196, 122, 92)
+	Warn  = tcell.NewRGBColor(0, 0, 0)
 	Ok    = tcell.NewRGBColor(90, 180, 140)
 )
 

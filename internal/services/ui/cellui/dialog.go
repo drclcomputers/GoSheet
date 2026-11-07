@@ -40,7 +40,6 @@ func EditCellDialog(app *tview.Application, table *tview.Table, row, column int3
 		c.Display = &emptyStr
 	}
 	if c.Type == nil {
-
 		typeStr := "string"
 		c.Type = &typeStr
 	}
@@ -58,8 +57,6 @@ func EditCellDialog(app *tview.Application, table *tview.Table, row, column int3
 
 	typeIndex := getTypeIndex(*c.Type)
 	alignIndex := getAlignIndex(c.Align)
-	colorIndex, bgColorIndex := getColorIndices(c)
-	//dateTypeFormatIndex := getDateTypeFormat(c)
 
 	financialSignDropdown, thousandsSeparatorDropdown, decimalSeparatorDropdown, dateTimeFormatDropdown, decimalPointsInput := getDropdowns(c)
 
@@ -67,7 +64,7 @@ func EditCellDialog(app *tview.Application, table *tview.Table, row, column int3
 
 	editCellDialog, leftForm := buildEditCellForm(app, table, c, oldCell, row, column,
 		financialSignDropdown, thousandsSeparatorDropdown, decimalSeparatorDropdown, decimalPointsInput,
-		dateTimeFormatDropdown, typeIndex, alignIndex, colorIndex, bgColorIndex, RecordCellEdit, EvaluateCell, RecalculateCell, globalData, globalViewport)
+		dateTimeFormatDropdown, typeIndex, alignIndex, RecordCellEdit, EvaluateCell, RecalculateCell, globalData, globalViewport)
 
 	app.SetRoot(editCellDialog, true).SetFocus(leftForm)
 }
@@ -75,8 +72,8 @@ func EditCellDialog(app *tview.Application, table *tview.Table, row, column int3
 // Form Builder
 func buildEditCellForm(app *tview.Application, table *tview.Table, c, oldCell *cell.Cell, row, column int32,
 	financialSignDropdown, thousandsSeparatorDropdown, decimalSeparatorDropdown *tview.DropDown,
-	decimalPointsInput *tview.InputField, dateTimeFormatDropdown *tview.DropDown, typeIndex, alignIndex,
-	colorIndex, bgColorIndex int, RecordCellEdit func(table *tview.Table, row, col int32, oldCell,
+	decimalPointsInput *tview.InputField, dateTimeFormatDropdown *tview.DropDown, typeIndex, alignIndex int,
+	RecordCellEdit func(table *tview.Table, row, col int32, oldCell,
 		newCell *cell.Cell), EvaluateCell func(table *tview.Table, c *cell.Cell) error,
 	RecalculateCell func(table *tview.Table, c *cell.Cell) error, globalData map[[2]int]*cell.Cell,
 	globalViewport *utils.Viewport) (*tview.Flex, *tview.Form) {
@@ -144,45 +141,79 @@ func buildEditCellForm(app *tview.Application, table *tview.Table, c, oldCell *c
 	rightForm.AddCheckbox("All Caps", c.HasFlag(cell.FlagAllCaps), func(checked bool) { c.SetFlagState(cell.FlagAllCaps, checked) })
 	rightForm.AddCheckbox("Strikethrough", c.HasFlag(cell.FlagStrikethrough), func(checked bool) { c.SetFlagState(cell.FlagStrikethrough, checked) })
 	rightForm.AddCheckbox("Editable", c.HasFlag(cell.FlagEditable), func(checked bool) { c.SetFlagState(cell.FlagEditable, checked) })
-	//rightForm.AddCheckbox("Formula", c.Formula, func(checked bool) { c.Formula = checked })
 	rightForm.AddButton("Data Validation", func() {
 		datavalidation.ShowValidationRuleDialog(app, table, container, rightForm.GetFormItem(0), globalData, globalViewport)
 	})
 	styleCellForm(rightForm, "Style")
 
-	// Color Form
-	colorForm := tview.NewForm()
+		// Colors panel — two stacked buttons
+	var setTextColorBtn, setBgColorBtn *tview.Button
+	setTextColorBtn = tview.NewButton("Set Text Color").
+		SetSelectedFunc(func() {
+			showCustomColorPicker(app, container, c, true, setTextColorBtn)
+		})
+	setBgColorBtn = tview.NewButton("Set Background Color").
+		SetSelectedFunc(func() {
+			showCustomColorPicker(app, container, c, false, setBgColorBtn)
+		})
 
-	colorForm.AddDropDown("Text", utils.ColorOptionNames, colorIndex, func(option string, index int) {
-		if option == "Custom..." {
-			showCustomColorPicker(app, container, c, true, colorForm)
-			return
-		}
-		c.Color = utils.ColorOptions[option]
-	})
-	colorForm.AddButton("Custom text color", func() {
-		showCustomColorPicker(app, container, c, true, colorForm)
-	})
+	for _, b := range []*tview.Button{setTextColorBtn, setBgColorBtn} {
+		b.SetBackgroundColor(btn)
+		b.SetLabelColor(tcell.ColorWhite)
+		b.SetBackgroundColorActivated(amber)
+		b.SetLabelColorActivated(ink)
+	}
 
-	colorForm.AddDropDown("Background", utils.ColorOptionNames, bgColorIndex, func(option string, index int) {
-		if option == "Custom..." {
-			showCustomColorPicker(app, container, c, false, colorForm)
-			return
+	// Tab / arrow cycles between the two buttons (wrap). Alt+arrows are
+	// handled at the container level for section navigation.
+	toggle := func(other *tview.Button) func(*tcell.EventKey) *tcell.EventKey {
+		return func(event *tcell.EventKey) *tcell.EventKey {
+			switch event.Key() {
+			case tcell.KeyTab, tcell.KeyBacktab, tcell.KeyDown, tcell.KeyUp:
+				app.SetFocus(other)
+				return nil
+			}
+			return event
 		}
-		c.BgColor = utils.ColorOptions[option]
-	})
-	colorForm.AddButton("Custom background", func() {
-		showCustomColorPicker(app, container, c, false, colorForm)
-	})
-	styleCellForm(colorForm, "Colors")
+	}
+	setTextColorBtn.SetInputCapture(toggle(setBgColorBtn))
+	setBgColorBtn.SetInputCapture(toggle(setTextColorBtn))
+
+	spacer := func() tview.Primitive {
+		return tview.NewBox().SetBackgroundColor(panel)
+	}
+
+	textBtnRow := tview.NewFlex().
+		AddItem(spacer(), 2, 0, false).
+		AddItem(setTextColorBtn, 0, 1, true).
+		AddItem(spacer(), 2, 0, false)
+
+	bgBtnRow := tview.NewFlex().
+		AddItem(spacer(), 2, 0, false).
+		AddItem(setBgColorBtn, 0, 1, true).
+		AddItem(spacer(), 2, 0, false)
+
+	colorPanel := tview.NewFlex().SetDirection(tview.FlexRow).
+		AddItem(spacer(), 1, 0, false).
+		AddItem(textBtnRow, 3, 0, true).
+		AddItem(spacer(), 1, 0, false).
+		AddItem(bgBtnRow, 3, 0, true).
+		AddItem(spacer(), 1, 0, false)
+
+	colorPanel.SetBorder(true).
+		SetTitle(" Colors ").
+		SetTitleAlign(tview.AlignLeft).
+		SetTitleColor(amber).
+		SetBorderColor(line).
+		SetBackgroundColor(panel)
 
 	leftColumn := tview.NewFlex().SetDirection(tview.FlexRow).
 		AddItem(leftForm, 0, 1, false).
 		AddItem(formatForm, 0, 1, false)
 
 	rightColumn := tview.NewFlex().SetDirection(tview.FlexRow).
-		AddItem(rightForm, 0, 3, false).
-		AddItem(colorForm, 0, 2, false)
+		AddItem(rightForm, 0, 1, false).
+		AddItem(colorPanel, 11, 0, false)
 
 	columns := tview.NewFlex().
 		AddItem(leftColumn, 0, 1, false).
@@ -207,18 +238,19 @@ func buildEditCellForm(app *tview.Application, table *tview.Table, c, oldCell *c
 		SetTitleColor(tcell.NewRGBColor(240, 208, 144)).
 		SetBorderColor(tcell.NewRGBColor(70, 160, 170))
 
-	allForms := []*tview.Form{leftForm, formatForm, rightForm, colorForm}
+	// Mixed *tview.Form and *tview.Flex — both expose SetBorderColor.
+	allSections := []tview.Primitive{leftForm, formatForm, rightForm, colorPanel}
 	currentFormIndex := 0
-	markSection(allForms, 0)
+	markSection(allSections, 0)
 	var chords utils.AltChord
 
 	app.SetFocus(leftForm)
 
 	moveSection := func(dir int) {
-		n := len(allForms)
+		n := len(allSections)
 		currentFormIndex = (currentFormIndex + dir + n) % n
-		markSection(allForms, currentFormIndex)
-		app.SetFocus(allForms[currentFormIndex])
+		markSection(allSections, currentFormIndex)
+		app.SetFocus(allSections[currentFormIndex])
 	}
 
 	container.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {

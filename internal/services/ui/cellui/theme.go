@@ -31,12 +31,17 @@ func styleCellForm(f *tview.Form, title string) {
 	f.SetButtonActivatedStyle(tcell.StyleDefault.Background(amber).Foreground(ink))
 }
 
-func markSection(forms []*tview.Form, active int) {
-	for i, f := range forms {
+func markSection(items []tview.Primitive, active int) {
+	type borderSettable interface {
+		SetBorderColor(tcell.Color) *tview.Box
+	}
+	for i, item := range items {
+		color := line
 		if i == active {
-			f.SetBorderColor(amber)
-			continue
+			color = amber
 		}
-		f.SetBorderColor(line)
+		if bs, ok := item.(borderSettable); ok {
+			bs.SetBorderColor(color)
+		}
 	}
 }
