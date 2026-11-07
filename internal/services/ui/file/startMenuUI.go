@@ -25,24 +25,29 @@ const newSheetButtonLabel = `
 ├──┼──┼──┼──┼──┤
 ├──┼──┼──┼──┼──┤
 ├──┼──┼──┼──┼──┤
+├──┼──┼──┼──┼──┤
 └──┴──┴──┴──┴──┘
 NEW WORKBOOK
 `
 
 const openFileButtonLabel = `
-╔═══════════╗
-║           ║
-║   OPEN    ║
-║           ║
-╚═══════════╝
+┌────────────┐
+│ ▄▄▄        │
+│ ┌────────┐ │
+│ │ ────── │ │
+│ └────────┘ │
+└────────────┘
+OPEN
 `
 
 const optionsButtonLabel = `
-╔═══════════╗
-║           ║
-║  OPTIONS  ║
-║           ║
-╚═══════════╝
+┌─────────────┐
+│ ──●──────── │
+│ ────────●── │
+│ ───●─────── │
+│ ────────●── │
+└─────────────┘
+OPTIONS
 `
 
 var selectedFile string = ""
@@ -121,9 +126,9 @@ func StartMenuUI(app *tview.Application) string {
 
 	leftPanel.
 		AddItem(title, 0, 1, false).
-		AddItem(newSheetBtn, 0, 2, true).
-		AddItem(openFileBtn, 0, 2, true).
-		AddItem(optionsBtn, 0, 2, true)
+		AddItem(newSheetBtn, 0, 3, true).
+		AddItem(openFileBtn, 0, 3, true).
+		AddItem(optionsBtn, 0, 3, true)
 
 	rightPanel := tview.NewFlex().SetDirection(tview.FlexRow)
 
