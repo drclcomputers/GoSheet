@@ -96,13 +96,12 @@ func main() {
 		}
 	}
 
-	if t != nil {
-		t.Select(1, 1)
-	} else {
+	if t == nil {
 		return
 	}
 
 	sheetview.Mount(app, t)
+	t.Select(1, 1)
 	sheetview.Show(app)
 
 	if err := app.Run(); err != nil {
