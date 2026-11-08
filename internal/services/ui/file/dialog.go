@@ -90,7 +90,7 @@ func ShowUnifiedFileDialog(app *tview.Application, returnTo tview.Primitive, mod
 	updateList = func(path string) {
 		fileList.Clear()
 		currentPath = path
-		pathLabel.SetText(fmt.Sprintf("[yellow]Location:[::-] %s", utils.PrettyPath(path, "no")))
+		pathLabel.SetText(fmt.Sprintf("[#f0d090]Location:[::-] %s", utils.PrettyPath(path, "no")))
 
 		if path != filepath.Dir(path) {
 			fileList.AddItem("..", "Parent directory", '↑', func() {
