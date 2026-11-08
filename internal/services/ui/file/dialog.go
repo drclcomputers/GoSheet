@@ -29,11 +29,15 @@ func ShowUnifiedFileDialog(app *tview.Application, returnTo tview.Primitive, mod
 		docsPath = homeDir
 	}
 
-	currentPath := docsPath
-	if mode == "save" {
+	currentPath, err := os.Getwd()
+	if err != nil {
+		ShowErrorModal(app, returnTo, fmt.Sprintf("Cannot determine current directory: %s", err))
+		return
+	}
+	if mode == "save" && currentFilename != "" {
 		currentPath = filepath.Dir(currentFilename)
 	}
-	currentPath, err := filepath.Abs(currentPath)
+	currentPath, err = filepath.Abs(currentPath)
 	if err != nil {
 		ShowErrorModal(app, returnTo, fmt.Sprintf("Cannot resolve current directory: %s", err))
 		return
