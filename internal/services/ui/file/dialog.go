@@ -33,6 +33,11 @@ func ShowUnifiedFileDialog(app *tview.Application, returnTo tview.Primitive, mod
 	if mode == "save" {
 		currentPath = filepath.Dir(currentFilename)
 	}
+	currentPath, err := filepath.Abs(currentPath)
+	if err != nil {
+		ShowErrorModal(app, returnTo, fmt.Sprintf("Cannot resolve current directory: %s", err))
+		return
+	}
 	var selectedFormat = saveFormatIndex(currentFilename)
 
 	quickAccessList := tview.NewList()
@@ -118,10 +123,8 @@ func ShowUnifiedFileDialog(app *tview.Application, returnTo tview.Primitive, mod
 				name := entry.Name()
 				ext := strings.ToLower(filepath.Ext(name))
 
-				if mode == "open" {
-					if ext != ".gsheet" && ext != ".json" && ext != ".txt" && ext != ".xlsx" {
-						continue
-					}
+				if !isSupportedSpreadsheetFile(ext) {
+					continue
 				}
 
 				//fullPath := filepath.Join(path, name)
@@ -352,8 +355,8 @@ func ShowUnifiedFileDialog(app *tview.Application, returnTo tview.Primitive, mod
 			}
 
 			ext := strings.ToLower(filepath.Ext(filename))
-			if ext != ".gsheet" && ext != ".json" && ext != ".txt" && ext != ".xlsx" {
-				ShowErrorModal(app, returnTo, fmt.Sprintf("Unsupported file format: %s\n\nSupported: .gsheet, .json, .txt, .xlsx", ext))
+			if !isSupportedSpreadsheetFile(ext) {
+				ShowErrorModal(app, returnTo, fmt.Sprintf("Unsupported file format: %s\n\nSupported: .gsheet, .json, .csv, .txt, .xlsx", ext))
 				return
 			}
 
@@ -387,11 +390,7 @@ func ShowUnifiedFileDialog(app *tview.Application, returnTo tview.Primitive, mod
 		}
 	})
 
-	if mode == "save" {
-		uitheme.StyleForm(form, "Options")
-	} else {
-		uitheme.StyleForm(form, "Open file")
-	}
+	uitheme.StyleForm(form, "File")
 
 	// Layout
 	leftSection := tview.NewFlex().SetDirection(tview.FlexRow).
@@ -444,4 +443,13 @@ func ShowUnifiedFileDialog(app *tview.Application, returnTo tview.Primitive, mod
 	})
 
 	app.SetRoot(container, true).SetFocus(form)
+}
+
+func isSupportedSpreadsheetFile(extension string) bool {
+	switch strings.ToLower(extension) {
+	case ".gsheet", ".json", ".csv", ".txt", ".xlsx":
+		return true
+	default:
+		return false
+	}
 }
