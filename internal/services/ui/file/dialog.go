@@ -270,16 +270,19 @@ func ShowUnifiedFileDialog(app *tview.Application, returnTo tview.Primitive, mod
 			}
 
 			if fileExists(filename) {
-				showOverwriteConfirmation(app, table, filename, selectedFormat, false, globalData)
+				showOverwriteConfirmation(app, table, filename, selectedFormat, false, func() {
+					SetCurrentFilename(table, filename)
+					MarkAsSaved(table)
+				}, globalData)
 			} else {
-				performSave(app, table, filename, selectedFormat, false, globalData)
+				performSave(app, table, filename, selectedFormat, false, func() {
+					SetCurrentFilename(table, filename)
+					MarkAsSaved(table)
+				}, globalData)
 			}
-
-			SetCurrentFilename(table, filename)
-			MarkAsSaved(table)
 		})
 
-		form.AddButton("Save & Exit", func() {
+		form.AddButton("Save As", func() {
 			filename := strings.TrimSpace(filenameInput.GetText())
 			if filename == "" {
 				ShowErrorModal(app, returnTo, "Filename cannot be empty!")
@@ -311,9 +314,15 @@ func ShowUnifiedFileDialog(app *tview.Application, returnTo tview.Primitive, mod
 			}
 
 			if fileExists(filename) {
-				showOverwriteConfirmation(app, table, filename, selectedFormat, true, globalData)
+				showOverwriteConfirmation(app, table, filename, selectedFormat, false, func() {
+					SetCurrentFilename(table, filename)
+					MarkAsSaved(table)
+				}, globalData)
 			} else {
-				performSave(app, table, filename, selectedFormat, true, globalData)
+				performSave(app, table, filename, selectedFormat, false, func() {
+					SetCurrentFilename(table, filename)
+					MarkAsSaved(table)
+				}, globalData)
 			}
 		})
 	} else {
