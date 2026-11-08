@@ -126,7 +126,7 @@ func StartMenuUI(app *tview.Application) string {
 
 	leftPanel.
 		AddItem(title, 0, 1, false).
-		AddItem(newSheetBtn, 0, 3, true).
+		AddItem(newSheetBtn, 0, 4, true).
 		AddItem(openFileBtn, 0, 3, true).
 		AddItem(optionsBtn, 0, 3, true)
 
@@ -146,7 +146,6 @@ func StartMenuUI(app *tview.Application) string {
 	recentList.SetBorder(true).SetBorderColor(tcell.NewRGBColor(70, 160, 170))
 	recentList.SetSelectedBackgroundColor(tcell.NewRGBColor(28, 110, 128))
 	recentList.SetSelectedTextColor(tcell.ColorWhite)
-	recentList.SetBackgroundColor(tcell.NewRGBColor(14, 17, 26))
 
 	rightPanel.
 		AddItem(recentTitle, 3, 0, false).
@@ -157,7 +156,7 @@ func StartMenuUI(app *tview.Application) string {
 		AddItem(rightPanel, 0, 3, false)
 
 	container.SetBorder(true).
-		SetTitle(" GoSheet  ·  arrows or tab to move  ·  Enter to choose  ·  Esc quits ").
+		SetTitle(" GoSheet  ·  arrows or tab to move  ·  Enter to choose  ·  Esc/Q quits ").
 		SetTitleColor(tcell.NewRGBColor(240, 208, 144)).
 		SetBorderColor(tcell.NewRGBColor(70, 160, 170)).
 		SetBackgroundColor(tcell.NewRGBColor(10, 12, 18))
