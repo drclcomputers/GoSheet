@@ -20,35 +20,29 @@ import (
 	"github.com/rivo/tview"
 )
 
-const newSheetButtonLabel = `
-┌──┬──┬──┬──┬──┐
+const newSheetButtonLabel = `┌──┬──┬──┬──┬──┐
 ├──┼──┼──┼──┼──┤
 ├──┼──┼──┼──┼──┤
 ├──┼──┼──┼──┼──┤
 ├──┼──┼──┼──┼──┤
 └──┴──┴──┴──┴──┘
-NEW WORKBOOK
-`
+NEW WORKBOOK`
 
-const openFileButtonLabel = `
-┌────────────┐
+const openFileButtonLabel = `┌────────────┐
 │ ▄▄▄        │
 │ ┌────────┐ │
 │ │ ────── │ │
 │ └────────┘ │
 └────────────┘
-OPEN
-`
+OPEN`
 
-const optionsButtonLabel = `
-┌─────────────┐
+const optionsButtonLabel = `┌─────────────┐
 │ ──●──────── │
 │ ────────●── │
 │ ───●─────── │
 │ ────────●── │
 └─────────────┘
-OPTIONS
-`
+OPTIONS`
 
 var selectedFile string = ""
 
@@ -126,7 +120,7 @@ func StartMenuUI(app *tview.Application) string {
 
 	leftPanel.
 		AddItem(title, 0, 1, false).
-		AddItem(newSheetBtn, 0, 4, true).
+		AddItem(newSheetBtn, 0, 3, true).
 		AddItem(openFileBtn, 0, 3, true).
 		AddItem(optionsBtn, 0, 3, true)
 
