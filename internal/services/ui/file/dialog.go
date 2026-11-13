@@ -53,7 +53,7 @@ func ShowUnifiedFileDialog(app *tview.Application, returnTo tview.Primitive, mod
 	pathLabel := tview.NewTextView().
 		SetDynamicColors(true).
 		SetTextColor(uitheme.Text).
-		SetText(fmt.Sprintf("[#f0d090]Location[-]  %s", utils.PrettyPath(filepath.Dir(currentPath), "no")))
+		SetText(fmt.Sprintf(uitheme.Markup("{val}Location{end}  %s"), utils.PrettyPath(filepath.Dir(currentPath), "no")))
 	uitheme.Paint(pathLabel, "")
 
 	form := tview.NewForm()
@@ -99,7 +99,7 @@ func ShowUnifiedFileDialog(app *tview.Application, returnTo tview.Primitive, mod
 	updateList = func(path string) {
 		fileList.Clear()
 		currentPath = path
-		pathLabel.SetText(fmt.Sprintf("[#f0d090]Location:[::-] %s", utils.PrettyPath(path, "no")))
+		pathLabel.SetText(fmt.Sprintf(uitheme.Markup("{val}Location:{end} %s"), utils.PrettyPath(path, "no")))
 
 		if path != filepath.Dir(path) {
 			fileList.AddItem("..", "Parent directory", '↑', func() {
@@ -410,22 +410,22 @@ func ShowUnifiedFileDialog(app *tview.Application, returnTo tview.Primitive, mod
 		AddItem(fileList, 0, 1, false)
 
 	instructions := tview.NewTextView().
-		SetText(" [#f0d090]Alt+Shift+←/→[-] panels    [#f0d090]Enter[-] select    [#f0d090]Tab[-] buttons    [#f0d090]Esc[-] back").
+		SetText(uitheme.Markup(" {val}Alt+Shift+←/→{end} panels    {val}Enter{end} select    {val}Tab{end} buttons    {val}Esc{end} back")).
 		SetDynamicColors(true).
-		SetTextAlign(tview.AlignCenter)
+		SetTextAlign(tview.AlignCenter).
+		SetTextColor(uitheme.Text)
 
 	container := tview.NewFlex().SetDirection(tview.FlexRow).
 		AddItem(mainLayout, 0, 1, true).
 		AddItem(instructions, 1, 0, false)
 
-	container.SetBorder(true).
-		SetBorderColor(tcell.NewRGBColor(70, 160, 170)).
-		SetTitleColor(tcell.NewRGBColor(240, 208, 144))
 	if mode == "save" {
-		container.SetTitle(" Save Spreadsheet ")
+		uitheme.Paint(container, "Save Spreadsheet")
 	} else {
-		container.SetTitle(" Open Spreadsheet ")
+		uitheme.Paint(container, "Open Spreadsheet")
 	}
+	instructions.SetBackgroundColor(uitheme.Panel)
+	mainLayout.SetBackgroundColor(uitheme.Panel)
 
 	focusables := []tview.Primitive{quickAccessList, fileList, form}
 	currentFocus := 2

@@ -61,21 +61,18 @@ func StartMenuUI(app *tview.Application) string {
 	leftPanel := tview.NewFlex().SetDirection(tview.FlexRow)
 
 	title := tview.NewTextView().
-		SetText(fmt.Sprintf("[::b]GoSheet[::-] [yellow]v%s[::-]", utils.VER)).
+		SetText(uitheme.Markup(fmt.Sprintf("[::b]GoSheet[::-] {version}v%s{end}", utils.VER))).
 		SetTextAlign(tview.AlignCenter).
 		SetDynamicColors(true)
-	title.SetBorder(true).
-		SetTitleColor(tcell.NewRGBColor(240, 208, 144)).
-		SetBorderColor(tcell.NewRGBColor(70, 160, 170)).
-		SetBackgroundColor(tcell.NewRGBColor(14, 17, 26))
+	uitheme.Paint(title, "")
+	title.SetBackgroundColor(uitheme.Panel)
 
 	newSheetBtn := tview.NewTextView().
 		SetText(newSheetButtonLabel).
 		SetTextAlign(tview.AlignCenter).
-		SetTextColor(tcell.ColorLightGreen)
-	newSheetBtn.SetBorder(true).
-		SetBorderColor(tcell.NewRGBColor(90, 180, 140)).
-		SetBackgroundColor(tcell.NewRGBColor(16, 28, 26))
+		SetTextColor(uitheme.Mint)
+	uitheme.Paint(newSheetBtn, "")
+	newSheetBtn.SetBorderColor(uitheme.Ok).SetBackgroundColor(uitheme.Panel)
 	newSheetBtn.SetScrollable(false)
 
 	newSheetBtn.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
@@ -88,10 +85,9 @@ func StartMenuUI(app *tview.Application) string {
 	openFileBtn := tview.NewTextView().
 		SetText(openFileButtonLabel).
 		SetTextAlign(tview.AlignCenter).
-		SetTextColor(tcell.NewRGBColor(168, 212, 220))
-	openFileBtn.SetBorder(true).
-		SetBorderColor(tcell.NewRGBColor(70, 160, 170)).
-		SetBackgroundColor(tcell.NewRGBColor(14, 22, 32))
+		SetTextColor(uitheme.Sky)
+	uitheme.Paint(openFileBtn, "")
+	openFileBtn.SetBackgroundColor(uitheme.Panel)
 	openFileBtn.SetScrollable(false)
 
 	openFileBtn.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
@@ -104,10 +100,9 @@ func StartMenuUI(app *tview.Application) string {
 	optionsBtn := tview.NewTextView().
 		SetText(optionsButtonLabel).
 		SetTextAlign(tview.AlignCenter).
-		SetTextColor(tcell.NewRGBColor(240, 208, 144))
-	optionsBtn.SetBorder(true).
-		SetBorderColor(tcell.NewRGBColor(160, 130, 70)).
-		SetBackgroundColor(tcell.NewRGBColor(28, 24, 16))
+		SetTextColor(uitheme.Amber)
+	uitheme.Paint(optionsBtn, "")
+	optionsBtn.SetBorderColor(uitheme.AmberDim).SetBackgroundColor(uitheme.Panel)
 	optionsBtn.SetScrollable(false)
 
 	var recentList *tview.List
@@ -130,16 +125,12 @@ func StartMenuUI(app *tview.Application) string {
 		SetText("[::b]Recent Files[::-]").
 		SetTextAlign(tview.AlignCenter).
 		SetDynamicColors(true)
-	recentTitle.SetBorder(true).
-		SetBorderColor(tcell.NewRGBColor(70, 160, 170)).
-		SetBackgroundColor(tcell.NewRGBColor(14, 17, 26))
+	uitheme.Paint(recentTitle, "")
+	recentTitle.SetBackgroundColor(uitheme.Panel)
 
 	recentList = tview.NewList()
+	uitheme.StyleList(recentList, "")
 	fillRecent(app, container, recentList)
-
-	recentList.SetBorder(true).SetBorderColor(tcell.NewRGBColor(70, 160, 170))
-	recentList.SetSelectedBackgroundColor(tcell.NewRGBColor(28, 110, 128))
-	recentList.SetSelectedTextColor(tcell.ColorWhite)
 
 	rightPanel.
 		AddItem(recentTitle, 3, 0, false).
@@ -149,11 +140,9 @@ func StartMenuUI(app *tview.Application) string {
 		AddItem(leftPanel, 0, 1, true).
 		AddItem(rightPanel, 0, 3, false)
 
-	container.SetBorder(true).
-		SetTitle(" GoSheet  ·  arrows or tab to move  ·  Enter to choose  ·  Esc/Q quits ").
-		SetTitleColor(tcell.NewRGBColor(240, 208, 144)).
-		SetBorderColor(tcell.NewRGBColor(70, 160, 170)).
-		SetBackgroundColor(tcell.NewRGBColor(10, 12, 18))
+	uitheme.Paint(container, "GoSheet  ·  arrows or tab to move  ·  Enter to choose  ·  Esc/Q quits")
+	leftPanel.SetBackgroundColor(uitheme.Panel)
+	rightPanel.SetBackgroundColor(uitheme.Panel)
 
 	leftItems := []tview.Primitive{newSheetBtn, openFileBtn, optionsBtn}
 	currentLeftItem := 0
@@ -237,10 +226,8 @@ func fillRecent(app *tview.Application, container tview.Primitive, recentList *t
 	filenames, locations := fileop.GetRecentFileList()
 	if len(filenames) == 0 {
 		recentList.AddItem("No recent files", "", 0, nil)
-		recentList.SetSelectedTextColor(tcell.ColorWhite)
 		return
 	}
-	recentList.SetSelectedTextColor(tcell.ColorWhite)
 	for i, filename := range filenames {
 		loc := locations[i]
 		info, _ := os.Stat(loc)

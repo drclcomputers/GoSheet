@@ -13,25 +13,11 @@ import (
 	"gosheet/internal/services/uitheme"
 	"strings"
 
-	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 )
 
 func styleManagerForm(f *tview.Form, title string) {
-	f.SetBorder(true).
-		SetTitle(" " + title + " ").
-		SetTitleAlign(tview.AlignCenter).
-		SetTitleColor(tcell.NewRGBColor(240, 208, 144)).
-		SetBorderColor(tcell.NewRGBColor(70, 160, 170)).
-		SetBackgroundColor(tcell.NewRGBColor(18, 22, 34))
-	f.SetLabelColor(tcell.NewRGBColor(168, 188, 214))
-	f.SetFieldBackgroundColor(tcell.NewRGBColor(12, 14, 22))
-	f.SetFieldTextColor(tcell.NewRGBColor(232, 236, 244))
-	f.SetButtonBackgroundColor(tcell.NewRGBColor(28, 110, 128))
-	f.SetButtonTextColor(tcell.ColorWhite)
-	f.SetButtonActivatedStyle(tcell.StyleDefault.
-		Background(tcell.NewRGBColor(240, 208, 144)).
-		Foreground(tcell.NewRGBColor(14, 17, 26)))
+	uitheme.StyleForm(f, title)
 }
 
 // showAddSheetDialog shows enhanced dialog to add a new sheet
@@ -48,8 +34,8 @@ func showAddSheetDialog(app *tview.Application,
 		SetLabel("Sheet Name: ").
 		SetText(defaultName).
 		SetFieldWidth(30).
-		SetFieldBackgroundColor(tcell.NewRGBColor(12, 14, 22)).
-		SetFieldTextColor(tcell.NewRGBColor(232, 236, 244))
+		SetFieldBackgroundColor(uitheme.Field).
+		SetFieldTextColor(uitheme.Text)
 
 	form.AddFormItem(nameInput).
 		AddButton("Create", func() {
@@ -98,8 +84,8 @@ func showRenameSheetFromManager(app *tview.Application,
 		SetLabel(" New Name: ").
 		SetText(sheet.Name).
 		SetFieldWidth(30).
-		SetFieldBackgroundColor(tcell.NewRGBColor(12, 14, 22)).
-		SetFieldTextColor(tcell.NewRGBColor(232, 236, 244))
+		SetFieldBackgroundColor(uitheme.Field).
+		SetFieldTextColor(uitheme.Text)
 
 	form.AddFormItem(nameInput).
 		AddButton("Rename", func() {

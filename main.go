@@ -14,6 +14,7 @@ import (
 	"gosheet/internal/services/sheetview"
 	"gosheet/internal/services/table"
 	"gosheet/internal/services/ui/file"
+	"gosheet/internal/services/uitheme"
 	"gosheet/internal/utils"
 	"log"
 	"os"
@@ -53,6 +54,7 @@ func main() {
 				SetDoneFunc(func(buttonIndex int, buttonLabel string) {
 					app.Stop()
 				})
+			uitheme.StyleModalWarn(modal, "Exit")
 			app.SetRoot(modal, true).SetFocus(modal)
 			return nil
 		}

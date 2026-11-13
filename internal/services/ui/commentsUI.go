@@ -41,7 +41,7 @@ func ShowCommentDialog(app *tview.Application, table *tview.Table, globalData ma
 
 	form := tview.NewForm()
 
-	form.AddTextArea("Comment:", *cellData.Notes, 0, 0, 500, func(text string) {
+	form.AddTextArea("Comment:", *cellData.Notes, 58, 7, 500, func(text string) {
 	})
 
 	textAreaItem := form.GetFormItem(0).(*tview.TextArea)
@@ -74,7 +74,7 @@ func ShowCommentDialog(app *tview.Application, table *tview.Table, globalData ma
 		return event
 	})
 
-	app.SetRoot(form, true).SetFocus(form)
+	app.SetRoot(uitheme.CenteredModal(form, 76, 14), true).SetFocus(form)
 }
 
 func saveComment(app *tview.Application, table *tview.Table, form *tview.Form, cellData *cell.Cell, row, col int32, globalData map[[2]int]*cell.Cell, globalViewport *utils.Viewport) {

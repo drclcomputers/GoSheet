@@ -86,12 +86,14 @@ func FindDialog(app *tview.Application, table *tview.Table, globalData map[[2]in
 		return event
 	})
 
-	app.SetRoot(form, true).SetFocus(form)
+	dialog := uitheme.CenteredModal(form, 64, 12)
+	app.SetRoot(dialog, true).SetFocus(form)
 }
 
 // Replace functions
 func ReplaceDialog(app *tview.Application, table *tview.Table, globalData map[[2]int]*cell.Cell, globalViewport *utils.Viewport, RenderVisible func(table *tview.Table, globalViewport *utils.Viewport, globalData map[[2]int]*cell.Cell)) {
 	form := tview.NewForm()
+	var dialog *tview.Flex
 	form.AddInputField("Find:", "", 40, nil, nil)
 	form.AddInputField("Replace with:", "", 40, nil, nil)
 
@@ -179,7 +181,7 @@ func ReplaceDialog(app *tview.Application, table *tview.Table, globalData map[[2
 					count := replaceAll(table, findTerm, replaceTerm, caseSensitive, matchWholeWord, globalData, globalViewport, RenderVisible)
 					ShowWarningModal(app, table, fmt.Sprintf("Replaced %d occurrence(s)", count))
 				} else {
-					app.SetRoot(form, true).SetFocus(form)
+					app.SetRoot(dialog, true).SetFocus(form)
 				}
 			})
 		uitheme.StyleModal(modal, "Replace all")
@@ -199,5 +201,6 @@ func ReplaceDialog(app *tview.Application, table *tview.Table, globalData map[[2
 		return event
 	})
 
-	app.SetRoot(form, true).SetFocus(form)
+	dialog = uitheme.CenteredModal(form, 76, 14)
+	app.SetRoot(dialog, true).SetFocus(form)
 }

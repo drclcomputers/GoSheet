@@ -146,7 +146,7 @@ func ShowValidationRuleDialog(app *tview.Application, table *tview.Table, return
 		currentFormItemsInDynamic = nil
 		preset := presets[presetIdx]
 
-		previewText.SetText(fmt.Sprintf("[yellow]%s[white]\n\n%s\n\n[gray]Empty cells are always allowed, validation only applies when entering a value.[-]",
+		previewText.SetText(fmt.Sprintf(uitheme.Markup("{val}%s{plain}\n\n%s\n\n{muted}Empty cells are always allowed, validation only applies when entering a value.{end}"),
 			preset.Name, preset.Description))
 
 		if preset.Name == "Custom" {
@@ -214,10 +214,10 @@ func ShowValidationRuleDialog(app *tview.Application, table *tview.Table, return
 
 					if allFilled {
 						rule := preset.BuildRule(params)
-						previewText.SetText(fmt.Sprintf("[yellow]%s[white]\n\n%s\n\n[green]Generated Rule:[white]\n%s\n\n[gray]Empty cells are always allowed.[-]",
+						previewText.SetText(fmt.Sprintf(uitheme.Markup("{val}%s{plain}\n\n%s\n\n{ok}Generated Rule:{plain}\n%s\n\n{muted}Empty cells are always allowed.{end}"),
 							preset.Name, preset.Description, rule))
 					} else {
-						previewText.SetText(fmt.Sprintf("[yellow]%s[white]\n\n%s\n\n[gray]Fill in all fields to see the generated rule.\nEmpty cells are always allowed.[-]",
+						previewText.SetText(fmt.Sprintf(uitheme.Markup("{val}%s{plain}\n\n%s\n\n{muted}Fill in all fields to see the generated rule.\nEmpty cells are always allowed.{end}"),
 							preset.Name, preset.Description))
 					}
 					_ = idx
@@ -226,7 +226,7 @@ func ShowValidationRuleDialog(app *tview.Application, table *tview.Table, return
 
 			if detectedParams != nil && detectedPresetIdx == presetIdx && len(preset.Fields) > 0 {
 				rule := preset.BuildRule(detectedParams)
-				previewText.SetText(fmt.Sprintf("[yellow]%s[white]\n\n%s\n\n[green]Current Rule:[white]\n%s\n\n[gray]Empty cells are always allowed.[-]",
+				previewText.SetText(fmt.Sprintf(uitheme.Markup("{val}%s{plain}\n\n%s\n\n{ok}Current Rule:{plain}\n%s\n\n{muted}Empty cells are always allowed.{end}"),
 					preset.Name, preset.Description, rule))
 			}
 		}

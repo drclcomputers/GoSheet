@@ -12,6 +12,7 @@ import (
 	"gosheet/internal/services/cell"
 	"gosheet/internal/services/sheetview"
 	"gosheet/internal/services/ui/cellui"
+	"gosheet/internal/services/uitheme"
 	"gosheet/internal/utils"
 
 	"github.com/gdamore/tcell/v2"
@@ -24,10 +25,10 @@ var isSelecting bool
 var lastHeadRow, lastHeadCol int
 
 var (
-	headerBG = tcell.NewRGBColor(32, 40, 58)
-	headerFG = tcell.NewRGBColor(168, 188, 214)
-	selectBG = tcell.NewRGBColor(28, 110, 128)
-	sheetBG  = tcell.NewRGBColor(12, 14, 22)
+	headerBG = uitheme.Header
+	headerFG = uitheme.Label
+	selectBG = uitheme.Btn
+	sheetBG  = uitheme.Field
 )
 
 func resetHeaderTrack() {

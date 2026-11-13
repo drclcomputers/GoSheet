@@ -86,5 +86,5 @@ func GoToCellModal(app *tview.Application, table *tview.Table, globalData map[[2
 		return event
 	})
 
-	app.SetRoot(form, true).SetFocus(form)
+	app.SetRoot(uitheme.CenteredModal(form, 54, 7), true).SetFocus(form)
 }

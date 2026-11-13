@@ -9,6 +9,7 @@ package sheetmanager
 
 import (
 	"gosheet/internal/services/sheetview"
+	"gosheet/internal/services/uitheme"
 
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
@@ -19,34 +20,25 @@ func createActionPanel(app *tview.Application, table *tview.Table,
 	callbacks SheetManagerCallbacks, list *tview.List, infoPanel *tview.TextView) *tview.Flex {
 
 	actionPanel := tview.NewFlex().SetDirection(tview.FlexRow)
-	actionPanel.SetBorder(true).
-		SetTitle(" Do ").
-		SetTitleColor(tcell.NewRGBColor(240, 208, 144)).
-		SetBorderColor(tcell.NewRGBColor(70, 160, 170)).
-		SetBackgroundColor(tcell.NewRGBColor(18, 22, 34)).
-		SetTitleAlign(tview.AlignLeft)
-
-	line := tcell.NewRGBColor(70, 160, 170)
-	amber := tcell.NewRGBColor(240, 208, 144)
-	ink := tcell.NewRGBColor(14, 17, 26)
-	muted := tcell.NewRGBColor(168, 188, 214)
+	uitheme.Paint(actionPanel, "Do")
+	actionPanel.SetTitleAlign(tview.AlignLeft)
 
 	createActionBtn := func(label, shortcut, description string, action func()) *tview.Box {
 		btn := tview.NewBox().
 			SetBorder(true).
-			SetBorderColor(line).
-			SetBackgroundColor(ink)
+			SetBorderColor(uitheme.Line).
+			SetBackgroundColor(uitheme.Ink)
 
 		btn.SetDrawFunc(func(screen tcell.Screen, x, y, width, height int) (int, int, int, int) {
-			tview.Print(screen, " "+label, x+1, y+1, width-len(shortcut)-4, tview.AlignLeft, tcell.NewRGBColor(232, 236, 244))
-			tview.Print(screen, shortcut, x+width-len(shortcut)-2, y+1, len(shortcut), tview.AlignRight, amber)
+			tview.Print(screen, " "+label, x+1, y+1, width-len(shortcut)-4, tview.AlignLeft, uitheme.Text)
+			tview.Print(screen, shortcut, x+width-len(shortcut)-2, y+1, len(shortcut), tview.AlignRight, uitheme.Amber)
 			if description != "" && height > 3 {
-				tview.Print(screen, " "+description, x+1, y+2, width-2, tview.AlignLeft, muted)
+				tview.Print(screen, " "+description, x+1, y+2, width-2, tview.AlignLeft, uitheme.Label)
 			}
 			return x + 1, y + 3, width - 2, height - 3
 		})
-		btn.SetFocusFunc(func() { btn.SetBorderColor(amber) })
-		btn.SetBlurFunc(func() { btn.SetBorderColor(line) })
+		btn.SetFocusFunc(func() { btn.SetBorderColor(uitheme.Amber) })
+		btn.SetBlurFunc(func() { btn.SetBorderColor(uitheme.Line) })
 
 		btn.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 			if event.Key() == tcell.KeyEnter {
@@ -82,7 +74,7 @@ func createActionPanel(app *tview.Application, table *tview.Table,
 		AddItem(deleteBtn, 4, 0, false).
 		AddItem(switchBtn, 4, 0, false).
 		AddItem(exitBtn, 4, 0, false).
-		AddItem(tview.NewBox(), 0, 1, false)
+		AddItem(tview.NewBox().SetBackgroundColor(uitheme.Panel), 0, 1, false)
 
 	return actionPanel
 }

@@ -9,6 +9,7 @@ package sheetmanager
 
 import (
 	"gosheet/internal/services/sheetview"
+	"gosheet/internal/services/uitheme"
 
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
@@ -16,18 +17,9 @@ import (
 
 // ShowSheetManager displays the comprehensive sheet management dialog
 func ShowSheetManager(app *tview.Application, table *tview.Table, callbacks SheetManagerCallbacks) {
-	list := tview.NewList().
-		SetSelectedBackgroundColor(tcell.NewRGBColor(28, 110, 128)).
-		SetSelectedTextColor(tcell.ColorWhite).
-		SetMainTextColor(tcell.NewRGBColor(232, 236, 244)).
-		SetSecondaryTextColor(tcell.NewRGBColor(138, 160, 184)).
+	list := uitheme.StyleList(tview.NewList(), "Sheets").
 		ShowSecondaryText(true)
-	list.SetBorder(true).
-		SetTitle(" Sheets ").
-		SetTitleColor(tcell.NewRGBColor(240, 208, 144)).
-		SetBorderColor(tcell.NewRGBColor(70, 160, 170)).
-		SetBackgroundColor(tcell.NewRGBColor(14, 17, 26)).
-		SetTitleAlign(tview.AlignLeft)
+	list.SetTitleAlign(tview.AlignLeft)
 
 	updateSheetList(list, callbacks)
 
@@ -35,13 +27,10 @@ func ShowSheetManager(app *tview.Application, table *tview.Table, callbacks Shee
 		SetDynamicColors(true).
 		SetTextAlign(tview.AlignLeft).
 		SetWordWrap(true).
+		SetTextColor(uitheme.Text).
 		SetText(getWorkbookInfoText(callbacks.GetWorkbookInfo()))
-	infoPanel.SetBorder(true).
-		SetTitle(" This sheet ").
-		SetTitleColor(tcell.NewRGBColor(240, 208, 144)).
-		SetBorderColor(tcell.NewRGBColor(70, 160, 170)).
-		SetBackgroundColor(tcell.NewRGBColor(18, 22, 34)).
-		SetTitleAlign(tview.AlignLeft)
+	uitheme.Paint(infoPanel, "This sheet")
+	infoPanel.SetTitleAlign(tview.AlignLeft)
 
 	leftPanel := tview.NewFlex().SetDirection(tview.FlexRow).
 		AddItem(list, 0, 3, true).
@@ -51,19 +40,15 @@ func ShowSheetManager(app *tview.Application, table *tview.Table, callbacks Shee
 
 	hint := tview.NewTextView().
 		SetDynamicColors(true).
-		SetText(" [#f0d090]Enter[-] open    [#f0d090]Alt+N[-] new    [#f0d090]Alt+R[-] rename    [#f0d090]Alt+C[-] duplicate    [#f0d090]Alt+M[-] move    [#f0d090]Alt+D[-] delete    [#f0d090]Esc[-] back")
-	hint.SetBackgroundColor(tcell.NewRGBColor(14, 17, 26))
+		SetText(uitheme.Markup(" {val}Enter{end} open    {val}Alt+N{end} new    {val}Alt+R{end} rename    {val}Alt+C{end} duplicate    {val}Alt+M{end} move    {val}Alt+D{end} delete    {val}Esc{end} back")).
+		SetTextColor(uitheme.Text)
+	hint.SetBackgroundColor(uitheme.Ink)
 
 	mainLayout := tview.NewFlex().SetDirection(tview.FlexRow).
 		AddItem(mainContent, 0, 1, true).
 		AddItem(hint, 1, 0, false)
-	mainLayout.SetBackgroundColor(tcell.NewRGBColor(10, 12, 18))
-
-	mainLayout.SetBorder(true).
-		SetTitle(" Sheets ").
-		SetTitleColor(tcell.NewRGBColor(240, 208, 144)).
-		SetBorderColor(tcell.NewRGBColor(70, 160, 170)).
-		SetTitleAlign(tview.AlignCenter)
+	uitheme.Paint(mainLayout, "Sheets")
+	mainLayout.SetTitleAlign(tview.AlignCenter)
 
 	actionPanel := createActionPanel(app, table, callbacks, list, infoPanel)
 

@@ -12,6 +12,7 @@ import (
 	"gosheet/internal/services/cell"
 	"gosheet/internal/services/sheetview"
 	"gosheet/internal/services/ui/datavalidation"
+	"gosheet/internal/services/uitheme"
 	"gosheet/internal/utils"
 	"strconv"
 	"strings"
@@ -79,6 +80,7 @@ func buildEditCellForm(app *tview.Application, table *tview.Table, c, oldCell *c
 	globalViewport *utils.Viewport) (*tview.Flex, *tview.Form) {
 
 	container := tview.NewFlex()
+	var editModal *tview.Flex
 
 	// Left Column - Content & Type
 	leftForm := tview.NewForm()
@@ -133,7 +135,7 @@ func buildEditCellForm(app *tview.Application, table *tview.Table, c, oldCell *c
 		AddFormItem(dateTimeFormatDropdown)
 	styleCellForm(formatForm, "Number format")
 
-	// Right Column - Styling
+	// Style toggles and editing actions.
 	rightForm := tview.NewForm()
 	rightForm.AddCheckbox("Bold", c.HasFlag(cell.FlagBold), func(checked bool) { c.SetFlagState(cell.FlagBold, checked) })
 	rightForm.AddCheckbox("Italic", c.HasFlag(cell.FlagItalic), func(checked bool) { c.SetFlagState(cell.FlagItalic, checked) })
@@ -141,105 +143,66 @@ func buildEditCellForm(app *tview.Application, table *tview.Table, c, oldCell *c
 	rightForm.AddCheckbox("All Caps", c.HasFlag(cell.FlagAllCaps), func(checked bool) { c.SetFlagState(cell.FlagAllCaps, checked) })
 	rightForm.AddCheckbox("Strikethrough", c.HasFlag(cell.FlagStrikethrough), func(checked bool) { c.SetFlagState(cell.FlagStrikethrough, checked) })
 	rightForm.AddCheckbox("Editable", c.HasFlag(cell.FlagEditable), func(checked bool) { c.SetFlagState(cell.FlagEditable, checked) })
-	rightForm.AddButton("Data Validation", func() {
-		datavalidation.ShowValidationRuleDialog(app, table, container, rightForm.GetFormItem(0), globalData, globalViewport)
-	})
 	styleCellForm(rightForm, "Style")
+	rightForm.SetItemPadding(0)
 
-		// Colors panel — two stacked buttons
-	var setTextColorBtn, setBgColorBtn *tview.Button
-	setTextColorBtn = tview.NewButton("Set Text Color").
-		SetSelectedFunc(func() {
-			showCustomColorPicker(app, container, c, true, setTextColorBtn)
-		})
-	setBgColorBtn = tview.NewButton("Set Background Color").
-		SetSelectedFunc(func() {
-			showCustomColorPicker(app, container, c, false, setBgColorBtn)
-		})
-
-	for _, b := range []*tview.Button{setTextColorBtn, setBgColorBtn} {
-		b.SetBackgroundColor(btn)
-		b.SetLabelColor(tcell.ColorWhite)
-		b.SetBackgroundColorActivated(amber)
-		b.SetLabelColorActivated(ink)
-	}
-
-	// Tab / arrow cycles between the two buttons (wrap). Alt+arrows are
-	// handled at the container level for section navigation.
-	toggle := func(other *tview.Button) func(*tcell.EventKey) *tcell.EventKey {
-		return func(event *tcell.EventKey) *tcell.EventKey {
+	var validationButton, textColorButton, backgroundButton *tview.Button
+	validationButton = uitheme.StyleButton(tview.NewButton("Data Validation").SetSelectedFunc(func() {
+		datavalidation.ShowValidationRuleDialog(app, table, editModal, rightForm, globalData, globalViewport)
+	}))
+	textColorButton = uitheme.StyleButton(tview.NewButton("Text Color…").SetSelectedFunc(func() {
+		showCustomColorPicker(app, editModal, c, true, textColorButton)
+	}))
+	backgroundButton = uitheme.StyleButton(tview.NewButton("Background Color…").SetSelectedFunc(func() {
+		showCustomColorPicker(app, editModal, c, false, backgroundButton)
+	}))
+	actionButtons := []*tview.Button{validationButton, textColorButton, backgroundButton}
+	for i, button := range actionButtons {
+		i := i
+		button.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 			switch event.Key() {
-			case tcell.KeyTab, tcell.KeyBacktab, tcell.KeyDown, tcell.KeyUp:
-				app.SetFocus(other)
+			case tcell.KeyTab, tcell.KeyDown:
+				app.SetFocus(actionButtons[(i+1)%len(actionButtons)])
+				return nil
+			case tcell.KeyBacktab, tcell.KeyUp:
+				app.SetFocus(actionButtons[(i-1+len(actionButtons))%len(actionButtons)])
 				return nil
 			}
 			return event
-		}
+		})
 	}
-	setTextColorBtn.SetInputCapture(toggle(setBgColorBtn))
-	setBgColorBtn.SetInputCapture(toggle(setTextColorBtn))
-
-	spacer := func() tview.Primitive {
-		return tview.NewBox().SetBackgroundColor(panel)
-	}
-
-	textBtnRow := tview.NewFlex().
-		AddItem(spacer(), 2, 0, false).
-		AddItem(setTextColorBtn, 0, 1, true).
-		AddItem(spacer(), 2, 0, false)
-
-	bgBtnRow := tview.NewFlex().
-		AddItem(spacer(), 2, 0, false).
-		AddItem(setBgColorBtn, 0, 1, true).
-		AddItem(spacer(), 2, 0, false)
-
-	colorPanel := tview.NewFlex().SetDirection(tview.FlexRow).
-		AddItem(spacer(), 1, 0, false).
-		AddItem(textBtnRow, 3, 0, true).
-		AddItem(spacer(), 1, 0, false).
-		AddItem(bgBtnRow, 3, 0, true).
-		AddItem(spacer(), 1, 0, false)
-
-	colorPanel.SetBorder(true).
-		SetTitle(" Colors ").
-		SetTitleAlign(tview.AlignLeft).
-		SetTitleColor(amber).
-		SetBorderColor(line).
-		SetBackgroundColor(panel)
-
-	leftColumn := tview.NewFlex().SetDirection(tview.FlexRow).
-		AddItem(leftForm, 0, 1, false).
-		AddItem(formatForm, 0, 1, false)
+	actionPanel := tview.NewFlex().SetDirection(tview.FlexRow).
+		AddItem(validationButton, 1, 0, true).
+		AddItem(textColorButton, 1, 0, false).
+		AddItem(backgroundButton, 1, 0, false)
+	uitheme.Paint(actionPanel, "Actions")
 
 	rightColumn := tview.NewFlex().SetDirection(tview.FlexRow).
 		AddItem(rightForm, 0, 1, false).
-		AddItem(colorPanel, 11, 0, false)
+		AddItem(actionPanel, 5, 0, false)
 
 	columns := tview.NewFlex().
-		AddItem(leftColumn, 0, 1, false).
+		AddItem(leftForm, 0, 1, false).
+		AddItem(formatForm, 0, 1, false).
 		AddItem(rightColumn, 0, 1, false)
 
 	buttonBar := tview.NewFlex().SetDirection(tview.FlexRow)
 	buttonText := tview.NewTextView().
-		SetText(" [#f0d090]Alt+Shift+←/→[-] section    [#f0d090]Tab[-] next field    [#f0d090]Alt+S[-] save    [#f0d090]Esc[-] cancel").
+		SetText(uitheme.Markup(" {val}Alt+Shift+←/→{end} section    {val}Tab{end} next field    {val}Alt+S{end} save    {val}Esc{end} cancel")).
 		SetDynamicColors(true).
 		SetTextAlign(tview.AlignCenter)
-	buttonText.SetBackgroundColor(tcell.NewRGBColor(14, 17, 26))
+	buttonText.SetBackgroundColor(uitheme.Ink)
 	buttonBar.AddItem(buttonText, 1, 0, false)
 
 	container = tview.NewFlex().SetDirection(tview.FlexRow).
 		AddItem(columns, 0, 1, true).
 		AddItem(buttonBar, 1, 0, false)
-	container.SetBackgroundColor(tcell.NewRGBColor(10, 12, 18))
-
-	container.SetBorder(true).
-		SetTitle(fmt.Sprintf(" Edit %s%d ", utils.ColumnName(column), row)).
-		SetTitleAlign(tview.AlignCenter).
-		SetTitleColor(tcell.NewRGBColor(240, 208, 144)).
-		SetBorderColor(tcell.NewRGBColor(70, 160, 170))
+	uitheme.Paint(container, fmt.Sprintf("Edit %s%d", utils.ColumnName(column), row))
+	container.SetTitleAlign(tview.AlignCenter).SetBackgroundColor(uitheme.Ink)
+	editModal = uitheme.CenteredModal(container, 90, 18)
 
 	// Mixed *tview.Form and *tview.Flex — both expose SetBorderColor.
-	allSections := []tview.Primitive{leftForm, formatForm, rightForm, colorPanel}
+	allSections := []tview.Primitive{leftForm, formatForm, rightForm, actionPanel}
 	currentFormIndex := 0
 	markSection(allSections, 0)
 	var chords utils.AltChord
@@ -255,7 +218,7 @@ func buildEditCellForm(app *tview.Application, table *tview.Table, c, oldCell *c
 
 	container.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		if utils.HasAlt(event.Modifiers()) && (event.Rune() == 's' || event.Rune() == 'S') {
-			SaveCellFormButtonAndKeyMap(app, table, container, c, oldCell, row, column, leftForm, RecordCellEdit, EvaluateCell, RecalculateCell, globalData, globalViewport)
+			SaveCellFormButtonAndKeyMap(app, table, editModal, c, oldCell, row, column, leftForm, RecordCellEdit, EvaluateCell, RecalculateCell, globalData, globalViewport)
 			return nil
 		}
 		dir, consumed := chords.Handle(event, func(fn func()) { app.QueueUpdateDraw(fn) }, func() {
@@ -271,5 +234,5 @@ func buildEditCellForm(app *tview.Application, table *tview.Table, c, oldCell *c
 		return event
 	})
 
-	return container, leftForm
+	return editModal, leftForm
 }

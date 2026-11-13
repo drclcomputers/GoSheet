@@ -14,6 +14,7 @@ import (
 	"gosheet/internal/services/cell"
 	"gosheet/internal/services/fileop"
 	"gosheet/internal/services/sheetview"
+	"gosheet/internal/services/uitheme"
 	"gosheet/internal/utils"
 
 	"github.com/gdamore/tcell/v2"
@@ -75,12 +76,12 @@ func CreateTable(title string) *tview.Table {
 		SetFixed(1, 1).
 		SetSelectable(true, true).
 		SetSelectedStyle(tcell.StyleDefault.
-			Foreground(tcell.NewRGBColor(255, 255, 255)).
+			Foreground(uitheme.Text).
 			Background(selectBG).
 			Bold(true))
 	table.SetBorder(true).
-		SetBorderColor(tcell.NewRGBColor(70, 160, 170)).
-		SetTitleColor(tcell.NewRGBColor(240, 208, 144))
+		SetBorderColor(uitheme.Line).
+		SetTitleColor(uitheme.Amber)
 
 	SetCurrentFilename(table, title)
 	updateTableTitle(table)
@@ -243,7 +244,7 @@ func RenderVisible(table *tview.Table, vp *utils.Viewport, data map[[2]int]*cell
 			} else {
 				tvCell = tview.NewTableCell("").
 					SetAlign(tview.AlignLeft).
-					SetTextColor(tcell.NewRGBColor(232, 236, 244)).
+					SetTextColor(uitheme.Text).
 					SetBackgroundColor(sheetBG)
 			}
 
