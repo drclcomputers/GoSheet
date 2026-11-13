@@ -39,6 +39,7 @@ func TestSettingsRoundTrip(t *testing.T) {
 		ColumnWidth:   16,
 		SaveFormat:    ".xlsx",
 		RecentFiles:   3,
+		AutosaveMins:  3,
 	}
 	if err := SaveSettings(s); err != nil {
 		t.Fatal(err)
@@ -55,7 +56,7 @@ func TestSettingsRoundTrip(t *testing.T) {
 
 	DEFAULT_CELL_DECIMAL_POINTS = 2
 	got := LoadSettings()
-	if got.DecimalPoints != 4 || got.ColumnWidth != 16 || got.SaveFormat != ".xlsx" || got.RecentFiles != 3 {
+	if got.DecimalPoints != 4 || got.ColumnWidth != 16 || got.SaveFormat != ".xlsx" || got.RecentFiles != 3 || got.AutosaveMins != 3 {
 		t.Fatalf("reloaded %+v", got)
 	}
 	if DEFAULT_CELL_DECIMAL_POINTS != 4 {
@@ -64,9 +65,9 @@ func TestSettingsRoundTrip(t *testing.T) {
 }
 
 func TestSettingsRejectsUnsafeValues(t *testing.T) {
-	s := Settings{DecimalPoints: 99, Thousands: ",", DecimalSep: ",", Currency: "", ColumnWidth: 1, RecentFiles: 0, SaveFormat: "xlsx"}
+	s := Settings{DecimalPoints: 99, Thousands: ",", DecimalSep: ",", Currency: "", ColumnWidth: 1, RecentFiles: 0, SaveFormat: "xlsx", AutosaveMins: 61}
 	s = s.normalized()
-	if s.DecimalPoints != 8 || s.ColumnWidth != 4 || s.RecentFiles != 1 || s.SaveFormat != ".gsheet" {
+	if s.DecimalPoints != 8 || s.ColumnWidth != 4 || s.RecentFiles != 1 || s.SaveFormat != ".gsheet" || s.AutosaveMins != 60 {
 		t.Fatalf("normalized %+v", s)
 	}
 	if s.DecimalSep == s.Thousands {
@@ -77,4 +78,13 @@ func TestSettingsRejectsUnsafeValues(t *testing.T) {
 		t.Fatalf("viewport %d x %d width %d", DEFAULT_VIEWPORT_COLS, DEFAULT_VIEWPORT_ROWS, DEFAULT_CELL_MIN_WIDTH)
 	}
 	DefaultSettings().apply()
+}
+
+func TestSettingsDefaultAutosaveInterval(t *testing.T) {
+	if got := DefaultSettings().AutosaveMins; got != 5 {
+		t.Fatalf("default autosave interval = %d, want 5", got)
+	}
+	if got := (Settings{}).normalized().AutosaveMins; got != 5 {
+		t.Fatalf("normalized autosave interval = %d, want 5", got)
+	}
 }

@@ -213,6 +213,10 @@ func (c *Cell) Clone() *Cell {
 		valruleCopy := *c.Valrule
 		clone.Valrule = &valruleCopy
 	}
+	if c.Valrulemsg != nil {
+		valrulemsgCopy := *c.Valrulemsg
+		clone.Valrulemsg = &valrulemsgCopy
+	}
 	if c.DateTimeFormat != nil {
 		dateTimeFormatCopy := *c.DateTimeFormat
 		clone.DateTimeFormat = &dateTimeFormatCopy

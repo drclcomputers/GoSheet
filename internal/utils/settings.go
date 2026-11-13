@@ -20,6 +20,7 @@ type Settings struct {
 	ColumnWidth   int    `json:"columnWidth"`
 	SaveFormat    string `json:"saveFormat"`
 	RecentFiles   int    `json:"recentFiles"`
+	AutosaveMins  int    `json:"autosaveMinutes"`
 }
 
 func DefaultSettings() Settings {
@@ -31,6 +32,7 @@ func DefaultSettings() Settings {
 		ColumnWidth:   10,
 		SaveFormat:    ".gsheet",
 		RecentFiles:   10,
+		AutosaveMins:  5,
 	}
 }
 
@@ -43,6 +45,15 @@ func configPath() string {
 		return ""
 	}
 	return filepath.Join(home, ".gosheet", "options.json")
+}
+
+// RecoveryFilePath returns the recovery snapshot path beside the settings file.
+func RecoveryFilePath() (string, error) {
+	path := configPath()
+	if path == "" {
+		return "", os.ErrNotExist
+	}
+	return filepath.Join(filepath.Dir(path), "recovery.gsheet"), nil
 }
 
 // LoadSettings reads the saved options. A missing or broken file is ignored
@@ -111,6 +122,12 @@ func (s Settings) normalized() Settings {
 	}
 	if s.RecentFiles > 20 {
 		s.RecentFiles = 20
+	}
+	if s.AutosaveMins < 1 {
+		s.AutosaveMins = 5
+	}
+	if s.AutosaveMins > 60 {
+		s.AutosaveMins = 60
 	}
 	if s.SaveFormat == "" || !stringsHasDot(s.SaveFormat) {
 		s.SaveFormat = ".gsheet"

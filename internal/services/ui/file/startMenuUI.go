@@ -92,7 +92,7 @@ func StartMenuUI(app *tview.Application) string {
 
 	openFileBtn.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		if event.Key() == tcell.KeyEnter {
-			ShowUnifiedFileDialog(app, container, "open", nil, nil, nil, nil, nil, "")
+			ShowUnifiedFileDialog(app, container, "open", nil, nil, nil, nil, nil, "", nil)
 		}
 		return event
 	})
@@ -158,7 +158,7 @@ func StartMenuUI(app *tview.Application) string {
 			selectFile(app, "THERE_IS_NO_FILE_SELECTED")
 			return nil
 		case event.Rune() == 'o' && event.Modifiers()&tcell.ModAlt != 0:
-			ShowUnifiedFileDialog(app, container, "open", nil, nil, nil, nil, nil, "")
+			ShowUnifiedFileDialog(app, container, "open", nil, nil, nil, nil, nil, "", nil)
 			return nil
 		case event.Key() == tcell.KeyLeft && (event.Modifiers() == 0 || utils.HasAlt(event.Modifiers())),
 			event.Key() == tcell.KeyBacktab:

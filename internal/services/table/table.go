@@ -22,6 +22,7 @@ import (
 )
 
 var globalWorkbook *Workbook
+var recoveryClearHook func()
 
 // GetWorkbookSheets returns the current workbook's sheets in fileop format
 func GetWorkbookSheets() (sheets []fileop.SheetInfo, activeSheet int) {
@@ -269,6 +270,37 @@ func MarkAsSaved(table *tview.Table) {
 		globalWorkbook.HasChanges = false
 		updateTableTitle(table)
 	}
+	ClearRecoverySnapshot()
+}
+
+// ClearRecoverySnapshot invalidates any queued recovery write and removes the
+// last completed snapshot.
+func ClearRecoverySnapshot() {
+	if recoveryClearHook != nil {
+		recoveryClearHook()
+	}
+}
+
+// SetRecoveryClearHook registers the callback used to clear recovery data after
+// a successful manual save.
+func SetRecoveryClearHook(hook func()) {
+	recoveryClearHook = hook
+}
+
+// CaptureRecoverySnapshot returns a detached copy of a dirty workbook.
+func CaptureRecoverySnapshot() ([]fileop.SheetInfo, int, bool) {
+	if globalWorkbook == nil || !globalWorkbook.HasChanges {
+		return nil, 0, false
+	}
+	sheets, activeSheet := GetWorkbookSheets()
+	for i := range sheets {
+		copied := make(map[[2]int]*cell.Cell, len(sheets[i].GlobalData))
+		for coord, cellData := range sheets[i].GlobalData {
+			copied[coord] = cellData.Clone()
+		}
+		sheets[i].GlobalData = copied
+	}
+	return sheets, activeSheet, true
 }
 
 // SetCurrentFilename sets the current filename and updates title

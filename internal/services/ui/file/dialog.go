@@ -22,7 +22,7 @@ import (
 )
 
 // ShowUnifiedFileDialog displays a unified file browser/selector for open and save operations
-func ShowUnifiedFileDialog(app *tview.Application, returnTo tview.Primitive, mode string, globalData map[[2]int]*cell.Cell, table *tview.Table, SetCurrentFilename func(table *tview.Table, filename string), MarkAsSaved func(table *tview.Table), HasUnsavedChanges func() bool, currentFilename string) {
+func ShowUnifiedFileDialog(app *tview.Application, returnTo tview.Primitive, mode string, globalData map[[2]int]*cell.Cell, table *tview.Table, SetCurrentFilename func(table *tview.Table, filename string), MarkAsSaved func(table *tview.Table), HasUnsavedChanges func() bool, currentFilename string, clearRecovery func()) {
 	homeDir, _ := os.UserHomeDir()
 	docsPath := filepath.Join(homeDir, "Documents")
 	if _, err := os.Stat(docsPath); os.IsNotExist(err) {
@@ -380,8 +380,11 @@ func ShowUnifiedFileDialog(app *tview.Application, returnTo tview.Primitive, mod
 				SetDoneFunc(func(buttonIndex int, buttonLabel string) {
 					switch buttonLabel {
 					case "Save":
-						ShowUnifiedFileDialog(app, table, "save", globalData, table, SetCurrentFilename, MarkAsSaved, HasUnsavedChanges, currentFilename)
+						ShowUnifiedFileDialog(app, table, "save", globalData, table, SetCurrentFilename, MarkAsSaved, HasUnsavedChanges, currentFilename, clearRecovery)
 					case "Discard":
+						if clearRecovery != nil {
+							clearRecovery()
+						}
 						app.Stop()
 					case "Cancel":
 						sheetview.Show(app)

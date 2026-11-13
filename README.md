@@ -334,6 +334,9 @@ On the start screen, **Options** stores a few defaults in `~/.gosheet/options.js
 | Column width                                                | Width of **new** cells, from 4 to 40 characters.                                                           |
 | Save format                                                 | The format offered first when the file has no extension yet. A file that is already `.xlsx` stays `.xlsx`. |
 | Recent files                                                | How many paths to keep (1–20). **Clear recent** asks before it wipes the list.                             |
+| Autosave interval                                           | How often dirty workbooks are saved to a recovery snapshot (1–60 minutes; default 5).                      |
+
+If GoSheet exits unexpectedly, the next launch offers to recover the latest snapshot. Recovered workbooks open as untitled and unsaved; a successful manual save or an explicit discard clears the snapshot.
 
 ---
 

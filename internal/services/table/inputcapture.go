@@ -31,7 +31,7 @@ func InputCaptureService(app *tview.Application, table *tview.Table, vp *utils.V
 
 		if event.Key() == tcell.KeyCtrlC {
 			modal := tview.NewModal().
-				SetText("Ctrl+C detected. Exiting...\nUnsaved edits will be lost.").
+				SetText("Ctrl+C detected. Exiting...\nUnsaved edits may be restored from the autosave recovery file.").
 				AddButtons([]string{"OK"}).
 				SetDoneFunc(func(buttonIndex int, buttonLabel string) {
 					app.Stop()
@@ -323,7 +323,7 @@ func InputCaptureService(app *tview.Application, table *tview.Table, vp *utils.V
 
 		// ESCAPE / Alt + S - Show Save Dialog
 		case event.Key() == tcell.KeyEscape || ((event.Rune() == 's' || event.Rune() == 'S') && event.Modifiers()&tcell.ModAlt != 0):
-			file.ShowUnifiedFileDialog(app, table, "save", activeData, table, SetCurrentFilename, MarkAsSaved, HasUnsavedChanges, GetCurrentFilename())
+			file.ShowUnifiedFileDialog(app, table, "save", activeData, table, SetCurrentFilename, MarkAsSaved, HasUnsavedChanges, GetCurrentFilename(), ClearRecoverySnapshot)
 			return nil
 
 		// Type-to-replace. Alt chords are handled above.

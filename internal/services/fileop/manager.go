@@ -10,6 +10,7 @@ package fileop
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 )
 
 // FileManager handles all file operations with format detection
@@ -204,4 +205,51 @@ func SaveWorkbook(sheets []SheetInfo, activeSheet int, filename string) error {
 // SaveWorkbookAs saves with explicit format
 func SaveWorkbookAs(sheets []SheetInfo, activeSheet int, filename string, format FileFormat) error {
 	return GetDefaultManager().SaveAs(filename, sheets, activeSheet, format)
+}
+
+// SaveRecoveryWorkbook atomically replaces the recovery snapshot with a native
+// workbook file. The temporary file retains the .gsheet suffix for detection.
+func SaveRecoveryWorkbook(filename string, sheets []SheetInfo, activeSheet int) error {
+	if filepath.Ext(filename) != ".gsheet" {
+		return fmt.Errorf("recovery file must use the .gsheet extension")
+	}
+	dir := filepath.Dir(filename)
+	if err := os.MkdirAll(dir, 0o700); err != nil {
+		return fmt.Errorf("create recovery directory: %w", err)
+	}
+
+	temp, err := os.CreateTemp(dir, ".gosheet-recovery-*.gsheet")
+	if err != nil {
+		return fmt.Errorf("create recovery snapshot: %w", err)
+	}
+	tempPath := temp.Name()
+	if err := temp.Close(); err != nil {
+		os.Remove(tempPath)
+		return fmt.Errorf("close temporary recovery snapshot: %w", err)
+	}
+	defer os.Remove(tempPath)
+
+	if err := (&NativeFormatHandler{}).Write(tempPath, sheets, activeSheet); err != nil {
+		return fmt.Errorf("write recovery snapshot: %w", err)
+	}
+	if err := os.Chmod(tempPath, 0o600); err != nil {
+		return fmt.Errorf("secure recovery snapshot: %w", err)
+	}
+
+	file, err := os.Open(tempPath)
+	if err != nil {
+		return fmt.Errorf("open recovery snapshot for sync: %w", err)
+	}
+	if err := file.Sync(); err != nil {
+		file.Close()
+		return fmt.Errorf("sync recovery snapshot: %w", err)
+	}
+	if err := file.Close(); err != nil {
+		return fmt.Errorf("close recovery snapshot: %w", err)
+	}
+	if err := os.Rename(tempPath, filename); err != nil {
+		return fmt.Errorf("replace recovery snapshot: %w", err)
+	}
+
+	return nil
 }

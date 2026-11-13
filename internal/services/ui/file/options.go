@@ -35,6 +35,7 @@ func ShowOptions(app *tview.Application, returnTo tview.Primitive, onClose func(
 	form.AddDropDown("Save format:", formats, formatIndex, nil)
 	form.AddInputField("Column width:", strconv.Itoa(current.ColumnWidth), 4, digitsOnly, nil)
 	form.AddInputField("Recent files:", strconv.Itoa(current.RecentFiles), 4, digitsOnly, nil)
+	form.AddInputField("Autosave (minutes):", strconv.Itoa(current.AutosaveMins), 4, digitsOnly, nil)
 
 	closeBack := func() {
 		if onClose != nil {
@@ -74,7 +75,7 @@ func ShowOptions(app *tview.Application, returnTo tview.Primitive, onClose func(
 	})
 	form.AddButton("Cancel", closeBack)
 
-	uitheme.StyleForm(form, "Options  ·  used for new cells, and kept after restart")
+	uitheme.StyleForm(form, "Options  ·  autosave interval takes effect after restart")
 	form.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		if event.Key() == tcell.KeyEscape {
 			closeBack()
@@ -126,6 +127,12 @@ func readOptions(form *tview.Form) (utils.Settings, error) {
 		return s, fmt.Errorf("Recent files must be a number from 1 to 20.")
 	}
 	s.RecentFiles = recent
+
+	autosave, err := strconv.Atoi(strings.TrimSpace(form.GetFormItem(7).(*tview.InputField).GetText()))
+	if err != nil || autosave < 1 || autosave > 60 {
+		return s, fmt.Errorf("Autosave interval must be a number from 1 to 60 minutes.")
+	}
+	s.AutosaveMins = autosave
 	return s, nil
 }
 
